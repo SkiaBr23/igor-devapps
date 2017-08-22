@@ -14,8 +14,8 @@ import br.unb.igor.R;
 public class SplashScreen extends Activity {
 
     private ImageView logoAppSplashScreen;
-    private static int SPLASH_SCREEN_TIMEOUT = 3000;
-    private static int ANIMATION_LOGO = 2000;
+    private static int SPLASH_SCREEN_TIMEOUT = 1800;
+    private static int ANIMATION_LOGO = 1400;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +29,7 @@ public class SplashScreen extends Activity {
             @Override
             public void run() {
                 Animation anim = new TranslateAnimation(Animation.ABSOLUTE,Animation.ABSOLUTE,Animation.ABSOLUTE,-600);
-                anim.setDuration(2000);
+                anim.setDuration(1300);
                 anim.setFillAfter(true);
                 logoAppSplashScreen.startAnimation(anim);
                 new Handler().postDelayed(new Runnable() {

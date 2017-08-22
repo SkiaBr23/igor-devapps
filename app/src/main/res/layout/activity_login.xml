@@ -23,9 +23,108 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="0dp"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
         android:src="@drawable/igor_login_igor_icon"
         />
+
+    <ImageView
+        android:id="@+id/btnFacebook"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_width="200dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="150dp"
+        android:src="@drawable/igor_signup_botao_facebook"
+        />
+
+    <TextView
+        android:id="@+id/txtSeparador"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/txtSeparadoLogin"
+        android:textColor="@color/branco"
+        app:layout_constraintTop_toBottomOf="@+id/btnFacebook"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginTop="20dp"
+        />
+
+    <EditText
+        android:id="@+id/emailLogin"
+        android:layout_width="250dp"
+        android:hint="E-mail"
+        android:maxLines="1"
+        android:textColor="@color/branco"
+        android:textColorHint="@color/branco"
+        android:inputType="textEmailAddress"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/branco"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtSeparador"
+        />
+
+    <EditText
+        android:id="@+id/senhaLogin"
+        android:layout_width="250dp"
+        android:hint="Senha"
+        android:textColor="@color/branco"
+        android:inputType="textPassword"
+        android:textColorHint="@color/branco"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/branco"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/emailLogin"
+        />
+
+    <CheckBox
+        android:id="@+id/checkBoxConectado"
+        app:layout_constraintTop_toBottomOf="@+id/senhaLogin"
+        app:layout_constraintLeft_toLeftOf="@+id/senhaLogin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/branco"
+        android:buttonTint="@color/branco"
+        android:text="@string/manterConectado"
+        />
+
+    <Button
+        android:id="@+id/btnEntrar"
+        android:layout_width="120dp"
+        android:background="@color/btnEntrar"
+        android:layout_height="40dp"
+        android:textStyle="bold"
+        android:text="@string/btnEntrar"
+        android:layout_marginTop="20dp"
+        app:layout_constraintRight_toRightOf="@+id/senhaLogin"
+        app:layout_constraintTop_toBottomOf="@+id/checkBoxConectado"
+        />
+
+    <TextView
+        android:id="@+id/txtCriarConta"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/btnEntrar"
+        app:layout_constraintLeft_toLeftOf="@+id/checkBoxConectado"
+        app:layout_constraintTop_toBottomOf="@+id/btnEntrar"
+        android:text="@string/criarConta"/>
+
+    <TextView
+        android:id="@+id/txtEsqueciSenha"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/branco"
+        app:layout_constraintRight_toRightOf="@+id/btnEntrar"
+        app:layout_constraintTop_toBottomOf="@+id/btnEntrar"
+        android:text="@string/esqueciSenha"/>
+
+
+
+
 
 </android.support.constraint.ConstraintLayout>

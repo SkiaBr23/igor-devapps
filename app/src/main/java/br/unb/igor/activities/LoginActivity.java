@@ -6,7 +6,7 @@ import android.os.Bundle;
 
 import br.unb.igor.R;
 
-public class LoginActivity extends Activity {
+public class LoginActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">Igor</string>
+    <string name="txtSeparadoLogin">OU</string>
+    <string name="manterConectado">   manter-me conectado</string>
+    <string name="btnEntrar">ENTRAR</string>
+    <string name="criarConta">criar conta</string>
+    <string name="esqueciSenha">esqueci minha senha</string>
 </resources>
