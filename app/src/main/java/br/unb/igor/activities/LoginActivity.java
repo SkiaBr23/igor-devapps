@@ -46,6 +46,9 @@ public class LoginActivity extends AppCompatActivity {
                     editTextSenha.setTextColor(Color.BLACK);
                 } else {
                     //LOGAR
+                    Intent homeIntent = new Intent (LoginActivity.this, HomeActivity.class);
+                    startActivity(homeIntent);
+                    overridePendingTransition(R.anim.fade_in_one,R.anim.fade_out);
                 }
             }
         });
