@@ -14,7 +14,7 @@ import br.unb.igor.R;
 public class SplashScreen extends Activity {
 
     private ImageView logoAppSplashScreen;
-    private static int SPLASH_SCREEN_TIMEOUT = 1800;
+    private static int SPLASH_SCREEN_TIMEOUT = 1400;
     private static int ANIMATION_LOGO = 1400;
 
     @Override
