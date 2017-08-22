@@ -5,11 +5,11 @@ import android.os.Bundle;
 
 import br.unb.igor.R;
 
-public class MainActivity extends AppCompatActivity {
+public class CriarContaActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_criar_conta);
     }
 }
