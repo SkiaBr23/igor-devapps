@@ -2,7 +2,7 @@
 <android.support.v4.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/drawer_layout"
+    android:id="@+id/drawer"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -19,31 +19,42 @@
             android:background="@color/bgnToolbar"
             android:fitsSystemWindows="true"
             android:minHeight="?attr/actionBarSize"
-            app:theme="@style/Base.Theme.AppCompat.Light.DarkActionBar">
+            app:contentInsetLeft="0dp"
+            app:contentInsetStart="0dp"
+            app:theme="@style/Base.Theme.AppCompat.Light.DarkActionBar"
+            android:weightSum="1">
 
             <android.support.constraint.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize">
+                android:layout_height="?attr/actionBarSize"
+                android:layout_weight="0.81">
 
                 <ImageView
                     android:id="@+id/btnMenuLateral"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_margin="20dp"
+                    android:padding="50dp"
+                    android:scaleX="0.5"
+                    android:scaleY="0.5"
                     android:background="@drawable/igor_barra_navegacao_lateral"
-                    app:layout_constraintLeft_toLeftOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
+                    android:cropToPadding="true"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    android:layout_marginStart="12dp"/>
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
                     android:id="@+id/btnMenu"
-                    android:layout_width="5dp"
-                    android:layout_height="20dp"
+                    android:layout_width="25dp"
+                    android:layout_height="40dp"
+                    android:scaleX="0.2"
+                    android:scaleY="0.5"
+                    android:layout_margin="20dp"
                     android:background="@drawable/igor_barra_navegacao_menu"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    android:layout_marginEnd="35dp"/>
+                    />
 
                 <ImageView
                     android:id="@+id/logoToolbar"
@@ -67,14 +78,24 @@
 
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/left_drawer"
-        android:layout_width="240dp"
+    <LinearLayout
+        android:layout_width="300dp"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:choiceMode="singleChoice"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dp"
-        android:background="#111"
-    />
+        android:background="@color/bgnToolbar">
+
+        <ListView
+            android:id="@+id/drawer_options"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="56dp"
+            android:choiceMode="singleChoice"
+            android:divider="@android:color/transparent"
+            android:dividerHeight="8dp"
+            android:background="@color/bgnToolbar"
+            android:descendantFocusability="blocksDescendants"
+            />
+
+    </LinearLayout>
+
 </android.support.v4.widget.DrawerLayout>
