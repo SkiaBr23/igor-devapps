@@ -104,14 +104,14 @@ public class FragmentLogin extends Fragment {
             .build();
         // [END configure_signin]
 
-        mAuthListener = new FirebaseAuth.AuthStateListener() {
+      /*  mAuthListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
             FirebaseUser user = firebaseAuth.getCurrentUser();
             if (user != null) {
                 // User is signed in
                 Log.d(TAG, "onAuthStateChanged:signed_in:" + user.getUid());
-                if (user.getProviders().contains("facebook.com")/* && AccessToken.getCurrentAccessToken() != null */) {
+                if (user.getProviders().contains("facebook.com")*//* && AccessToken.getCurrentAccessToken() != null *//*) {
                     loggedFacebook = true;
                 } else if (user.getProviders().contains("google.com")) {
                     loggedGoogle = true;
@@ -132,7 +132,7 @@ public class FragmentLogin extends Fragment {
             }
             // ...
             }
-        };
+        };*/
 
         // [START build_client]
         // Build a GoogleApiClient with access to the Google Sign-In API and the
