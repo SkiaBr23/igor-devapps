@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 
 import br.unb.igor.R;
 
-public class FragmentHome extends android.support.v4.app.Fragment {
+public class FragmentHome extends Fragment {
 
     private static String TAG = FragmentHome.class.getName();
     private FloatingActionButton btnCriarAventura;

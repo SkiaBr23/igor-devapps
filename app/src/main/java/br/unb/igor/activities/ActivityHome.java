@@ -7,7 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import br.unb.igor.R;
 import br.unb.igor.fragments.FragmentCriarAventura;
 import br.unb.igor.fragments.FragmentHome;
-import br.unb.igor.fragments.FragmentLogin;
 
 public class ActivityHome extends AppCompatActivity implements FragmentHome.OnFragmentInteractionListener {
 
@@ -20,7 +19,7 @@ public class ActivityHome extends AppCompatActivity implements FragmentHome.OnFr
 
         fragmentHome = new FragmentHome();
         if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction().replace(R.id.content_frame,fragmentHome).addToBackStack("homeFragment").commit();
+            getFragmentManager().beginTransaction().replace(R.id.content_frame,fragmentHome).addToBackStack("homeFragment").commit();
         }
     }
 

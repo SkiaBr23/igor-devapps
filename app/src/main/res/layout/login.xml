@@ -96,7 +96,6 @@
         android:layout_width="200dp"
         android:layout_height="40dp"
         android:text="@string/common_signin_button_text_long"
-        tools:layout_editor_absoluteX="0dp"
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/txtSeparador" />
     <Button
@@ -130,6 +129,21 @@
         app:layout_constraintRight_toRightOf="@+id/btnEntrar"
         app:layout_constraintTop_toBottomOf="@+id/btnEntrar"
         android:text="@string/esqueciSenha"/>
+
+    <!-- Login facebook button -->
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/fb_login_button"
+        android:layout_width="0dp"
+        app:layout_constraintRight_toRightOf="@+id/btnEntrar"
+        app:layout_constraintTop_toBottomOf="@+id/btnEntrar"
+        android:layout_height="0dp"
+        android:paddingTop="11dp"
+        android:paddingBottom="11dp"
+        android:textSize="15sp"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone"
+        tools:layout_editor_absoluteY="8dp"
+        tools:layout_editor_absoluteX="0dp" />
 
 
 

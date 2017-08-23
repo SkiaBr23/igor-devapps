@@ -9,7 +9,6 @@ import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 
 import br.unb.igor.R;
-import br.unb.igor.fragments.FragmentLogin;
 
 public class SplashScreen extends Activity {
 
@@ -34,7 +33,7 @@ public class SplashScreen extends Activity {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                Intent mainIntent = new Intent(SplashScreen.this, ActivityHome.class);
+                Intent mainIntent = new Intent(SplashScreen.this,ActivityHome.class);
                 startActivity(mainIntent);
                 overridePendingTransition(R.anim.fade_in_one, R.anim.fade_none);
                 finish();
