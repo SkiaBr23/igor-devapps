@@ -27,22 +27,23 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+
+    // FirebaseUI Auth only
+    // Required only if Facebook login support is required
+    // Single target that includes all FirebaseUI libraries above
+
     compile 'com.android.support:appcompat-v7:26.0.1'
     compile 'com.android.support:design:26.0.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-
-    // FirebaseUI Auth only
     compile 'com.google.firebase:firebase-core:10.2.6'
     compile 'com.google.firebase:firebase-auth:10.2.6'
     compile 'com.google.firebase:firebase-database:10.2.6'
     compile 'com.google.android.gms:play-services-auth:10.2.6'
-    // Required only if Facebook login support is required
-    compile('com.facebook.android:facebook-android-sdk:4.22.1')
+    compile 'com.facebook.android:facebook-android-sdk:4.22.1'
     testCompile 'junit:junit:4.12'
-    // Single target that includes all FirebaseUI libraries above
-
 }
 
 apply plugin: 'com.google.gms.google-services'
+
 
 

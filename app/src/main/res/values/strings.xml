@@ -6,4 +6,6 @@
     <string name="criarConta">criar conta</string>
     <string name="esqueciSenha">esqueci minha senha</string>
     <string name="web_client_id">884992431665-bnqh675rqram2pl469o8pnetfu1s3579.apps.googleusercontent.com</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="action_settings">Settings</string>
 </resources>

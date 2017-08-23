@@ -9,12 +9,12 @@
     <color name="btnEntrar">#00e2ba</color>
     <color name="fundoCriarConta">#ffe2e2e1</color>
     <color name="toolbarColor">#ff221133</color>
-
     <!-- Cores das SeekBar -->
     <color name="corSeekBarUm">#ff435a</color>
     <color name="corSeekBarDois">#060408</color>
     <color name="corSeekBarTres">#ff00e2ba</color>
     <color name="corSeekBarQuatro">#ffff3d55</color>
     <color name="corSeekBarCinco">#ff221133</color>
-
+    <color name="bgnColor">#126d6e</color>
+    <color name="bgnToolbar">#221133</color>
 </resources>
