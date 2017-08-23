@@ -2,12 +2,98 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/fundoCriarAventura"
     tools:context="br.unb.igor.fragments.FragmentCriarAventura">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/boxCriarAventura"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:background="@drawable/fundo_criar_conta"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="40dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp">
+
+        <ImageView
+            android:id="@+id/btnCloseAventura"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_close"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp"/>
+
+        <TextView
+            android:id="@+id/txtCriarAventura"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toRightOf="@id/btnCloseAventura"
+            android:text="Criar Aventura"
+            android:textSize="14sp"
+            android:layout_marginStart="5dp"
+            android:textStyle="bold"
+            android:textColor="@color/fundoCriarAventura"
+            android:layout_marginTop="12dp" />
+
+        <TextView
+            android:id="@+id/txtTituloAventura"
+            android:layout_width="wrap_content"
+            android:textStyle="bold"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/txtCriarAventura"
+            app:layout_constraintLeft_toLeftOf="@+id/txtCriarAventura"
+            android:layout_marginTop="20dp"
+            android:textSize="14sp"
+            android:hint="Dê um nome à sua aventura"
+            />
+
+        <EditText
+            android:id="@+id/editTituloAventura"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtTituloAventura"
+            app:layout_constraintLeft_toLeftOf="@+id/txtTituloAventura"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="35dp"
+            android:textColor="@color/preto"
+            android:textStyle="bold"
+            android:hint="Defina seu título aqui"
+            />
+
+        <Button
+            android:id="@+id/btnConfirmarAventura"
+            android:layout_width="100dp"
+            android:background="@color/btnConfirmarAventura"
+            android:layout_height="35dp"
+            android:textStyle=""
+            android:textColor="@color/branco"
+            android:text="PRONTO"
+            android:layout_marginTop="20dp"
+            android:textSize="18sp"
+            app:layout_constraintRight_toRightOf="@+id/editTituloAventura"
+            app:layout_constraintTop_toBottomOf="@+id/editTituloAventura"
+            />
+
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btnCriarAventura"
+        android:layout_width="100dp"
+        app:borderWidth="0dp"
+        android:backgroundTint="@android:color/transparent"
+        app:elevation="0dp"
+        android:layout_height="100dp"
+        android:layout_gravity="right"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/botao_criar_nova_aventura_verde"
+        />
+
 
 </FrameLayout>

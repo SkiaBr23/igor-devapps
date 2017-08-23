@@ -17,4 +17,8 @@
     <color name="corSeekBarCinco">#ff221133</color>
     <color name="bgnColor">#126d6e</color>
     <color name="bgnToolbar">#221133</color>
+
+    <color name="btnConfirmarAventura">#ff0b9c8d</color>
+
+    <color name="fundoCriarAventura">#ff146e6f</color>
 </resources>
