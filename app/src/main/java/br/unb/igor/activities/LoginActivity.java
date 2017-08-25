@@ -21,6 +21,7 @@ import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.Auth;
@@ -103,6 +104,8 @@ public class LoginActivity extends AppCompatActivity implements
         esqueciSenha.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Toast.makeText(LoginActivity.this, "Signing out...",
+                        Toast.LENGTH_SHORT).show();
             FirebaseAuth.getInstance().signOut();
             }
         });
@@ -124,27 +127,27 @@ public class LoginActivity extends AppCompatActivity implements
         btnEntrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            if (editTextEmail.getText().toString().length() == 0) {
-                editTextEmail.setError("Preencha com seu e-mail!");
-                editTextEmail.setTextColor(Color.BLACK);
-            } else if (editTextSenha.getText().toString().length() == 0) {
-                editTextSenha.setError("Preencha com sua senha!");
-                editTextSenha.setTextColor(Color.BLACK);
+            if(loggedGoogle || loggedFacebook || loggedEmail) {
+                userDataRegistered(mAuth.getCurrentUser());
+                callMainActivity();
             } else {
-                if(loggedGoogle || loggedFacebook || loggedEmail) {
-                    userDataRegistered(mAuth.getCurrentUser());
-                    callMainActivity();
-                } else {
-                    loginWithPassword();
+                if (editTextEmail.getText().toString().length() == 0) {
+                    editTextEmail.setError("Preencha com seu e-mail!");
+                    editTextEmail.setTextColor(Color.BLACK);
+                } else if (editTextSenha.getText().toString().length() == 0) {
+                    editTextSenha.setError("Preencha com sua senha!");
+                    editTextSenha.setTextColor(Color.BLACK);
                 }
+                loginWithPassword();
             }
+
             }
         });
 
         criarConta.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                callSignupActivity();
             }
         });
 
@@ -241,6 +244,12 @@ public class LoginActivity extends AppCompatActivity implements
                 }
             }
         };
+    }
+
+    private void callSignupActivity() {
+        // Start the Signup activity
+        Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
+        startActivityForResult(intent, REQUEST_SIGNUP);
     }
 
     @Override
@@ -343,6 +352,10 @@ public class LoginActivity extends AppCompatActivity implements
                         }
                     });
         }
+
+        if(loggedFacebook){
+            LoginManager.getInstance().logOut();
+        }
     }
     // [END signOut]
 
@@ -408,10 +421,10 @@ public class LoginActivity extends AppCompatActivity implements
     }
 
     public void callMainActivity(){
-     /*   Intent mainIntent = new Intent(LoginActivity.this,MainActivity.class);
+        Intent mainIntent = new Intent(LoginActivity.this,ActivityHome.class);
         startActivity(mainIntent);
-        overridePendingTransition(R.anim.fade_in_one,R.anim.fade_out);
-        finish();*/
+        overridePendingTransition(R.anim.fade_in_one,R.anim.fade_in_one);
+        finish();
     }
 
     @Override
