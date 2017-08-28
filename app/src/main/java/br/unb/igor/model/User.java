@@ -1,8 +1,6 @@
 package br.unb.igor.model;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class User {
@@ -14,6 +12,8 @@ public class User {
     private String password;
     private String profilePictureUrl;
     private String phoneNumber;
+    private String gender;
+    private String birthDate;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
 
@@ -26,6 +26,15 @@ public class User {
         this.fullName = fullName;
         this.email = email;
         this.profilePictureUrl = profilePictureUrl;
+    }
+
+    public User(String userId, String fullName, String email, String profilePictureUrl, String gender, String birthDate) {
+        this.userId = userId;
+        this.fullName = fullName;
+        this.email = email;
+        this.profilePictureUrl = profilePictureUrl;
+        this.gender = gender;
+        this.birthDate = birthDate;
     }
 
     public User(String userId, String fullName, String name, String email, String password, String profilePictureUrl, String phoneNumber) {

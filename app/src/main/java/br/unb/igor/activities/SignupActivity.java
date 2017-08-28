@@ -1,15 +1,11 @@
 package br.unb.igor.activities;
 
-import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -34,6 +30,8 @@ public class SignupActivity extends AppCompatActivity {
     Button _loginLink;
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
+    private EditText _genderText;
+    private EditText _birthDateText;
 
 
     @Override
@@ -47,6 +45,8 @@ public class SignupActivity extends AppCompatActivity {
         this._emailText = (EditText) findViewById(R.id.emailLoginCadastro);
         this._passwordText = (EditText) findViewById(R.id.senhaLoginCadastro);
         this._signupButton = (Button) findViewById(R.id.btnCriarConta);
+        this._genderText = (EditText) findViewById(R.id.sexoLoginCadastro);
+        this._birthDateText = (EditText) findViewById(R.id.dataNascimentoLoginCadastro);
         //this._loginLink  = (Button) findViewById(R.id.link_login);
 
         _signupButton.setOnClickListener(new View.OnClickListener() {
@@ -119,6 +119,9 @@ public class SignupActivity extends AppCompatActivity {
         final String name = _nameText.getText().toString();
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
+        String gender = _genderText.getText().toString();
+        String birthDate = _birthDateText.getText().toString();
+
 
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -209,5 +212,4 @@ public class SignupActivity extends AppCompatActivity {
 
         return valid;
     }
-
 }

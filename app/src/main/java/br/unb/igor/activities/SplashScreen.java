@@ -2,8 +2,8 @@ package br.unb.igor.activities;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Handler;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
@@ -33,7 +33,7 @@ public class SplashScreen extends Activity {
             new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                Intent mainIntent = new Intent(SplashScreen.this, ActivityHome.class);
+                    Intent mainIntent = new Intent(SplashScreen.this, LoginActivity.class);
                 startActivity(mainIntent);
                 overridePendingTransition(R.anim.fade_in_one, R.anim.fade_none);
                 finish();

@@ -137,8 +137,9 @@ public class LoginActivity extends AppCompatActivity implements
                 } else if (editTextSenha.getText().toString().length() == 0) {
                     editTextSenha.setError("Preencha com sua senha!");
                     editTextSenha.setTextColor(Color.BLACK);
+                } else {
+                    loginWithPassword();
                 }
-                loginWithPassword();
             }
 
             }
@@ -623,7 +624,7 @@ public class LoginActivity extends AppCompatActivity implements
     }
 
 
-    private void userDataRegistered(final FirebaseUser firebaseUser){
+    public void userDataRegistered(final FirebaseUser firebaseUser) {
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
         mDatabase.child("users").child(firebaseUser.getUid()).addListenerForSingleValueEvent(
