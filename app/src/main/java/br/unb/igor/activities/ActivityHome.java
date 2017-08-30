@@ -30,7 +30,8 @@ public class ActivityHome extends AppCompatActivity {
         Books,
         Account,
         Notifications,
-        Settings
+        Settings,
+        Exit
     };
 
     private Screen mCurrentScreen = Screen.Adventures;
@@ -42,7 +43,8 @@ public class ActivityHome extends AppCompatActivity {
             "Livros",
             "Conta",
             "Notificações",
-            "Configurações"
+            "Configurações",
+            "Sair"
         };
 
         @Override
@@ -82,6 +84,8 @@ public class ActivityHome extends AppCompatActivity {
                 imgIcon.setBackgroundResource(R.drawable.notificacoes_icone);
             } else if (i == 4) {
                 imgIcon.setBackgroundResource(R.drawable.configuracoes_icone);
+            } else if (i == 5) {
+                imgIcon.setImageDrawable(getResources().getDrawable(R.drawable.ic_close_menu));
             }
 
             int colorFocus = ResourcesCompat.getColor(getResources(), R.color.drawerFocused, null);
