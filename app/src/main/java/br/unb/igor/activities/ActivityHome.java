@@ -1,6 +1,7 @@
 package br.unb.igor.activities;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -14,6 +15,9 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+
+import com.google.firebase.auth.FirebaseAuth;
+
 import br.unb.igor.R;
 import br.unb.igor.fragments.FragmentHome;
 
@@ -24,6 +28,7 @@ public class ActivityHome extends AppCompatActivity {
     private ImageView imgHamburguer;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerOptions;
+    private FirebaseAuth mAuth;
 
     private enum Screen {
         Adventures,
@@ -106,6 +111,10 @@ public class ActivityHome extends AppCompatActivity {
                     imgIcon.setBackgroundResource(R.drawable.notificacoes_icone_selecionado);
                 } else if (mCurrentScreen.ordinal() == 4) {
                     imgIcon.setBackgroundResource(R.drawable.configuracoes_icone_selecionado);
+                } else if (mCurrentScreen.ordinal() == 5) {
+                    mAuth.signOut();
+                    Intent loginIntent = new Intent(ActivityHome.this,LoginActivity.class);
+                    startActivity(loginIntent);
                 }
             } else {
                 textView.setTextColor(colorFocus);
@@ -122,6 +131,7 @@ public class ActivityHome extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         final DrawerListAdapter drawerAdapter = new DrawerListAdapter();
+        mAuth = FirebaseAuth.getInstance();
 
         mDrawerLayout = findViewById(R.id.drawer);
         mDrawerOptions = findViewById(R.id.drawer_options);
