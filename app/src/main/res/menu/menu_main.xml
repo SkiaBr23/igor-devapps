@@ -3,8 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="br.unb.igor.activities.MainActivity">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_editar"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
+        android:title="@string/action_editar"
+        app:showAsAction="collapseActionView" />
+    <item
+        android:id="@+id/action_ordenar"
+        android:orderInCategory="100"
+        android:title="@string/action_ordenar"
+        app:showAsAction="collapseActionView" />
 </menu>

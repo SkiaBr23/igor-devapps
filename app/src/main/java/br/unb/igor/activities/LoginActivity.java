@@ -553,8 +553,13 @@ public class LoginActivity extends AppCompatActivity implements
                 new Runnable() {
                     public void run() {
                         // On complete call either onLoginSuccess or onLoginFailed
-                        onLoginSuccess();
-                        // onLoginFailed();
+
+                        if (mAuth.getCurrentUser() != null) {
+                            onLoginSuccess();
+                        } else {
+                            onLoginFailed();
+                        }
+                        //
                         progressDialog.dismiss();
                     }
                 }, 2000);

@@ -6,6 +6,7 @@ import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -71,18 +72,40 @@ public class ActivityHome extends AppCompatActivity {
 
             textView.setText(options[i]);
 
+            if (i == 0) {
+                imgIcon.setBackgroundResource(R.drawable.aventuras_icone);
+            } else if (i == 1) {
+                imgIcon.setBackgroundResource(R.drawable.livros_icone);
+            } else if (i == 2) {
+                imgIcon.setBackgroundResource(R.drawable.conta_icone);
+            } else if (i == 3) {
+                imgIcon.setBackgroundResource(R.drawable.notificacoes_icone);
+            } else if (i == 4) {
+                imgIcon.setBackgroundResource(R.drawable.configuracoes_icone);
+            }
+
             int colorFocus = ResourcesCompat.getColor(getResources(), R.color.drawerFocused, null);
             int colorUnfocus = ResourcesCompat.getColor(getResources(), R.color.drawerUnfocused, null);
 
             if (mCurrentScreen.ordinal() == i) {
-                textView.setTextColor(colorFocus);
-                imgBar.setVisibility(View.VISIBLE);
-                imgBar.setColorFilter(colorFocus);
-                imgIcon.setColorFilter(colorFocus);
-            } else {
+                System.out.println(mCurrentScreen.ordinal());
                 textView.setTextColor(colorUnfocus);
+                imgBar.setVisibility(View.VISIBLE);
+                imgBar.setColorFilter(colorUnfocus);
+                if (mCurrentScreen.ordinal() == 0) {
+                    imgIcon.setBackgroundResource(R.drawable.aventuras_icone_selecionado);
+                } else if (mCurrentScreen.ordinal() == 1) {
+                    imgIcon.setBackgroundResource(R.drawable.livros_icone_selecionado);
+                } else if (mCurrentScreen.ordinal() == 2) {
+                    imgIcon.setBackgroundResource(R.drawable.conta_icone_selecionado);
+                } else if (mCurrentScreen.ordinal() == 3) {
+                    imgIcon.setBackgroundResource(R.drawable.notificacoes_icone_selecionado);
+                } else if (mCurrentScreen.ordinal() == 4) {
+                    imgIcon.setBackgroundResource(R.drawable.configuracoes_icone_selecionado);
+                }
+            } else {
+                textView.setTextColor(colorFocus);
                 imgBar.setVisibility(View.INVISIBLE);
-                imgIcon.setColorFilter(colorUnfocus);
             }
 
             return view;

@@ -4,19 +4,27 @@
     android:layout_height="wrap_content">
 
     <ImageView
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         android:id="@+id/bar"
         android:layout_width="4dp"
         android:layout_height="match_parent"
         android:src="@drawable/drawer_item_rectangle"/>
 
     <ImageView
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         android:id="@+id/icon"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="23dp"
+        android:layout_height="25dp"
         android:layout_marginStart="16dp"/>
 
     <TextView
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         android:id="@+id/text"
+        android:textSize="16sp"
+        android:layout_marginStart="20dp"
         android:layout_gravity="center"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
