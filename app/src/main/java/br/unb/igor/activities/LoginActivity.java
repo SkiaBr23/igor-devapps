@@ -104,9 +104,9 @@ public class LoginActivity extends AppCompatActivity implements
         esqueciSenha.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(LoginActivity.this, "Signing out...",
-                        Toast.LENGTH_SHORT).show();
-            FirebaseAuth.getInstance().signOut();
+                Intent forgotPasswordIntent = new Intent(LoginActivity.this,ForgotPasswordActivity.class);
+                startActivity(forgotPasswordIntent);
+                overridePendingTransition(R.anim.fade_in_one,R.anim.fade_in_one);
             }
         });
 
