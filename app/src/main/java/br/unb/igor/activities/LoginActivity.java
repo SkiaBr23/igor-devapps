@@ -56,7 +56,7 @@ public class LoginActivity extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener {
 
-    private static String TAG = LoginActivity.class.getName();
+    private static final String TAG = LoginActivity.class.getName();
 
     private EditText editTextEmail;
     private EditText editTextSenha;
@@ -424,10 +424,10 @@ public class LoginActivity extends AppCompatActivity implements
     }
 
     public void callMainActivity(){
-        Intent mainIntent = new Intent(LoginActivity.this,ActivityHome.class);
+        Intent mainIntent = new Intent(LoginActivity.this, ActivityHome.class);
         startActivity(mainIntent);
-        overridePendingTransition(R.anim.fade_in_320ms,R.anim.fade_in_320ms);
         finish();
+        overridePendingTransition(R.anim.fade_in_320ms, R.anim.fade_out_320ms);
     }
 
     @Override

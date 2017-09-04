@@ -6,8 +6,11 @@ import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.PopupMenu;
 import android.view.Gravity;
 import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -26,6 +29,7 @@ public class ActivityHome extends AppCompatActivity {
     private FragmentHome fragmentHome;
 
     private ImageView imgHamburguer;
+    private ImageView imgOptionsMenu;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerOptions;
     private FirebaseAuth mAuth;
@@ -153,6 +157,17 @@ public class ActivityHome extends AppCompatActivity {
             }
         });
 
+        imgOptionsMenu = findViewById(R.id.btnMenu);
+        imgOptionsMenu.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                PopupMenu popup = new PopupMenu(ActivityHome.this, view);
+                MenuInflater inflater = popup.getMenuInflater();
+                inflater.inflate(R.menu.menu_main, popup.getMenu());
+                popup.show();
+            }
+        });
+
         fragmentHome = new FragmentHome();
 
         if (savedInstanceState == null) {
@@ -182,5 +197,4 @@ public class ActivityHome extends AppCompatActivity {
         }
         return fragment;
     }
-
 }
