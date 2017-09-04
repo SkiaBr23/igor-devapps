@@ -8,6 +8,7 @@
     <string name="web_client_id">884992431665-cqoggemk1cso3qvlovt585bgasph6671.apps.googleusercontent.com</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_login">LoginActivity</string>
+    <string name="title_activity_forgot_password">ForgotPasswordActivity</string>
     <string name="action_editar">Editar</string>
     <string name="action_ordenar">Ordenar</string>
     <string name="facebook_app_id">1438953156194106</string>

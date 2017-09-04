@@ -84,6 +84,7 @@ public class SignupActivity extends AppCompatActivity {
     public void onBackPressed() {
         // code here to show dialog
         finish();  // optional depending on your needs
+        overridePendingTransition(0, R.anim.fade_out_320ms);
     }
 
     @Override

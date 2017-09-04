@@ -106,7 +106,7 @@ public class LoginActivity extends AppCompatActivity implements
             public void onClick(View v) {
             Intent forgotPasswordIntent = new Intent(LoginActivity.this,ForgotPasswordActivity.class);
             startActivity(forgotPasswordIntent);
-            overridePendingTransition(R.anim.fade_in_one, R.anim.fade_in_one);
+            overridePendingTransition(R.anim.fade_in_320ms, R.anim.fade_none);
             }
         });
 
@@ -251,6 +251,7 @@ public class LoginActivity extends AppCompatActivity implements
         // Start the Signup activity
         Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
         startActivityForResult(intent, REQUEST_SIGNUP);
+        overridePendingTransition(R.anim.fade_in_320ms, R.anim.fade_none);
     }
 
     @Override
@@ -425,7 +426,7 @@ public class LoginActivity extends AppCompatActivity implements
     public void callMainActivity(){
         Intent mainIntent = new Intent(LoginActivity.this,ActivityHome.class);
         startActivity(mainIntent);
-        overridePendingTransition(R.anim.fade_in_one,R.anim.fade_in_one);
+        overridePendingTransition(R.anim.fade_in_320ms,R.anim.fade_in_320ms);
         finish();
     }
 

@@ -51,6 +51,23 @@
         app:layout_constraintVertical_bias="0.303">
 
         <EditText
+            android:id="@+id/nomeUsuarioLoginCadastro"
+            android:layout_width="0dp"
+            android:hint="Nome de usuário"
+            android:maxLines="1"
+            android:textColor="@color/preto"
+            android:textColorHint="@color/cinzaCriarConta"
+            android:inputType="text"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/cinzaCriarConta"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginRight="20dp"
+            android:layout_marginLeft="20dp"
+            />
+
+        <EditText
             android:id="@+id/emailLoginCadastro"
             android:layout_width="0dp"
             android:hint="E-mail"
@@ -62,7 +79,7 @@
             android:backgroundTint="@color/cinzaCriarConta"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/nomeUsuarioLoginCadastro"
             android:layout_marginRight="20dp"
             android:layout_marginLeft="20dp"
             android:layout_marginTop="10dp" />
@@ -85,23 +102,6 @@
             />
 
         <EditText
-            android:id="@+id/nomeUsuarioLoginCadastro"
-            android:layout_width="0dp"
-            android:hint="Nome de usuário"
-            android:maxLines="1"
-            android:textColor="@color/preto"
-            android:textColorHint="@color/cinzaCriarConta"
-            android:inputType="text"
-            android:layout_height="wrap_content"
-            android:backgroundTint="@color/cinzaCriarConta"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/senhaLoginCadastro"
-            android:layout_marginRight="20dp"
-            android:layout_marginLeft="20dp"
-            />
-
-        <EditText
             android:id="@+id/dataNascimentoLoginCadastro"
             android:layout_width="0dp"
             android:hint="Data de nascimento"
@@ -115,7 +115,7 @@
             android:backgroundTint="@color/cinzaCriarConta"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/nomeUsuarioLoginCadastro"
+            app:layout_constraintTop_toBottomOf="@+id/senhaLoginCadastro"
             android:layout_marginRight="20dp"
             android:layout_marginLeft="20dp"
             />

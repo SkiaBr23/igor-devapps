@@ -32,8 +32,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.SignupActivity"
-            android:label="@string/title_activity_signup"
+            android:name=".activities.LoginActivity"
+            android:label="@string/title_activity_login"
             android:theme="@style/AppFullScreenWhiteAccent">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,9 +42,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.LoginActivity"
-            android:label="@string/title_activity_login"
-            android:theme="@style/AppFullScreenWhiteAccent">
+            android:name=".activities.SignupActivity"
+            android:label="@string/title_activity_signup"
+            android:theme="@style/AppFullScreen">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".activities.ForgotPasswordActivity"
+            android:label="@string/title_activity_forgot_password"
+            android:theme="@style/AppFullScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -81,7 +91,6 @@
                 <data android:scheme="@string/fb_login_protocol_scheme" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.ForgotPasswordActivity"></activity>
     </application>
 
 </manifest>
