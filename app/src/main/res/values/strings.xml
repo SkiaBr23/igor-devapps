@@ -18,4 +18,10 @@
     <string name="loading">Carregando&#8230;</string>
     <string name="title_activity_signup">SignupActivity</string>
     <string name="forgot_password_text">Insira seu email cadastrado para redefinir sua senha:</string>
+    <string name="menu_adventure">Aventuras</string>
+    <string name="menu_books">Livros</string>
+    <string name="menu_account">Conta</string>
+    <string name="menu_notifications">Notificações</string>
+    <string name="menu_settings">Configurações</string>
+    <string name="menu_exit">Sair</string>
 </resources>

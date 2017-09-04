@@ -104,9 +104,9 @@ public class LoginActivity extends AppCompatActivity implements
         esqueciSenha.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent forgotPasswordIntent = new Intent(LoginActivity.this,ForgotPasswordActivity.class);
-                startActivity(forgotPasswordIntent);
-                overridePendingTransition(R.anim.fade_in_one,R.anim.fade_in_one);
+            Intent forgotPasswordIntent = new Intent(LoginActivity.this,ForgotPasswordActivity.class);
+            startActivity(forgotPasswordIntent);
+            overridePendingTransition(R.anim.fade_in_one, R.anim.fade_in_one);
             }
         });
 
@@ -127,7 +127,7 @@ public class LoginActivity extends AppCompatActivity implements
         btnEntrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            if(loggedGoogle || loggedFacebook || loggedEmail) {
+            if (loggedGoogle || loggedFacebook || loggedEmail) {
                 userDataRegistered(mAuth.getCurrentUser());
                 callMainActivity();
             } else {
@@ -240,9 +240,9 @@ public class LoginActivity extends AppCompatActivity implements
             @Override
             protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken,
                                                        AccessToken currentAccessToken) {
-                if (currentAccessToken == null) {
-                    signOut();
-                }
+            if (currentAccessToken == null) {
+                signOut();
+            }
             }
         };
     }
@@ -274,8 +274,8 @@ public class LoginActivity extends AppCompatActivity implements
             opr.setResultCallback(new ResultCallback<GoogleSignInResult>() {
                 @Override
                 public void onResult(GoogleSignInResult googleSignInResult) {
-                    hideProgressDialog();
-                    handleSignInResult(googleSignInResult);
+                hideProgressDialog();
+                handleSignInResult(googleSignInResult);
                 }
             });
         }
@@ -343,18 +343,18 @@ public class LoginActivity extends AppCompatActivity implements
 
         if(loggedGoogle) {
             Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
-                    new ResultCallback<Status>() {
-                        @Override
-                        public void onResult(Status status) {
-                            // [START_EXCLUDE]
-                            updateUI(false);
-                            loggedGoogle = false;
-                            // [END_EXCLUDE]
-                        }
-                    });
+                new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(Status status) {
+                        // [START_EXCLUDE]
+                        updateUI(false);
+                        loggedGoogle = false;
+                        // [END_EXCLUDE]
+                    }
+                });
         }
 
-        if(loggedFacebook){
+        if (loggedFacebook) {
             LoginManager.getInstance().logOut();
         }
     }
@@ -364,14 +364,15 @@ public class LoginActivity extends AppCompatActivity implements
     // [START revokeAccess]
     private void revokeAccess() {
         Auth.GoogleSignInApi.revokeAccess(mGoogleApiClient).setResultCallback(
-                new ResultCallback<Status>() {
-                    @Override
-                    public void onResult(Status status) {
-                        // [START_EXCLUDE]
-                        updateUI(false);
-                        // [END_EXCLUDE]
-                    }
-                });
+            new ResultCallback<Status>() {
+                @Override
+                public void onResult(Status status) {
+                    // [START_EXCLUDE]
+                    updateUI(false);
+                    // [END_EXCLUDE]
+                }
+            }
+        );
     }
     // [END revokeAccess]
 
@@ -476,40 +477,40 @@ public class LoginActivity extends AppCompatActivity implements
 
     private void setDefaultPhoto(FirebaseUser user){
         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                .setPhotoUri(Uri.parse(DEFAULT_PROFILE_PHOTO_URL))
-                .build();
+            .setPhotoUri(Uri.parse(DEFAULT_PROFILE_PHOTO_URL))
+            .build();
         user.updateProfile(profileUpdates)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "User profile updated.");
-                        }
+            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "User profile updated.");
                     }
-                });
+                }
+            });
     }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
         mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "signInWithCredential", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                        } else {
-                            userDataRegistered(mAuth.getCurrentUser());
-                        }
-                        // ...
+            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
+                    // If sign in fails, display a message to the user. If sign in succeeds
+                    // the auth state listener will be notified and logic to handle the
+                    // signed in user can be handled in the listener.
+                    if (!task.isSuccessful()) {
+                        Log.w(TAG, "signInWithCredential", task.getException());
+                        Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                Toast.LENGTH_SHORT).show();
+                    } else {
+                        userDataRegistered(mAuth.getCurrentUser());
                     }
-                });
+                    // ...
+                }
+            });
     }
 
     public void loginWithPassword() {
@@ -533,36 +534,36 @@ public class LoginActivity extends AppCompatActivity implements
 
         //myRef.authWithPassword("test@firebaseuser.com", "test1234", new AuthResultHandler("password"));
         mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
+            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
 
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "signInWithEmail:failed", task.getException());
-                            Toast.makeText(LoginActivity.this, "Login falhou!",
-                                    Toast.LENGTH_SHORT).show();
-                        }
+                    // If sign in fails, display a message to the user. If sign in succeeds
+                    // the auth state listener will be notified and logic to handle the
+                    // signed in user can be handled in the listener.
+                    if (!task.isSuccessful()) {
+                        Log.w(TAG, "signInWithEmail:failed", task.getException());
+                        Toast.makeText(LoginActivity.this, "Login falhou!",
+                                Toast.LENGTH_SHORT).show();
                     }
-                });
+                }
+            });
 
         new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        // On complete call either onLoginSuccess or onLoginFailed
+            new Runnable() {
+                public void run() {
+                    // On complete call either onLoginSuccess or onLoginFailed
 
-                        if (mAuth.getCurrentUser() != null) {
-                            onLoginSuccess();
-                        } else {
-                            onLoginFailed();
-                        }
-                        //
-                        progressDialog.dismiss();
+                    if (mAuth.getCurrentUser() != null) {
+                        onLoginSuccess();
+                    } else {
+                        onLoginFailed();
                     }
-                }, 2000);
+                    //
+                    progressDialog.dismiss();
+                }
+            }, 2000);
     }
 
     public void onLoginSuccess() {
@@ -582,27 +583,25 @@ public class LoginActivity extends AppCompatActivity implements
 
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
+            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    Log.d(TAG, "signInWithCredential:onComplete:" + task.isSuccessful());
 
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "signInWithCredential", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            loggedFacebook = false;
-                        } else {
-                            loggedFacebook = true;
-                            // mStatusTextView.setText(getString(R.string.signed_in_fmt, mAuth.getCurrentUser().getDisplayName()));
-                        }
-
-                        // ...
+                    // If sign in fails, display a message to the user. If sign in succeeds
+                    // the auth state listener will be notified and logic to handle the
+                    // signed in user can be handled in the listener.
+                    if (!task.isSuccessful()) {
+                        Log.w(TAG, "signInWithCredential", task.getException());
+                        Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                Toast.LENGTH_SHORT).show();
+                        loggedFacebook = false;
+                    } else {
+                        loggedFacebook = true;
+                        // mStatusTextView.setText(getString(R.string.signed_in_fmt, mAuth.getCurrentUser().getDisplayName()));
                     }
-                });
+                }
+            });
     }
 
     public boolean validate() {
@@ -633,18 +632,18 @@ public class LoginActivity extends AppCompatActivity implements
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
         mDatabase.child("users").child(firebaseUser.getUid()).addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        User user = dataSnapshot.getValue(User.class);
-                        if(user == null){
-                            registerUserFirebase(firebaseUser);
-                        }
+            new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    User user = dataSnapshot.getValue(User.class);
+                    if(user == null){
+                        registerUserFirebase(firebaseUser);
                     }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.w(TAG, "getUser:onCancelled", databaseError.toException());
-                    }
-                });
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.w(TAG, "getUser:onCancelled", databaseError.toException());
+                }
+            });
     }
 }

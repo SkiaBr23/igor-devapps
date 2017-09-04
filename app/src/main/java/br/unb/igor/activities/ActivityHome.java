@@ -44,12 +44,12 @@ public class ActivityHome extends AppCompatActivity {
     private class DrawerListAdapter extends BaseAdapter {
 
         private final String[] options = {
-            "Aventuras",
-            "Livros",
-            "Conta",
-            "Notificações",
-            "Configurações",
-            "Sair"
+            getString(R.string.menu_adventure),
+            getString(R.string.menu_books),
+            getString(R.string.menu_account),
+            getString(R.string.menu_notifications),
+            getString(R.string.menu_settings),
+            getString(R.string.menu_exit)
         };
 
         @Override
@@ -101,17 +101,17 @@ public class ActivityHome extends AppCompatActivity {
                 textView.setTextColor(colorUnfocus);
                 imgBar.setVisibility(View.VISIBLE);
                 imgBar.setColorFilter(colorUnfocus);
-                if (mCurrentScreen.ordinal() == 0) {
+                if (i == 0) {
                     imgIcon.setBackgroundResource(R.drawable.aventuras_icone_selecionado);
-                } else if (mCurrentScreen.ordinal() == 1) {
+                } else if (i == 1) {
                     imgIcon.setBackgroundResource(R.drawable.livros_icone_selecionado);
-                } else if (mCurrentScreen.ordinal() == 2) {
+                } else if (i == 2) {
                     imgIcon.setBackgroundResource(R.drawable.conta_icone_selecionado);
-                } else if (mCurrentScreen.ordinal() == 3) {
+                } else if (i == 3) {
                     imgIcon.setBackgroundResource(R.drawable.notificacoes_icone_selecionado);
-                } else if (mCurrentScreen.ordinal() == 4) {
+                } else if (i == 4) {
                     imgIcon.setBackgroundResource(R.drawable.configuracoes_icone_selecionado);
-                } else if (mCurrentScreen.ordinal() == 5) {
+                } else if (i == 5) {
                     mAuth.signOut();
                     Intent loginIntent = new Intent(ActivityHome.this,LoginActivity.class);
                     startActivity(loginIntent);
@@ -139,9 +139,9 @@ public class ActivityHome extends AppCompatActivity {
         mDrawerOptions.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                mCurrentScreen = Screen.values()[i];
-                drawerAdapter.notifyDataSetChanged();
-                mDrawerLayout.closeDrawers();
+            mCurrentScreen = Screen.values()[i];
+            drawerAdapter.notifyDataSetChanged();
+            mDrawerLayout.closeDrawers();
             }
         });
 
@@ -149,7 +149,7 @@ public class ActivityHome extends AppCompatActivity {
         imgHamburguer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mDrawerLayout.openDrawer(Gravity.LEFT);
+            mDrawerLayout.openDrawer(Gravity.LEFT);
             }
         });
 
@@ -176,6 +176,7 @@ public class ActivityHome extends AppCompatActivity {
             case Books:
             case Notifications:
             case Settings:
+            case Exit:
             default:
                 break;
         }
