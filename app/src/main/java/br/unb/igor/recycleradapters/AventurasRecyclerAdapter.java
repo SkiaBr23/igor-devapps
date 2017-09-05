@@ -6,7 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import br.unb.igor.R;
+import br.unb.igor.model.Aventura;
 
 /**
  * Created by maxim on 04/09/2017.
@@ -16,6 +20,8 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
 
     private Context context;
     private ListAdapterListener mListener;
+    private List<Aventura> aventuras;
+    private static String PROXIMA_SESSAO = "próxima sessão ";
 
 
     public interface ListAdapterListener {
@@ -25,6 +31,8 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
     public AventurasRecyclerAdapter (Context context, ListAdapterListener listAdapterListener) {
         this.context = context;
         this.mListener = listAdapterListener;
+
+        this.aventuras = new ArrayList<>();
     }
 
     @Override
@@ -34,21 +42,35 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
         return aventurasViewHolder;
     }
 
+    public void setAventuras (List<Aventura> aventuras){
+        this.aventuras = aventuras;
+    }
+
+    public List<Aventura> getAventuras () {
+        if (this.aventuras == null) {
+            this.aventuras = new ArrayList<>();
+        }
+        return this.aventuras;
+    }
+
     @Override
     public void onBindViewHolder(AventurasViewHolder holder, int position) {
-        holder.linearLayoutBackground.setBackgroundResource(R.drawable.miniatura_krevast);
-        holder.txtViewTituloAventura.setText("Titulo da aventura");
-        holder.txtViewProximaSessao.setText("próxima sessão 21/10");
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mListener.onAventuraSelected();
-            }
-        });
+        if (position < aventuras.size()) {
+            holder.linearLayoutBackground.setBackgroundResource(aventuras.get(holder.getAdapterPosition()).getImageResource());
+            holder.txtViewTituloAventura.setText(aventuras.get(holder.getAdapterPosition()).getTituloAventura());
+            holder.txtViewProximaSessao.setText(PROXIMA_SESSAO + aventuras.get(holder.getAdapterPosition()).getProximaSessao());
+            holder.seekBarSessoesAventura.setProgress(aventuras.get(holder.getAdapterPosition()).getProgresso());
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mListener.onAventuraSelected();
+                }
+            });
+        }
     }
 
     @Override
     public int getItemCount() {
-        return 5;
+        return this.aventuras.size();
     }
 }

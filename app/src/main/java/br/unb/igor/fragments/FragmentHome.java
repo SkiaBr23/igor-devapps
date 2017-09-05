@@ -8,7 +8,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import br.unb.igor.R;
+import br.unb.igor.activities.ActivityHome;
+import br.unb.igor.model.Aventura;
 import br.unb.igor.recycleradapters.AventurasRecyclerAdapter;
 
 public class FragmentHome extends Fragment {
@@ -19,6 +25,17 @@ public class FragmentHome extends Fragment {
     private RecyclerView recyclerViewAventurasHome;
     private AventurasRecyclerAdapter aventurasRecyclerAdapter;
     private RecyclerView.LayoutManager layoutManager;
+    private List<Aventura> aventuras;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (((ActivityHome)getActivity()).getAventuras().size() > 0) {
+            this.aventuras = ((ActivityHome)getActivity()).getAventuras();
+        } else {
+            this.aventuras = new ArrayList<>();
+        }
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -54,8 +71,20 @@ public class FragmentHome extends Fragment {
             }
         });
 
+        aventurasRecyclerAdapter.setAventuras(this.aventuras);
         recyclerViewAventurasHome.setAdapter(aventurasRecyclerAdapter);
 
         return root;
+    }
+
+    public List<Aventura> getAventuras () {
+        if (this.aventuras == null) {
+            this.aventuras = new ArrayList<>();
+        }
+        return this.aventuras;
+    }
+
+    public void setAventuras (List<Aventura> aventuras) {
+        this.aventuras = aventuras;
     }
 }

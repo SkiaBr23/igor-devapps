@@ -21,10 +21,15 @@ import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
 
-import br.unb.igor.R;
-import br.unb.igor.fragments.FragmentHome;
+import java.util.ArrayList;
+import java.util.List;
 
-public class ActivityHome extends AppCompatActivity {
+import br.unb.igor.R;
+import br.unb.igor.fragments.FragmentCriarAventura;
+import br.unb.igor.fragments.FragmentHome;
+import br.unb.igor.model.Aventura;
+
+public class ActivityHome extends AppCompatActivity implements FragmentCriarAventura.OnFragmentInteractionListener{
 
     private FragmentHome fragmentHome;
 
@@ -33,6 +38,18 @@ public class ActivityHome extends AppCompatActivity {
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerOptions;
     private FirebaseAuth mAuth;
+    private List<Aventura> aventuras;
+
+    @Override
+    public void onCriacaoAventura(String tituloAventura) {
+        Aventura aventura = new Aventura(tituloAventura, "09/05");
+        getAventuras().add(aventura);
+        FragmentHome fragmentH = new FragmentHome();
+        getFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_frame, fragmentH)
+                .commit();
+    }
 
     private enum Screen {
         Adventures,
@@ -176,6 +193,19 @@ public class ActivityHome extends AppCompatActivity {
                 .replace(R.id.content_frame, fragmentHome)
                 .commit();
         }
+
+        this.aventuras = new ArrayList<>();
+    }
+
+    public void setAventuras (List<Aventura> aventuras) {
+        this.aventuras = aventuras;
+    }
+
+    public List<Aventura> getAventuras () {
+        if (this.aventuras == null) {
+            this.aventuras = new ArrayList<>();
+        }
+        return this.aventuras;
     }
 
     protected Fragment getScreenFragment (Screen screen) {
