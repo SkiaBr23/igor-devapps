@@ -31,7 +31,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toRightOf="@id/btnCloseAventura"
+            app:layout_constraintLeft_toRightOf="@+id/btnCloseAventura"
             android:text="Criar Aventura"
             android:textSize="14sp"
             android:layout_marginStart="5dp"
@@ -69,7 +69,7 @@
             android:id="@+id/btnConfirmarAventura"
             android:layout_width="100dp"
             android:background="@color/btnConfirmarAventura"
-            android:layout_height="35dp"
+            android:layout_height="48dp"
             android:textStyle=""
             android:textColor="@color/branco"
             android:text="PRONTO"
@@ -78,7 +78,6 @@
             app:layout_constraintRight_toRightOf="@+id/editTituloAventura"
             app:layout_constraintTop_toBottomOf="@+id/editTituloAventura"
             />
-
 
     </android.support.constraint.ConstraintLayout>
 

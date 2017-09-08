@@ -25,4 +25,5 @@
     <string name="menu_notifications">Notificações</string>
     <string name="menu_settings">Configurações</string>
     <string name="menu_exit">Sair</string>
+    <string name="strLonga">&#8230;</string>
 </resources>

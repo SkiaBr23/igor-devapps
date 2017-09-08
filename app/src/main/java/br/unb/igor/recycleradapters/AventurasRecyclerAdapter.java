@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,6 +27,7 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
 
     public interface ListAdapterListener {
         void onAventuraSelected();
+        void onAventuraDelete(Aventura aventura);
     }
 
     public AventurasRecyclerAdapter (Context context, ListAdapterListener listAdapterListener) {
@@ -54,16 +56,29 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
     }
 
     @Override
-    public void onBindViewHolder(AventurasViewHolder holder, int position) {
+    public void onBindViewHolder(final AventurasViewHolder holder, int position) {
         if (position < aventuras.size()) {
+            String tituloAventura;
             holder.linearLayoutBackground.setBackgroundResource(aventuras.get(holder.getAdapterPosition()).getImageResource());
-            holder.txtViewTituloAventura.setText(aventuras.get(holder.getAdapterPosition()).getTituloAventura());
+            if (aventuras.get(holder.getAdapterPosition()).getTituloAventura().length() > 50) {
+                tituloAventura = aventuras.get(holder.getAdapterPosition()).getTituloAventura().substring(0,45) + this.context.getResources().getString(R.string.strLonga);
+            } else {
+                tituloAventura = aventuras.get(holder.getAdapterPosition()).getTituloAventura();
+            }
+            holder.txtViewTituloAventura.setText(tituloAventura);
             holder.txtViewProximaSessao.setText(PROXIMA_SESSAO + aventuras.get(holder.getAdapterPosition()).getProximaSessao());
             holder.seekBarSessoesAventura.setProgress(aventuras.get(holder.getAdapterPosition()).getProgresso());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     mListener.onAventuraSelected();
+                }
+            });
+            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    mListener.onAventuraDelete(aventuras.get(holder.getAdapterPosition()));
+                    return false;
                 }
             });
         }

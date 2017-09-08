@@ -1,6 +1,8 @@
 package br.unb.igor.activities;
 
+import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.content.res.ResourcesCompat;
@@ -13,6 +15,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -29,7 +32,7 @@ import br.unb.igor.fragments.FragmentCriarAventura;
 import br.unb.igor.fragments.FragmentHome;
 import br.unb.igor.model.Aventura;
 
-public class ActivityHome extends AppCompatActivity implements FragmentCriarAventura.OnFragmentInteractionListener{
+public class ActivityHome extends AppCompatActivity implements FragmentCriarAventura.OnFragmentInteractionListener, FragmentHome.OnFragmentInteractionListener{
 
     private FragmentHome fragmentHome;
 
@@ -39,17 +42,6 @@ public class ActivityHome extends AppCompatActivity implements FragmentCriarAven
     private ListView mDrawerOptions;
     private FirebaseAuth mAuth;
     private List<Aventura> aventuras;
-
-    @Override
-    public void onCriacaoAventura(String tituloAventura) {
-        Aventura aventura = new Aventura(tituloAventura, "09/05");
-        getAventuras().add(aventura);
-        FragmentHome fragmentH = new FragmentHome();
-        getFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_frame, fragmentH)
-                .commit();
-    }
 
     private enum Screen {
         Adventures,
@@ -226,5 +218,37 @@ public class ActivityHome extends AppCompatActivity implements FragmentCriarAven
                 break;
         }
         return fragment;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        View view = this.getCurrentFocus();
+        //Fecha o keyboard, durante a criação de aventura, caso o usuario clique sobre o icone de close
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        }
+    }
+
+    @Override
+    public void onCriacaoAventura(String tituloAventura) {
+        Aventura aventura = new Aventura(tituloAventura, "09/05");
+        getAventuras().add(aventura);
+        FragmentHome fragmentH = new FragmentHome();
+        getFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_frame, fragmentH)
+                .commit();
+    }
+
+    @Override
+    public void onAventuraDelete(Aventura aventura) {
+        getAventuras().remove(aventura);
+        FragmentHome fragmentH = new FragmentHome();
+        getFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_frame, fragmentH)
+                .commit();
     }
 }

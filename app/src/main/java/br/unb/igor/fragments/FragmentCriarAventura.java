@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -73,6 +74,12 @@ public class FragmentCriarAventura extends Fragment {
                     editTituloAventura.setError("Preencha com o título!");
                     editTituloAventura.setTextColor(Color.BLACK);
                 } else {
+                    View view2 = getActivity().getCurrentFocus();
+                    //Fecha o keyboard, ao final da criação da aventura
+                    if (view != null) {
+                        InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    }
                     mListener.onCriacaoAventura(editTituloAventura.getText().toString());
                 }
             }
@@ -86,5 +93,7 @@ public class FragmentCriarAventura extends Fragment {
         });
         return root;
     }
+
+
 
 }
