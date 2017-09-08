@@ -1,6 +1,5 @@
 package br.unb.igor.activities;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
@@ -10,9 +9,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.view.Gravity;
-import android.view.Menu;
 import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -233,7 +230,7 @@ public class ActivityHome extends AppCompatActivity implements FragmentCriarAven
 
     @Override
     public void onCriacaoAventura(String tituloAventura) {
-        Aventura aventura = new Aventura(tituloAventura, "09/05");
+        Aventura aventura = new Aventura(tituloAventura, "09/05", "");
         getAventuras().add(aventura);
         FragmentHome fragmentH = new FragmentHome();
         getFragmentManager()
