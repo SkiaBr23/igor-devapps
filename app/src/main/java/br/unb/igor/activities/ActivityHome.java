@@ -288,7 +288,7 @@ public class ActivityHome extends AppCompatActivity implements
     public void onRemoveAdventure(Aventura aventura, int index) {
         Vibrator v = (Vibrator)getSystemService(VIBRATOR_SERVICE);
         // Vibrate for 500 milliseconds
-        v.vibrate(200);
+        v.vibrate(100);
         final AlertDialog alerta;
         final int removeIndex = index;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
