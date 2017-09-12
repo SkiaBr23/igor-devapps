@@ -87,6 +87,7 @@ public class LoginActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+
         setContentView(R.layout.login);
 
         //Input
@@ -127,7 +128,7 @@ public class LoginActivity extends AppCompatActivity implements
         btnEntrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            if (loggedGoogle || loggedFacebook || loggedEmail) {
+            if (isLoggedIn()) {
                 userDataRegistered(mAuth.getCurrentUser());
                 callMainActivity();
             } else {
@@ -247,6 +248,10 @@ public class LoginActivity extends AppCompatActivity implements
         };
     }
 
+    private boolean isLoggedIn() {
+        return loggedGoogle || loggedFacebook || loggedEmail;
+    }
+
     private void callSignupActivity() {
         // Start the Signup activity
         Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
@@ -342,7 +347,7 @@ public class LoginActivity extends AppCompatActivity implements
         FirebaseAuth.getInstance().signOut();
         updateUI(false);
 
-        if(loggedGoogle) {
+        if (loggedGoogle) {
             Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
                 new ResultCallback<Status>() {
                     @Override
@@ -443,7 +448,7 @@ public class LoginActivity extends AppCompatActivity implements
 
                 //registerUserFirebase(mAuth.getCurrentUser());
                 // Modo debug: retirar esta chamada para teste de login
-                if(loggedGoogle || loggedFacebook || loggedEmail) {
+                if (isLoggedIn()) {
                     userDataRegistered(mAuth.getCurrentUser());
                     callMainActivity();
                 } else {
@@ -461,7 +466,7 @@ public class LoginActivity extends AppCompatActivity implements
 
     private void registerUserFirebase(FirebaseUser firebaseUser){
         String photoUrl;
-        if(firebaseUser.getPhotoUrl() == null){
+        if (firebaseUser.getPhotoUrl() == null){
             setDefaultPhoto(firebaseUser);
             photoUrl = DEFAULT_PROFILE_PHOTO_URL;
         } else {

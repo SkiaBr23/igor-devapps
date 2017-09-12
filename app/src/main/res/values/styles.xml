@@ -28,6 +28,7 @@
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">true</item>
         <item name="android:windowFullscreen">true</item>
+        <item name="android:itemBackground">@color/drawerFocused</item>
         <item name="android:windowContentOverlay">@null</item>
     </style>
 

@@ -1,15 +1,20 @@
 package br.unb.igor.activities;
 
-import android.app.Fragment;
+import android.content.DialogInterface;
+import android.os.Vibrator;
+import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
 import android.view.Gravity;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -27,9 +32,12 @@ import java.util.List;
 import br.unb.igor.R;
 import br.unb.igor.fragments.FragmentCriarAventura;
 import br.unb.igor.fragments.FragmentHome;
+import br.unb.igor.listeners.AdventureListener;
 import br.unb.igor.model.Aventura;
 
-public class ActivityHome extends AppCompatActivity implements FragmentCriarAventura.OnFragmentInteractionListener, FragmentHome.OnFragmentInteractionListener{
+public class ActivityHome extends AppCompatActivity implements
+        AdventureListener,
+        PopupMenu.OnMenuItemClickListener {
 
     private FragmentHome fragmentHome;
 
@@ -40,7 +48,7 @@ public class ActivityHome extends AppCompatActivity implements FragmentCriarAven
     private FirebaseAuth mAuth;
     private List<Aventura> aventuras;
 
-    private enum Screen {
+    public enum Screen {
         Adventures,
         Books,
         Account,
@@ -103,14 +111,14 @@ public class ActivityHome extends AppCompatActivity implements FragmentCriarAven
                 imgIcon.setImageDrawable(getResources().getDrawable(R.drawable.ic_close_menu));
             }
 
-            int colorFocus = ResourcesCompat.getColor(getResources(), R.color.drawerFocused, null);
-            int colorUnfocus = ResourcesCompat.getColor(getResources(), R.color.drawerUnfocused, null);
+            int colorNotFocused = ResourcesCompat.getColor(getResources(), R.color.drawerNotFocused, null);
+            int colorFocused = ResourcesCompat.getColor(getResources(), R.color.drawerFocused, null);
 
             if (mCurrentScreen.ordinal() == i) {
                 System.out.println(mCurrentScreen.ordinal());
-                textView.setTextColor(colorUnfocus);
+                textView.setTextColor(colorFocused);
                 imgBar.setVisibility(View.VISIBLE);
-                imgBar.setColorFilter(colorUnfocus);
+                imgBar.setColorFilter(colorFocused);
                 if (i == 0) {
                     imgIcon.setBackgroundResource(R.drawable.aventuras_icone_selecionado);
                 } else if (i == 1) {
@@ -127,7 +135,7 @@ public class ActivityHome extends AppCompatActivity implements FragmentCriarAven
                     startActivity(loginIntent);
                 }
             } else {
-                textView.setTextColor(colorFocus);
+                textView.setTextColor(colorNotFocused);
                 imgBar.setVisibility(View.INVISIBLE);
             }
 
@@ -149,9 +157,9 @@ public class ActivityHome extends AppCompatActivity implements FragmentCriarAven
         mDrawerOptions.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-            mCurrentScreen = Screen.values()[i];
-            drawerAdapter.notifyDataSetChanged();
-            mDrawerLayout.closeDrawers();
+                mCurrentScreen = Screen.values()[i];
+                mDrawerLayout.closeDrawers();
+                drawerAdapter.notifyDataSetChanged();
             }
         });
 
@@ -159,7 +167,7 @@ public class ActivityHome extends AppCompatActivity implements FragmentCriarAven
         imgHamburguer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-            mDrawerLayout.openDrawer(Gravity.LEFT);
+                mDrawerLayout.openDrawer(Gravity.LEFT);
             }
         });
 
@@ -170,31 +178,59 @@ public class ActivityHome extends AppCompatActivity implements FragmentCriarAven
                 PopupMenu popup = new PopupMenu(ActivityHome.this, view);
                 MenuInflater inflater = popup.getMenuInflater();
                 inflater.inflate(R.menu.menu_main, popup.getMenu());
+                popup.setOnMenuItemClickListener(ActivityHome.this);
                 popup.show();
+            }
+        });
+
+        final FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            // Esconde os tres pontinhos na tela de criacao de aventura
+            @Override
+            public void onBackStackChanged() {
+                Fragment createAdventureFragment = fragmentManager.findFragmentById(R.id.content_frame);
+                if (createAdventureFragment != null && createAdventureFragment instanceof FragmentCriarAventura) {
+                    imgOptionsMenu.setVisibility(View.INVISIBLE);
+                } else {
+                    imgOptionsMenu.setVisibility(View.VISIBLE);
+                }
             }
         });
 
         fragmentHome = new FragmentHome();
 
         if (savedInstanceState == null) {
-            getFragmentManager()
+            fragmentManager
                 .beginTransaction()
                 .replace(R.id.content_frame, fragmentHome)
                 .commit();
         }
 
-        this.aventuras = new ArrayList<>();
+        aventuras = new ArrayList<>();
+
     }
 
-    public void setAventuras (List<Aventura> aventuras) {
-        this.aventuras = aventuras;
-    }
-
-    public List<Aventura> getAventuras () {
-        if (this.aventuras == null) {
-            this.aventuras = new ArrayList<>();
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_editar:
+                fragmentHome.setEditMode(true);
+                break;
+            default:
+                break;
         }
-        return this.aventuras;
+        return false;
+    }
+
+    public List<Aventura> getAdventures() {
+        return aventuras;
+    }
+
+    public void showHomeFragment() {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_frame, fragmentHome)
+                .commit();
     }
 
     protected Fragment getScreenFragment (Screen screen) {
@@ -219,9 +255,13 @@ public class ActivityHome extends AppCompatActivity implements FragmentCriarAven
 
     @Override
     public void onBackPressed() {
+        if (mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
+            mDrawerLayout.closeDrawer(Gravity.LEFT);
+            return;
+        }
         super.onBackPressed();
         View view = this.getCurrentFocus();
-        //Fecha o keyboard, durante a criação de aventura, caso o usuario clique sobre o icone de close
+        // Fecha o keyboard, durante a criação de aventura, caso o usuario clique sobre o icone de close
         if (view != null) {
             InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
@@ -229,23 +269,41 @@ public class ActivityHome extends AppCompatActivity implements FragmentCriarAven
     }
 
     @Override
-    public void onCriacaoAventura(String tituloAventura) {
-        Aventura aventura = new Aventura(tituloAventura, "09/05", "");
-        getAventuras().add(aventura);
-        FragmentHome fragmentH = new FragmentHome();
-        getFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_frame, fragmentH)
-                .commit();
+    public void onCreateAdventure(String title) {
+        Aventura aventura = new Aventura(title, "09/05", "");
+        aventuras.add(aventura);
+        getSupportFragmentManager()
+            .beginTransaction()
+            .replace(R.id.content_frame, fragmentHome)
+            .addToBackStack(FragmentHome.TAG)
+            .commit();
     }
 
     @Override
-    public void onAventuraDelete(Aventura aventura) {
-        getAventuras().remove(aventura);
-        FragmentHome fragmentH = new FragmentHome();
-        getFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_frame, fragmentH)
-                .commit();
+    public void onSelectAdventure(Aventura aventura, int index) {
+
+    }
+
+    @Override
+    public void onRemoveAdventure(Aventura aventura, int index) {
+        Vibrator v = (Vibrator)getSystemService(VIBRATOR_SERVICE);
+        // Vibrate for 500 milliseconds
+        v.vibrate(200);
+        final AlertDialog alerta;
+        final int removeIndex = index;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Deseja remover esta aventura?").setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                aventuras.remove(removeIndex);
+                fragmentHome.getRecyclerAdapter().notifyItemRemoved(removeIndex);
+                showHomeFragment();
+            }
+        }).setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                showHomeFragment();
+            }
+        });
+        alerta = builder.create();
+        alerta.show();
     }
 }

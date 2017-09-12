@@ -6,10 +6,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import br.unb.igor.R;
+import br.unb.igor.listeners.AdventureListener;
 import br.unb.igor.model.Aventura;
 
 /**
@@ -19,21 +19,22 @@ import br.unb.igor.model.Aventura;
 public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasViewHolder> {
 
     private Context context;
-    private ListAdapterListener mListener;
+    private AdventureListener mListener;
     private List<Aventura> aventuras;
+    private boolean isInEditMode = false;
     private static String PROXIMA_SESSAO = "próxima sessão ";
 
-
-    public interface ListAdapterListener {
-        void onAventuraSelected();
-        void onAventuraDelete(Aventura aventura);
+    public AventurasRecyclerAdapter (Context context, AdventureListener listener, List<Aventura> aventuras) {
+        this.context = context;
+        this.mListener = listener;
+        this.aventuras = aventuras;
     }
 
-    public AventurasRecyclerAdapter (Context context, ListAdapterListener listAdapterListener) {
-        this.context = context;
-        this.mListener = listAdapterListener;
-
-        this.aventuras = new ArrayList<>();
+    public void setEditMode(boolean b) {
+        if (b != isInEditMode) {
+            isInEditMode = b;
+            notifyDataSetChanged();
+        }
     }
 
     @Override
@@ -43,40 +44,33 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
         return aventurasViewHolder;
     }
 
-    public void setAventuras (List<Aventura> aventuras){
-        this.aventuras = aventuras;
-    }
-
-    public List<Aventura> getAventuras () {
-        if (this.aventuras == null) {
-            this.aventuras = new ArrayList<>();
-        }
-        return this.aventuras;
-    }
-
     @Override
     public void onBindViewHolder(final AventurasViewHolder holder, int position) {
         if (position < aventuras.size()) {
-            String tituloAventura;
+            Aventura aventura = aventuras.get(holder.getAdapterPosition());
+            String tituloAventura = aventura.getTituloAventura();
             holder.linearLayoutBackground.setBackgroundResource(aventuras.get(holder.getAdapterPosition()).getImageResource());
             if (aventuras.get(holder.getAdapterPosition()).getTituloAventura().length() > 50) {
                 tituloAventura = aventuras.get(holder.getAdapterPosition()).getTituloAventura().substring(0,45) + this.context.getResources().getString(R.string.strLonga);
             } else {
                 tituloAventura = aventuras.get(holder.getAdapterPosition()).getTituloAventura();
             }
+            holder.imgViewDeletar.setVisibility(isInEditMode ? View.VISIBLE : View.INVISIBLE);
             holder.txtViewTituloAventura.setText(tituloAventura);
-            holder.txtViewProximaSessao.setText(PROXIMA_SESSAO + aventuras.get(holder.getAdapterPosition()).getDataProximaSessao());
-            holder.seekBarSessoesAventura.setProgress(aventuras.get(holder.getAdapterPosition()).getProgresso());
+            holder.txtViewProximaSessao.setText(PROXIMA_SESSAO + aventura.getDataProximaSessao());
+            holder.seekBarSessoesAventura.setProgress(aventura.getProgresso());
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mListener.onAventuraSelected();
+                    int index = holder.getAdapterPosition();
+                    mListener.onSelectAdventure(aventuras.get(index), index);
                 }
             });
             holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    mListener.onAventuraDelete(aventuras.get(holder.getAdapterPosition()));
+                    int index = holder.getAdapterPosition();
+                    mListener.onRemoveAdventure(aventuras.get(index), index);
                     return false;
                 }
             });

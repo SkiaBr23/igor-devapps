@@ -83,12 +83,12 @@
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btnCriarAventura"
-        android:layout_width="100dp"
+        android:layout_width="102dp"
         app:borderWidth="0dp"
-        android:backgroundTint="@android:color/transparent"
+        app:backgroundTint="@android:color/transparent"
         app:elevation="0dp"
-        android:layout_height="100dp"
-        android:layout_gravity="right"
+        android:layout_height="102dp"
+        android:layout_gravity="end"
         android:layout_marginEnd="10dp"
         android:layout_marginTop="10dp"
         android:src="@drawable/botao_criar_nova_aventura_verde"
