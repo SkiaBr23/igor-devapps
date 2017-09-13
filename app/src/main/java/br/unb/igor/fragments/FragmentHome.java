@@ -1,5 +1,6 @@
 package br.unb.igor.fragments;
 
+import android.content.res.ColorStateList;
 import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -26,6 +27,7 @@ public class FragmentHome extends Fragment {
 
     private FloatingActionButton btnCriarAventura;
     private FloatingActionButton btnModoEdicao;
+    private FloatingActionButton btnConfirmarAlteracao;
 
     private Fragment mFragmentCriarAventura;
     private RecyclerView recyclerViewAventurasHome;
@@ -65,6 +67,7 @@ public class FragmentHome extends Fragment {
 
         btnModoEdicao = root.findViewById(R.id.btnModoEdicao);
         btnCriarAventura = root.findViewById(R.id.btnCriarAventura);
+        btnConfirmarAlteracao = root.findViewById(R.id.btnConfirmarAlteracao);
         btnCriarAventura.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -79,6 +82,13 @@ public class FragmentHome extends Fragment {
                 .add(R.id.content_frame, mFragmentCriarAventura)
                 .addToBackStack(TAG)
                 .commit();
+            }
+        });
+
+        btnConfirmarAlteracao.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                setEditMode(true);
             }
         });
 
@@ -103,9 +113,15 @@ public class FragmentHome extends Fragment {
 
             if (b) {
                 btnModoEdicao.setVisibility(View.VISIBLE);
-            } else {
-                btnModoEdicao.setVisibility(View.INVISIBLE);
+                btnCriarAventura.setVisibility(View.GONE);
+                btnConfirmarAlteracao.setVisibility(View.VISIBLE);
             }
+        } else {
+            isInEditMode = !b;
+            aventurasRecyclerAdapter.setEditMode(!b);
+            btnModoEdicao.setVisibility(View.GONE);
+            btnCriarAventura.setVisibility(View.VISIBLE);
+            btnConfirmarAlteracao.setVisibility(View.GONE);
         }
     }
 
