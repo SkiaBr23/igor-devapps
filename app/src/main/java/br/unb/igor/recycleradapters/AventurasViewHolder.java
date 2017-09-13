@@ -19,6 +19,7 @@ public class AventurasViewHolder extends RecyclerView.ViewHolder implements View
     public SeekBar seekBarSessoesAventura;
     public TextView txtViewTituloAventura;
     public TextView txtViewProximaSessao;
+    public ImageView imgViewDeletar;
     public LinearLayout linearLayoutBackground;
 
     public AventurasViewHolder(View itemView) {
@@ -28,6 +29,7 @@ public class AventurasViewHolder extends RecyclerView.ViewHolder implements View
         seekBarSessoesAventura = (SeekBar)itemView.findViewById(R.id.seekBarSessoesAventura);
         txtViewTituloAventura = (TextView)itemView.findViewById(R.id.txtViewTituloAventura);
         txtViewProximaSessao = (TextView)itemView.findViewById(R.id.txtViewProximaSessao);
+        imgViewDeletar = (ImageView)itemView.findViewById(R.id.btnDeletar);
         linearLayoutBackground = (LinearLayout)itemView.findViewById(R.id.linearLayoutBackground);
     }
 

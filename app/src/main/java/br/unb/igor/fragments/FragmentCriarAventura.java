@@ -1,11 +1,12 @@
 package br.unb.igor.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,16 +14,17 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import br.unb.igor.R;
+import br.unb.igor.listeners.AdventureListener;
 
 public class FragmentCriarAventura extends Fragment {
 
     private ImageView imgFecharAventura;
     private EditText editTituloAventura;
     private Button btnConfirmarAventura;
-    private OnFragmentInteractionListener mListener;
+    private FloatingActionButton btnFloatCloseAdventure;
+    private AdventureListener mListener;
 
     public FragmentCriarAventura() {
         // Required empty public constructor
@@ -31,8 +33,8 @@ public class FragmentCriarAventura extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
+        if (context instanceof AdventureListener) {
+            mListener = (AdventureListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -43,11 +45,6 @@ public class FragmentCriarAventura extends Fragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onCriacaoAventura(String tituloAventura);
     }
 
     @Override
@@ -62,11 +59,9 @@ public class FragmentCriarAventura extends Fragment {
         final View root = inflater.inflate(R.layout.criar_aventura, container, false);
 
         imgFecharAventura = (ImageView)root.findViewById(R.id.btnCloseAventura);
-
         editTituloAventura = (EditText)root.findViewById(R.id.editTituloAventura);
-
+        btnFloatCloseAdventure = (FloatingActionButton)root.findViewById((R.id.btnCriarAventura));
         btnConfirmarAventura = (Button)root.findViewById(R.id.btnConfirmarAventura);
-
         btnConfirmarAventura.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -80,8 +75,20 @@ public class FragmentCriarAventura extends Fragment {
                         InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
                         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                     }
-                    mListener.onCriacaoAventura(editTituloAventura.getText().toString());
+                    String title = editTituloAventura.getText().toString();
+                    editTituloAventura.setText("");
+                    mListener.onCreateAdventure(title);
                 }
+            }
+        });
+
+        btnFloatCloseAdventure.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // Esse FAB deve fechar a criacao da aventura
+                // sem salvar ela
+                getActivity().onBackPressed();
+
             }
         });
 
@@ -91,6 +98,7 @@ public class FragmentCriarAventura extends Fragment {
                 getActivity().onBackPressed();
             }
         });
+
         return root;
     }
 
