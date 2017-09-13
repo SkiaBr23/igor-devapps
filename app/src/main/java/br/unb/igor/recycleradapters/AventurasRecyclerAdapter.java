@@ -66,12 +66,21 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
                     mListener.onSelectAdventure(aventuras.get(index), index);
                 }
             });
-            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            /*holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
                     int index = holder.getAdapterPosition();
                     mListener.onRemoveAdventure(aventuras.get(index), index);
                     return false;
+                }
+            });*/
+            holder.imgViewDeletar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (isInEditMode) {
+                        int index = holder.getAdapterPosition();
+                        mListener.onRemoveAdventure(aventuras.get(index), index);
+                    }
                 }
             });
         }

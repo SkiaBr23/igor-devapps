@@ -23,5 +23,7 @@
 
     <color name="opcaoMenu">#DA364F</color>
 
+    <color name="transp">#00000000</color>
+
     <color name="fundoCriarAventura">#ff146e6f</color>
 </resources>
