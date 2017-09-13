@@ -1,17 +1,18 @@
 package br.unb.igor.activities;
 
-import android.content.DialogInterface;
-import android.os.Vibrator;
-import android.support.v4.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Vibrator;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -25,9 +26,16 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import br.unb.igor.R;
 import br.unb.igor.fragments.FragmentCriarAventura;
@@ -39,13 +47,17 @@ public class ActivityHome extends AppCompatActivity implements
         AdventureListener,
         PopupMenu.OnMenuItemClickListener {
 
-    private FragmentHome fragmentHome;
+    private static final String TAG = ActivityHome.class.getName();
 
+    private FragmentHome fragmentHome;
     private ImageView imgHamburguer;
     private ImageView imgOptionsMenu;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerOptions;
     private FirebaseAuth mAuth;
+    private FirebaseDatabase database;
+    private DatabaseReference mDatabase;
+    private DatabaseReference myRef;
     private List<Aventura> aventuras;
 
     public enum Screen {
@@ -206,7 +218,63 @@ public class ActivityHome extends AppCompatActivity implements
                 .commit();
         }
 
-        aventuras = new ArrayList<>();
+        aventuras = new ArrayList<Aventura>();
+        // Busca de aventuras no FirebaseDatabase
+
+        mAuth = FirebaseAuth.getInstance();
+        if (mAuth.getCurrentUser() != null) {
+            // TODO: Usuário não credenciado na Home! Tratar.
+        }
+
+        database = FirebaseDatabase.getInstance();
+        mDatabase = database.getReference();
+        /*
+            BUSCANDO INFORMACOES DE AVENTURAS DO USUARIO NO FIREBASE DB
+        */
+
+        /*final String userId = mAuth.getCurrentUser().getUid();
+        mDatabase.child("users").child(userId).child("adventures").addValueEventListener(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        GenericTypeIndicator<List<String>> genericTypeIndicator =new GenericTypeIndicator<List<String>>(){};
+                        List<String> idAventuras = dataSnapshot.getValue(genericTypeIndicator);
+                        // Check if adventure id list exists
+                        if(idAventuras != null){
+                            // Query adventures on database
+                            fetchAdventures(idAventuras);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.w(TAG, "getUserScore:onCancelled", databaseError.toException());
+                    }
+                });*/
+
+
+    }
+
+    private void fetchAdventures(List<String> idAventuras) {
+        for (String key : idAventuras) {
+            mDatabase.child("adventures").child(key).addListenerForSingleValueEvent(
+                    new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            Aventura aventura = dataSnapshot.getValue(Aventura.class);
+                            // Check if adventure is not null and don't exist on current list
+                            if (aventura != null && !aventuras.contains(aventura)) {
+                                // Add adventure to list
+                                aventuras.add(aventura);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            Log.w(TAG, "fechAdventures:onCancelled", databaseError.toException());
+                        }
+                    });
+        }
 
     }
 
@@ -272,6 +340,7 @@ public class ActivityHome extends AppCompatActivity implements
     public void onCreateAdventure(String title) {
         Aventura aventura = new Aventura(title, "09/05", "");
         aventuras.add(aventura);
+        //createAdventureFirebase(aventura);
         getSupportFragmentManager()
             .beginTransaction()
             .replace(R.id.content_frame, fragmentHome)
@@ -294,6 +363,7 @@ public class ActivityHome extends AppCompatActivity implements
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Deseja remover esta aventura?").setPositiveButton("Sim", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
+                //removeAdventureFirebase(aventuras.get(removeIndex));
                 aventuras.remove(removeIndex);
                 fragmentHome.getRecyclerAdapter().notifyItemRemoved(removeIndex);
                 showHomeFragment();
@@ -305,5 +375,26 @@ public class ActivityHome extends AppCompatActivity implements
         });
         alerta = builder.create();
         alerta.show();
+    }
+
+
+    private void createAdventureFirebase(final Aventura aventura) {
+        final String userId = mAuth.getCurrentUser().getUid();
+        String key = mDatabase.child("adventures").push().getKey();
+        Map<String, Object> advValues = aventura.toMap();
+
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/adventures/" + key, advValues);
+        childUpdates.put("/users/" + userId + "/adventures/" + key, true);
+
+        mDatabase.updateChildren(childUpdates);
+    }
+
+    private void removeAdventureFirebase(final Aventura aventura) {
+        final String userId = mAuth.getCurrentUser().getUid();
+        if (mDatabase.child("adventures").child(aventura.getKey()).equals(aventura)) {
+            mDatabase.child("adventures").child(aventura.getKey()).removeValue();
+            mDatabase.child("users").child(userId).child("adventures").child(aventura.getKey()).removeValue();
+        }
     }
 }

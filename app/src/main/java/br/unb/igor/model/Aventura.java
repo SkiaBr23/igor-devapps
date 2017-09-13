@@ -1,6 +1,10 @@
 package br.unb.igor.model;
 
+import com.google.firebase.database.Exclude;
+
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import br.unb.igor.R;
 
@@ -9,7 +13,8 @@ import br.unb.igor.R;
  */
 
 public class Aventura {
-    String tituloAventura;
+    String titulo;
+    String key;
     String dataProximaSessao;
     int progresso;
     int RESOURCE_IMAGE;
@@ -22,14 +27,25 @@ public class Aventura {
     List<FichaJogador> fichas;
     List<Sessao> sessoes;
 
+    public Aventura() {
+        // Empty constructor for json deserialization =)
+    }
+
     public Aventura(String tituloAventura, String proximaSessao, String mestreUserId) {
-        this.tituloAventura = tituloAventura;
+        this.titulo = tituloAventura;
         this.progresso = 0;
         this.mestreUserId = mestreUserId;
         this.dataProximaSessao = proximaSessao;
         RESOURCE_IMAGE = R.drawable.miniatura_krevast;
     }
 
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
 
     public List<Sessao> getSessoes() {
         return sessoes;
@@ -104,7 +120,7 @@ public class Aventura {
     }
 
     public String getTituloAventura () {
-        return this.tituloAventura;
+        return this.titulo;
     }
 
     public int getProgresso () {
@@ -112,7 +128,7 @@ public class Aventura {
     }
 
     public void setTituloAventura (String tituloAventura) {
-        this.tituloAventura = tituloAventura;
+        this.titulo = tituloAventura;
     }
 
     public void setProgresso (int progresso) {
@@ -125,5 +141,25 @@ public class Aventura {
 
     public void setImageResource(int resource) {
         this.RESOURCE_IMAGE = resource;
+    }
+
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("tituloAventura", titulo);
+        result.put("progresso", progresso);
+
+        result.put("RESOURCE_IMAGE", RESOURCE_IMAGE);
+        result.put("numeroSessoes", numeroSessoes);
+        result.put("sinopse", sinopse);
+        result.put("key", key);
+        result.put("mestreUserId", mestreUserId);
+        result.put("anotacoes", anotacoes);
+        result.put("fichas", fichas);
+        result.put("livroReferencia", livroReferencia);
+        result.put("sessoes", sessoes);
+        result.put("jogadoresUserIds", jogadoresUserIds);
+
+        return result;
     }
 }
