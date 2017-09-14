@@ -25,5 +25,7 @@
 
     <color name="transp">#00000000</color>
 
+    <color name="baseAventuraEdicao">#1e2843</color>
+
     <color name="fundoCriarAventura">#ff146e6f</color>
 </resources>

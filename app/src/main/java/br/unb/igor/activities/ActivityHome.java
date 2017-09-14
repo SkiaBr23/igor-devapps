@@ -302,7 +302,7 @@ public class ActivityHome extends AppCompatActivity implements
                                 }
 
                                 showHomeFragment();
-                                fragmentHome.getRecyclerAdapter().notifyDataSetChanged();
+                                //
                             }
                         }
 
@@ -334,8 +334,8 @@ public class ActivityHome extends AppCompatActivity implements
     public void showHomeFragment() {
         getSupportFragmentManager()
                 .beginTransaction()
-                .replace(R.id.content_frame, fragmentHome)
-                .commit();
+                .replace(R.id.content_frame, fragmentHome).commitAllowingStateLoss();
+        fragmentHome.getRecyclerAdapter().notifyDataSetChanged();
     }
 
     protected Fragment getScreenFragment (Screen screen) {
