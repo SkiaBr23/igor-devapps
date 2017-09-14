@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.res.ResourcesCompat;
@@ -25,6 +26,12 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.facebook.AccessToken;
+import com.facebook.login.LoginManager;
+import com.google.android.gms.auth.api.Auth;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -46,7 +53,7 @@ import br.unb.igor.listeners.AdventureListener;
 import br.unb.igor.model.Aventura;
 
 public class ActivityHome extends AppCompatActivity implements
-        AdventureListener,
+        AdventureListener, GoogleApiClient.OnConnectionFailedListener,
         PopupMenu.OnMenuItemClickListener {
 
     private static final String TAG = ActivityHome.class.getName();
@@ -61,6 +68,7 @@ public class ActivityHome extends AppCompatActivity implements
     private DatabaseReference mDatabase;
     private DatabaseReference myRef;
     private List<Aventura> aventuras;
+    private GoogleApiClient mGoogleApiClient;
 
     public enum Screen {
         Adventures,
@@ -69,19 +77,21 @@ public class ActivityHome extends AppCompatActivity implements
         Notifications,
         Settings,
         Exit
-    };
+    }
+
+    ;
 
     private Screen mCurrentScreen = Screen.Adventures;
 
     private class DrawerListAdapter extends BaseAdapter {
 
         private final String[] options = {
-            getString(R.string.menu_adventure),
-            getString(R.string.menu_books),
-            getString(R.string.menu_account),
-            getString(R.string.menu_notifications),
-            getString(R.string.menu_settings),
-            getString(R.string.menu_exit)
+                getString(R.string.menu_adventure),
+                getString(R.string.menu_books),
+                getString(R.string.menu_account),
+                getString(R.string.menu_notifications),
+                getString(R.string.menu_settings),
+                getString(R.string.menu_exit)
         };
 
         @Override
@@ -144,8 +154,8 @@ public class ActivityHome extends AppCompatActivity implements
                 } else if (i == 4) {
                     imgIcon.setBackgroundResource(R.drawable.configuracoes_icone_selecionado);
                 } else if (i == 5) {
-                    mAuth.signOut();
-                    Intent loginIntent = new Intent(ActivityHome.this,LoginActivity.class);
+                    signOut();
+                    Intent loginIntent = new Intent(ActivityHome.this, LoginActivity.class);
                     startActivity(loginIntent);
                 }
             } else {
@@ -215,9 +225,9 @@ public class ActivityHome extends AppCompatActivity implements
 
         if (savedInstanceState == null) {
             fragmentManager
-                .beginTransaction()
-                .replace(R.id.content_frame, fragmentHome)
-                .commit();
+                    .beginTransaction()
+                    .replace(R.id.content_frame, fragmentHome)
+                    .commit();
         }
 
         aventuras = new ArrayList<Aventura>();
@@ -241,10 +251,11 @@ public class ActivityHome extends AppCompatActivity implements
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        GenericTypeIndicator<HashMap<String,Object>> genericTypeIndicator =new GenericTypeIndicator<HashMap<String,Object>>(){};
-                        HashMap<String,Object> idAventuras = dataSnapshot.getValue(genericTypeIndicator);
+                        GenericTypeIndicator<HashMap<String, Object>> genericTypeIndicator = new GenericTypeIndicator<HashMap<String, Object>>() {
+                        };
+                        HashMap<String, Object> idAventuras = dataSnapshot.getValue(genericTypeIndicator);
                         // Check if adventure id list exists
-                        if(idAventuras != null){
+                        if (idAventuras != null) {
                             // Query adventures on database
                             fetchAdventures(idAventuras.keySet());
                         }
@@ -256,19 +267,30 @@ public class ActivityHome extends AppCompatActivity implements
                     }
                 });
 
+        if (mAuth.getCurrentUser().getProviders().contains("google.com")) {
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(getString(R.string.web_client_id))
+                    .requestEmail()
+                    .build();
 
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .enableAutoManage(this, this)
+                    .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                    .build();
+        }
     }
 
-    private void fetchInitialAdventures(){
+    private void fetchInitialAdventures() {
         final String userId = mAuth.getCurrentUser().getUid();
         mDatabase.child("users").child(userId).child("adventures").addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        GenericTypeIndicator<HashMap<String,Object>> genericTypeIndicator =new GenericTypeIndicator<HashMap<String,Object>>(){};
-                        HashMap<String,Object> idAventuras = dataSnapshot.getValue(genericTypeIndicator);
+                        GenericTypeIndicator<HashMap<String, Object>> genericTypeIndicator = new GenericTypeIndicator<HashMap<String, Object>>() {
+                        };
+                        HashMap<String, Object> idAventuras = dataSnapshot.getValue(genericTypeIndicator);
                         // Check if adventure id list exists
-                        if(idAventuras != null){
+                        if (idAventuras != null) {
                             // Query adventures on database
                             fetchAdventures(idAventuras.keySet());
                         }
@@ -280,10 +302,11 @@ public class ActivityHome extends AppCompatActivity implements
                     }
                 });
 
-      // fragmentHome.getRecyclerAdapter().notifyDataSetChanged();
-       //showHomeFragment();
+        // fragmentHome.getRecyclerAdapter().notifyDataSetChanged();
+        //showHomeFragment();
 
     }
+
     private void fetchAdventures(Set<String> idAventuras) {
         for (String key : idAventuras) {
             mDatabase.child("adventures").child(key).addListenerForSingleValueEvent(
@@ -294,8 +317,8 @@ public class ActivityHome extends AppCompatActivity implements
                             // Check if adventure is not null and don't exist on current list
                             if (aventura != null) {
                                 // Add adventure to list
-                                int index = aventura.getIndexOf(aventuras,aventura.getKey());
-                                if(index >= 0) {
+                                int index = aventura.getIndexOf(aventuras, aventura.getKey());
+                                if (index >= 0) {
                                     aventuras.set(index, aventura);
                                 } else {
                                     aventuras.add(aventura);
@@ -338,7 +361,7 @@ public class ActivityHome extends AppCompatActivity implements
         fragmentHome.getRecyclerAdapter().notifyDataSetChanged();
     }
 
-    protected Fragment getScreenFragment (Screen screen) {
+    protected Fragment getScreenFragment(Screen screen) {
         Fragment fragment = null;
         switch (screen) {
             case Adventures:
@@ -368,7 +391,7 @@ public class ActivityHome extends AppCompatActivity implements
         View view = this.getCurrentFocus();
         // Fecha o keyboard, durante a criação de aventura, caso o usuario clique sobre o icone de close
         if (view != null) {
-            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
@@ -380,10 +403,10 @@ public class ActivityHome extends AppCompatActivity implements
         aventura.setKey(key);
         aventuras.add(aventura);
         getSupportFragmentManager()
-            .beginTransaction()
-            .replace(R.id.content_frame, fragmentHome)
-            .addToBackStack(FragmentHome.TAG)
-            .commit();
+                .beginTransaction()
+                .replace(R.id.content_frame, fragmentHome)
+                .addToBackStack(FragmentHome.TAG)
+                .commit();
     }
 
     @Override
@@ -393,7 +416,7 @@ public class ActivityHome extends AppCompatActivity implements
 
     @Override
     public void onRemoveAdventure(Aventura aventura, int index) {
-        Vibrator v = (Vibrator)getSystemService(VIBRATOR_SERVICE);
+        Vibrator v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
         // Vibrate for 500 milliseconds
         v.vibrate(100);
         final AlertDialog alerta;
@@ -435,4 +458,32 @@ public class ActivityHome extends AppCompatActivity implements
         mDatabase.child("adventures").child(aventura.getKey()).removeValue();
         mDatabase.child("users").child(userId).child("adventures").child(aventura.getKey()).removeValue();
     }
+
+    // [START signOut]
+    private void signOut() {
+        if (mAuth.getCurrentUser() != null) {
+            if (mAuth.getCurrentUser().getProviders().contains("google.com")) {
+                Auth.GoogleSignInApi.signOut(mGoogleApiClient);
+            }
+
+            if (mAuth.getCurrentUser().getProviders().contains("facebook.com") && AccessToken.getCurrentAccessToken() != null) {
+                LoginManager.getInstance().logOut();
+            }
+
+            FirebaseAuth.getInstance().signOut();
+        }
+    }
+    // [END signOut]
+
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+
+    }
+
+    @Override
+    public void onPointerCaptureChanged(boolean hasCapture) {
+
+    }
+
 }

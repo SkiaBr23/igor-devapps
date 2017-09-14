@@ -362,6 +362,7 @@ public class LoginActivity extends AppCompatActivity implements
 
         if (loggedFacebook) {
             LoginManager.getInstance().logOut();
+            loggedFacebook = false;
         }
     }
     // [END signOut]
