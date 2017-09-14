@@ -48,12 +48,12 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
     public void onBindViewHolder(final AventurasViewHolder holder, int position) {
         if (position < aventuras.size()) {
             Aventura aventura = aventuras.get(holder.getAdapterPosition());
-            String tituloAventura = aventura.getTituloAventura();
+            String tituloAventura;
             holder.linearLayoutBackground.setBackgroundResource(aventuras.get(holder.getAdapterPosition()).getImageResource());
-            if (aventuras.get(holder.getAdapterPosition()).getTituloAventura().length() > 50) {
-                tituloAventura = aventuras.get(holder.getAdapterPosition()).getTituloAventura().substring(0,45) + this.context.getResources().getString(R.string.strLonga);
+            if (aventuras.get(holder.getAdapterPosition()).getTitulo().length() > 50) {
+                tituloAventura = aventuras.get(holder.getAdapterPosition()).getTitulo().substring(0,45) + this.context.getResources().getString(R.string.strLonga);
             } else {
-                tituloAventura = aventuras.get(holder.getAdapterPosition()).getTituloAventura();
+                tituloAventura = aventuras.get(holder.getAdapterPosition()).getTitulo();
             }
             holder.imgViewDeletar.setVisibility(isInEditMode ? View.VISIBLE : View.INVISIBLE);
             holder.txtViewTituloAventura.setText(tituloAventura);

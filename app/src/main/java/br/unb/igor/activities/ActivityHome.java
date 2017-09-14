@@ -30,12 +30,14 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import br.unb.igor.R;
 import br.unb.igor.fragments.FragmentCriarAventura;
@@ -232,30 +234,57 @@ public class ActivityHome extends AppCompatActivity implements
             BUSCANDO INFORMACOES DE AVENTURAS DO USUARIO NO FIREBASE DB
         */
 
-        /*final String userId = mAuth.getCurrentUser().getUid();
+        final String userId = mAuth.getCurrentUser().getUid();
+
+        fetchInitialAdventures();
         mDatabase.child("users").child(userId).child("adventures").addValueEventListener(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        GenericTypeIndicator<List<String>> genericTypeIndicator =new GenericTypeIndicator<List<String>>(){};
-                        List<String> idAventuras = dataSnapshot.getValue(genericTypeIndicator);
+                        GenericTypeIndicator<HashMap<String,Object>> genericTypeIndicator =new GenericTypeIndicator<HashMap<String,Object>>(){};
+                        HashMap<String,Object> idAventuras = dataSnapshot.getValue(genericTypeIndicator);
                         // Check if adventure id list exists
                         if(idAventuras != null){
                             // Query adventures on database
-                            fetchAdventures(idAventuras);
+                            fetchAdventures(idAventuras.keySet());
                         }
                     }
 
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
-                        Log.w(TAG, "getUserScore:onCancelled", databaseError.toException());
+                        Log.w(TAG, "getAdventuresIds:onCancelled", databaseError.toException());
                     }
-                });*/
+                });
 
 
     }
 
-    private void fetchAdventures(List<String> idAventuras) {
+    private void fetchInitialAdventures(){
+        final String userId = mAuth.getCurrentUser().getUid();
+        mDatabase.child("users").child(userId).child("adventures").addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        GenericTypeIndicator<HashMap<String,Object>> genericTypeIndicator =new GenericTypeIndicator<HashMap<String,Object>>(){};
+                        HashMap<String,Object> idAventuras = dataSnapshot.getValue(genericTypeIndicator);
+                        // Check if adventure id list exists
+                        if(idAventuras != null){
+                            // Query adventures on database
+                            fetchAdventures(idAventuras.keySet());
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.w(TAG, "getAdventuresIds:onCancelled", databaseError.toException());
+                    }
+                });
+
+      // fragmentHome.getRecyclerAdapter().notifyDataSetChanged();
+       //showHomeFragment();
+
+    }
+    private void fetchAdventures(Set<String> idAventuras) {
         for (String key : idAventuras) {
             mDatabase.child("adventures").child(key).addListenerForSingleValueEvent(
                     new ValueEventListener() {
@@ -263,9 +292,17 @@ public class ActivityHome extends AppCompatActivity implements
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             Aventura aventura = dataSnapshot.getValue(Aventura.class);
                             // Check if adventure is not null and don't exist on current list
-                            if (aventura != null && !aventuras.contains(aventura)) {
+                            if (aventura != null) {
                                 // Add adventure to list
-                                aventuras.add(aventura);
+                                int index = aventura.getIndexOf(aventuras,aventura.getKey());
+                                if(index >= 0) {
+                                    aventuras.set(index, aventura);
+                                } else {
+                                    aventuras.add(aventura);
+                                }
+
+                                showHomeFragment();
+                                fragmentHome.getRecyclerAdapter().notifyDataSetChanged();
                             }
                         }
 
@@ -339,8 +376,9 @@ public class ActivityHome extends AppCompatActivity implements
     @Override
     public void onCreateAdventure(String title) {
         Aventura aventura = new Aventura(title, "09/05", "");
+        String key = createAdventureFirebase(aventura);
+        aventura.setKey(key);
         aventuras.add(aventura);
-        //createAdventureFirebase(aventura);
         getSupportFragmentManager()
             .beginTransaction()
             .replace(R.id.content_frame, fragmentHome)
@@ -363,7 +401,7 @@ public class ActivityHome extends AppCompatActivity implements
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Deseja remover esta aventura?").setPositiveButton("Sim", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                //removeAdventureFirebase(aventuras.get(removeIndex));
+                removeAdventureFirebase(aventuras.get(removeIndex));
                 aventuras.remove(removeIndex);
                 fragmentHome.getRecyclerAdapter().notifyItemRemoved(removeIndex);
                 showHomeFragment();
@@ -378,23 +416,23 @@ public class ActivityHome extends AppCompatActivity implements
     }
 
 
-    private void createAdventureFirebase(final Aventura aventura) {
+    private String createAdventureFirebase(final Aventura aventura) {
         final String userId = mAuth.getCurrentUser().getUid();
         String key = mDatabase.child("adventures").push().getKey();
-        Map<String, Object> advValues = aventura.toMap();
+        aventura.setKey(key);
 
         Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/adventures/" + key, advValues);
+        childUpdates.put("/adventures/" + key, aventura);
         childUpdates.put("/users/" + userId + "/adventures/" + key, true);
 
         mDatabase.updateChildren(childUpdates);
+
+        return key;
     }
 
     private void removeAdventureFirebase(final Aventura aventura) {
         final String userId = mAuth.getCurrentUser().getUid();
-        if (mDatabase.child("adventures").child(aventura.getKey()).equals(aventura)) {
-            mDatabase.child("adventures").child(aventura.getKey()).removeValue();
-            mDatabase.child("users").child(userId).child("adventures").child(aventura.getKey()).removeValue();
-        }
+        mDatabase.child("adventures").child(aventura.getKey()).removeValue();
+        mDatabase.child("users").child(userId).child("adventures").child(aventura.getKey()).removeValue();
     }
 }

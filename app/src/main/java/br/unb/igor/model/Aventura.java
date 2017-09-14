@@ -39,6 +39,15 @@ public class Aventura {
         RESOURCE_IMAGE = R.drawable.miniatura_krevast;
     }
 
+    public int getIndexOf(List<Aventura> aventuras, String key){
+        for(Aventura aventura : aventuras){
+            if(aventura.getKey().equals(key)){
+                return aventuras.indexOf(aventura);
+            }
+        }
+
+        return -1;
+    }
     public String getKey() {
         return key;
     }
@@ -119,7 +128,7 @@ public class Aventura {
         this.fichas = fichas;
     }
 
-    public String getTituloAventura () {
+    public String getTitulo () {
         return this.titulo;
     }
 
@@ -127,7 +136,7 @@ public class Aventura {
         return this.progresso;
     }
 
-    public void setTituloAventura (String tituloAventura) {
+    public void setTitulo (String tituloAventura) {
         this.titulo = tituloAventura;
     }
 
@@ -158,6 +167,7 @@ public class Aventura {
         result.put("fichas", fichas);
         result.put("livroReferencia", livroReferencia);
         result.put("sessoes", sessoes);
+        result.put("dataProximaSessao",dataProximaSessao);
         result.put("jogadoresUserIds", jogadoresUserIds);
 
         return result;
