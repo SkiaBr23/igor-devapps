@@ -5,8 +5,7 @@ import com.google.firebase.database.Exclude;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import br.unb.igor.R;
+import java.util.Random;
 
 /**
  * Created by maxim on 04/09/2017.
@@ -32,11 +31,12 @@ public class Aventura {
     }
 
     public Aventura(String tituloAventura, String proximaSessao, String mestreUserId) {
+        Random gerador = new Random();
         this.titulo = tituloAventura;
         this.progresso = 0;
+        this.RESOURCE_IMAGE = gerador.nextInt(6);
         this.mestreUserId = mestreUserId;
         this.dataProximaSessao = proximaSessao;
-        RESOURCE_IMAGE = R.drawable.miniatura_krevast;
     }
 
     public int getIndexOf(List<Aventura> aventuras, String key){
