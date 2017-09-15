@@ -1,18 +1,16 @@
 package br.unb.igor.fragments;
 
-import android.content.res.ColorStateList;
 import android.support.v4.app.Fragment;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Vibrator;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ScrollView;
+
 import java.util.List;
 
 import br.unb.igor.R;
@@ -29,8 +27,9 @@ public class FragmentHome extends Fragment {
     private FloatingActionButton btnModoEdicao;
     private FloatingActionButton btnConfirmarAlteracao;
 
-    private Fragment mFragmentCriarAventura;
+    private FragmentCriarAventura mFragmentCriarAventura;
     private RecyclerView recyclerViewAventurasHome;
+    private ScrollView mScrollView;
     private AventurasRecyclerAdapter aventurasRecyclerAdapter;
     private RecyclerView.LayoutManager layoutManager;
     private List<Aventura> aventuras;
@@ -72,28 +71,29 @@ public class FragmentHome extends Fragment {
             @Override
             public void onClick(View view) {
 
-            if (mFragmentCriarAventura == null) {
-                mFragmentCriarAventura = new FragmentCriarAventura();
-            }
+                if (mFragmentCriarAventura == null) {
+                    mFragmentCriarAventura = new FragmentCriarAventura();
+                }
 
-            getActivity()
-                .getSupportFragmentManager()
-                .beginTransaction()
-                .add(R.id.content_frame, mFragmentCriarAventura)
-                .addToBackStack(TAG)
-                .commit();
+                getActivity()
+                    .getSupportFragmentManager()
+                    .beginTransaction()
+                    .add(R.id.content_frame, mFragmentCriarAventura)
+                    .addToBackStack(FragmentCriarAventura.TAG)
+                    .commit();
             }
         });
 
         btnConfirmarAlteracao.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                setEditMode(true);
+                setEditMode(false);
             }
         });
 
         recyclerViewAventurasHome = (RecyclerView)root.findViewById(R.id.recyclerViewAventurasHome);
-        recyclerViewAventurasHome.setHasFixedSize(true);
+        // setHasFixedSize(true) bugs notifyItemInserted when fetching initial adventures
+        // recyclerViewAventurasHome.setHasFixedSize(true);
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerViewAventurasHome.setLayoutManager(layoutManager);
         aventurasRecyclerAdapter = new AventurasRecyclerAdapter(getActivity(), mListener, aventuras);
@@ -106,6 +106,10 @@ public class FragmentHome extends Fragment {
         return aventurasRecyclerAdapter;
     }
 
+    public void scrollToIndex(int index) {
+        recyclerViewAventurasHome.scrollToPosition(index);
+    }
+
     public void setEditMode(boolean b) {
         if (isInEditMode != b) {
             isInEditMode = b;
@@ -115,14 +119,16 @@ public class FragmentHome extends Fragment {
                 btnModoEdicao.setVisibility(View.VISIBLE);
                 btnCriarAventura.setVisibility(View.GONE);
                 btnConfirmarAlteracao.setVisibility(View.VISIBLE);
+            } else {
+                btnModoEdicao.setVisibility(View.GONE);
+                btnCriarAventura.setVisibility(View.VISIBLE);
+                btnConfirmarAlteracao.setVisibility(View.GONE);
             }
-        } else {
-            isInEditMode = !b;
-            aventurasRecyclerAdapter.setEditMode(!b);
-            btnModoEdicao.setVisibility(View.GONE);
-            btnCriarAventura.setVisibility(View.VISIBLE);
-            btnConfirmarAlteracao.setVisibility(View.GONE);
         }
+    }
+
+    public void toggleEditMode() {
+        setEditMode(!isInEditMode);
     }
 
 }

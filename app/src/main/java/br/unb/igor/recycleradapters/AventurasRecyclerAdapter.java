@@ -28,6 +28,7 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
         this.context = context;
         this.mListener = listener;
         this.aventuras = aventuras;
+        setHasStableIds(true);
     }
 
     public void setEditMode(boolean b) {
@@ -44,16 +45,15 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
         return aventurasViewHolder;
     }
 
+
     @Override
     public void onBindViewHolder(final AventurasViewHolder holder, int position) {
         if (position < aventuras.size()) {
             Aventura aventura = aventuras.get(holder.getAdapterPosition());
-            String tituloAventura;
-            holder.linearLayoutBackground.setBackgroundResource(aventuras.get(holder.getAdapterPosition()).getImageResource());
-            if (aventuras.get(holder.getAdapterPosition()).getTitulo().length() > 50) {
-                tituloAventura = aventuras.get(holder.getAdapterPosition()).getTitulo().substring(0,45) + this.context.getResources().getString(R.string.strLonga);
-            } else {
-                tituloAventura = aventuras.get(holder.getAdapterPosition()).getTitulo();
+            String tituloAventura = aventuras.get(holder.getAdapterPosition()).getTitulo();
+            holder.linearLayoutBackground.setBackgroundResource(aventura.getImageResource());
+            if (tituloAventura.length() > 50) {
+                tituloAventura = tituloAventura.substring(0,45) + this.context.getResources().getString(R.string.strLonga);
             }
             holder.imgViewDeletar.setVisibility(isInEditMode ? View.VISIBLE : View.INVISIBLE);
             holder.txtViewTituloAventura.setText(tituloAventura);
@@ -89,5 +89,10 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
     @Override
     public int getItemCount() {
         return this.aventuras.size();
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return aventuras.get(position).getKey().hashCode();
     }
 }
