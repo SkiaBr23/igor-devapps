@@ -3,6 +3,7 @@ package br.unb.igor.activities;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
@@ -50,7 +51,8 @@ import br.unb.igor.R;
 import br.unb.igor.fragments.FragmentCriarAventura;
 import br.unb.igor.fragments.FragmentEditarAventura;
 import br.unb.igor.fragments.FragmentHome;
-import br.unb.igor.listeners.AdventureListener;
+import br.unb.igor.helpers.AdventureListener;
+import br.unb.igor.helpers.OnCompleteHandler;
 import br.unb.igor.model.Aventura;
 
 public class ActivityHome extends AppCompatActivity implements
@@ -120,7 +122,11 @@ public class ActivityHome extends AppCompatActivity implements
             ImageView imgBar = view.findViewById(R.id.bar);
             ImageView imgIcon = view.findViewById(R.id.icon);
 
+            // Set Fira Sans (Regular) font
+            Typeface firaSans = Typeface.createFromAsset(getAssets(), "FiraSans-Regular.ttf");
+
             textView.setText(options[i]);
+            textView.setTypeface(firaSans);
 
             if (i == 0) {
                 imgIcon.setBackgroundResource(R.drawable.aventuras_icone);
@@ -140,7 +146,6 @@ public class ActivityHome extends AppCompatActivity implements
             int colorFocused = ResourcesCompat.getColor(getResources(), R.color.drawerFocused, null);
 
             if (mCurrentScreen.ordinal() == i) {
-                System.out.println(mCurrentScreen.ordinal());
                 textView.setTextColor(colorFocused);
                 imgBar.setVisibility(View.VISIBLE);
                 imgBar.setColorFilter(colorFocused);
@@ -213,8 +218,8 @@ public class ActivityHome extends AppCompatActivity implements
             // Esconde os tres pontinhos na tela de criacao de aventura
             @Override
             public void onBackStackChanged() {
-                Fragment createAdventureFragment = fragmentManager.findFragmentById(R.id.content_frame);
-                if (createAdventureFragment != null && createAdventureFragment instanceof FragmentCriarAventura) {
+                Fragment currentFragment = fragmentManager.findFragmentById(R.id.content_frame);
+                if (currentFragment != null && currentFragment instanceof FragmentCriarAventura) {
                     imgOptionsMenu.setVisibility(View.INVISIBLE);
                 } else {
                     imgOptionsMenu.setVisibility(View.VISIBLE);
@@ -222,6 +227,7 @@ public class ActivityHome extends AppCompatActivity implements
             }
         });
 
+        aventuras = new ArrayList<Aventura>();
         fragmentHome = new FragmentHome();
 
         if (savedInstanceState == null) {
@@ -231,7 +237,7 @@ public class ActivityHome extends AppCompatActivity implements
                     .commit();
         }
 
-        aventuras = new ArrayList<Aventura>();
+
         // Busca de aventuras no FirebaseDatabase
 
         mAuth = FirebaseAuth.getInstance();
@@ -248,25 +254,42 @@ public class ActivityHome extends AppCompatActivity implements
         final String userId = mAuth.getCurrentUser().getUid();
 
         fetchInitialAdventures();
-        mDatabase.child("users").child(userId).child("adventures").addValueEventListener(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        GenericTypeIndicator<HashMap<String, Object>> genericTypeIndicator = new GenericTypeIndicator<HashMap<String, Object>>() {
-                        };
-                        HashMap<String, Object> idAventuras = dataSnapshot.getValue(genericTypeIndicator);
-                        // Check if adventure id list exists
-                        if (idAventuras != null) {
-                            // Query adventures on database
-                            fetchAdventures(idAventuras.keySet());
-                        }
-                    }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.w(TAG, "getAdventuresIds:onCancelled", databaseError.toException());
-                    }
-                });
+//        mDatabase.child("users").child(userId).child("adventures").addChildEventListener(
+//                new ChildEventListener() {
+//                    @Override
+//                    public void onChildAdded(DataSnapshot dataSnapshot, String previousKey) {
+//                        String adventureKey = dataSnapshot.getKey();
+//                        Set<String> keys = new HashSet<>();
+//                        keys.add(adventureKey);
+//                        fetchAdventures(keys);
+//                    }
+//
+//                    @Override
+//                    public void onChildChanged(DataSnapshot dataSnapshot, String previousKey) {
+//                        String adventureKey = dataSnapshot.getKey();
+//                        Set<String> keys = new HashSet<>();
+//                        keys.add(adventureKey);
+//                        fetchAdventures(keys);
+//                    }
+//
+//                    @Override
+//                    public void onChildRemoved(DataSnapshot dataSnapshot) {
+//                        String adventureKey = dataSnapshot.getKey();
+//                        Set<String> keys = new HashSet<>();
+//                        keys.add(adventureKey);
+//                        fetchAdventures(keys);
+//                    }
+//
+//                    @Override
+//                    public void onChildMoved(DataSnapshot dataSnapshot, String previousKey) {
+//                    }
+//
+//                    @Override
+//                    public void onCancelled(DatabaseError databaseError) {
+//                        Log.w(TAG, "db/users/adventures#addChildEventListener:onCancelled", databaseError.toException());
+//                    }
+//                });
 
         if (mAuth.getCurrentUser().getProviders().contains("google.com")) {
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -293,7 +316,9 @@ public class ActivityHome extends AppCompatActivity implements
                         // Check if adventure id list exists
                         if (idAventuras != null) {
                             // Query adventures on database
-                            fetchAdventures(idAventuras.keySet());
+                            fetchInitialAdventures(idAventuras.keySet());
+                        } else {
+                            fragmentHome.setLoadingComplete();
                         }
                     }
 
@@ -304,35 +329,53 @@ public class ActivityHome extends AppCompatActivity implements
                 });
 
         // fragmentHome.getRecyclerAdapter().notifyDataSetChanged();
-        //showHomeFragment();
+        // showHomeFragment();
 
     }
 
-    private void fetchAdventures(Set<String> idAventuras) {
+    private void fetchInitialAdventures(Set<String> idAventuras) {
+        final OnCompleteHandler onCompleteHandler = new OnCompleteHandler(1, new OnCompleteHandler.OnCompleteCallback() {
+            @Override
+            public void onComplete(boolean cancelled, Object extra) {
+                fragmentHome.setLoadingComplete();
+            }
+        });
+        if (idAventuras.isEmpty()) {
+            onCompleteHandler.advance();
+            return;
+        }
         for (String key : idAventuras) {
             mDatabase.child("adventures").child(key).addListenerForSingleValueEvent(
                     new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            Aventura aventura = dataSnapshot.getValue(Aventura.class);
+                            final Aventura aventura = dataSnapshot.getValue(Aventura.class);
                             // Check if adventure is not null and don't exist on current list
                             if (aventura != null) {
                                 // Add adventure to list
-                                int index = aventura.getIndexOf(aventuras, aventura.getKey());
-                                if (index >= 0) {
-                                    aventuras.set(index, aventura);
-                                } else {
-                                    aventuras.add(aventura);
-                                }
+                                final int index = aventura.getIndexOf(aventuras, aventura.getKey());
+                                final boolean exists = dataSnapshot.exists();
+                                onCompleteHandler.advance();
 
-                                showHomeFragment();
-                                //
+                                if (index >= 0) {
+                                    if (exists) {
+                                        aventuras.set(index, aventura);
+                                        fragmentHome.getRecyclerAdapter().notifyItemChanged(index);
+                                    } else {
+                                        aventuras.remove(index);
+                                        fragmentHome.getRecyclerAdapter().notifyItemRemoved(index);
+                                    }
+                                } else if (exists) {
+                                    aventuras.add(aventura);
+                                    fragmentHome.getRecyclerAdapter().notifyItemInserted(aventuras.size() - 1);
+                                }
                             }
                         }
 
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
                             Log.w(TAG, "fechAdventures:onCancelled", databaseError.toException());
+                            onCompleteHandler.cancel();
                         }
                     });
         }
@@ -356,10 +399,17 @@ public class ActivityHome extends AppCompatActivity implements
     }
 
     public void showHomeFragment() {
-        getSupportFragmentManager()
+        FragmentManager fragmentManager = getSupportFragmentManager();
+
+        if (fragmentManager.findFragmentById(R.id.content_frame) instanceof FragmentHome) {
+            return;
+        }
+
+        fragmentManager
                 .beginTransaction()
-                .replace(R.id.content_frame, fragmentHome).commitAllowingStateLoss();
-        fragmentHome.getRecyclerAdapter().notifyDataSetChanged();
+                .replace(R.id.content_frame, fragmentHome)
+                .addToBackStack(FragmentHome.TAG)
+                .commitAllowingStateLoss();
     }
 
     protected Fragment getScreenFragment(Screen screen) {
@@ -399,15 +449,14 @@ public class ActivityHome extends AppCompatActivity implements
 
     @Override
     public void onCreateAdventure(String title) {
-        Aventura aventura = new Aventura(title, "09/05", "");
+        String userId = mAuth.getCurrentUser().getUid();
+        Aventura aventura = new Aventura(title, "09/05", userId);
         String key = createAdventureFirebase(aventura);
         aventura.setKey(key);
         aventuras.add(aventura);
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_frame, fragmentHome)
-                .addToBackStack(FragmentHome.TAG)
-                .commit();
+        fragmentHome.getRecyclerAdapter().notifyItemInserted(aventuras.size() - 1);
+        fragmentHome.scrollToIndex(aventuras.size() - 1);
+        showHomeFragment();
     }
 
     @Override
@@ -436,11 +485,9 @@ public class ActivityHome extends AppCompatActivity implements
                 removeAdventureFirebase(aventuras.get(removeIndex));
                 aventuras.remove(removeIndex);
                 fragmentHome.getRecyclerAdapter().notifyItemRemoved(removeIndex);
-                showHomeFragment();
             }
         }).setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                showHomeFragment();
             }
         });
         alerta = builder.create();

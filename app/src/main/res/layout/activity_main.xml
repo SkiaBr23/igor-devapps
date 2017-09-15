@@ -5,7 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="br.unb.igor.activities.MainActivity"
+    tools:context="br.unb.igor.activities.ActivityHome"
     android:id="@+id/main_container">
 
     <ImageView

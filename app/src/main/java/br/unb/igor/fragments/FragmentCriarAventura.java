@@ -1,6 +1,5 @@
 package br.unb.igor.fragments;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -16,9 +15,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 
 import br.unb.igor.R;
-import br.unb.igor.listeners.AdventureListener;
+import br.unb.igor.helpers.AdventureListener;
 
 public class FragmentCriarAventura extends Fragment {
+
+    public static final String TAG = FragmentCriarAventura.class.getName();
 
     private ImageView imgFecharAventura;
     private EditText editTituloAventura;
@@ -99,9 +100,12 @@ public class FragmentCriarAventura extends Fragment {
             }
         });
 
+
+        editTituloAventura.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+
         return root;
     }
-
-
 
 }

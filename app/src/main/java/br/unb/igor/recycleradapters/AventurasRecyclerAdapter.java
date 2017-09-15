@@ -1,15 +1,17 @@
 package br.unb.igor.recycleradapters;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.List;
 
 import br.unb.igor.R;
-import br.unb.igor.listeners.AdventureListener;
+import br.unb.igor.helpers.AdventureListener;
 import br.unb.igor.model.Aventura;
 
 /**
@@ -28,6 +30,7 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
         this.context = context;
         this.mListener = listener;
         this.aventuras = aventuras;
+        setHasStableIds(true);
     }
 
     public void setEditMode(boolean b) {
@@ -44,26 +47,40 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
         return aventurasViewHolder;
     }
 
+
     @Override
     public void onBindViewHolder(final AventurasViewHolder holder, int position) {
         if (position < aventuras.size()) {
             Aventura aventura = aventuras.get(holder.getAdapterPosition());
-            String tituloAventura;
-            holder.linearLayoutBackground.setBackgroundResource(aventuras.get(holder.getAdapterPosition()).getImageResource());
-            if (aventuras.get(holder.getAdapterPosition()).getTitulo().length() > 50) {
-                tituloAventura = aventuras.get(holder.getAdapterPosition()).getTitulo().substring(0,45) + this.context.getResources().getString(R.string.strLonga);
-            } else {
-                tituloAventura = aventuras.get(holder.getAdapterPosition()).getTitulo();
+            String tituloAventura = aventuras.get(holder.getAdapterPosition()).getTitulo();
+            holder.linearLayoutBackground.setBackgroundResource(getBackgroundResource(aventura));
+            if (tituloAventura.length() > 50) {
+                tituloAventura = tituloAventura.substring(0,45) + this.context.getResources().getString(R.string.strLonga);
             }
             holder.imgViewDeletar.setVisibility(isInEditMode ? View.VISIBLE : View.INVISIBLE);
             holder.txtViewTituloAventura.setText(tituloAventura);
+
             holder.txtViewProximaSessao.setText(PROXIMA_SESSAO + aventura.getDataProximaSessao());
-            holder.seekBarSessoesAventura.setProgress(aventura.getProgresso());
+            holder.seekBarSessoesAventura.setProgress(50);
+
+            // Set Fira Sans (Regular) font
+            Typeface firaSans = Typeface.createFromAsset(this.context.getAssets(), "FiraSans-Regular.ttf");
+            holder.txtViewTituloAventura.setTypeface(firaSans);
+            holder.txtViewProximaSessao.setTypeface(firaSans);
+
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     int index = holder.getAdapterPosition();
                     mListener.onSelectAdventure(aventuras.get(index), index);
+                }
+            });
+
+
+            holder.seekBarSessoesAventura.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    return true;
                 }
             });
             /*holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -86,8 +103,29 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
         }
     }
 
+    public int getBackgroundResource(Aventura aventura){
+        switch(aventura.getImageResource()){
+            case 1:
+                return R.drawable.miniatura_coast;
+            case 2:
+                return R.drawable.miniatura_corvali;
+            case 3:
+                return R.drawable.miniatura_heartlands;
+            case 4:
+                return R.drawable.miniatura_krevast;
+            case 5:
+                return R.drawable.miniatura_sky;
+            default:
+                return R.drawable.miniatura_krevast;
+        }
+    }
     @Override
     public int getItemCount() {
         return this.aventuras.size();
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return aventuras.get(position).getKey().hashCode();
     }
 }
