@@ -19,6 +19,7 @@
     <color name="bgnToolbar">#221133</color>
     <color name="drawerNotFocused">#ef3656</color>
     <color name="drawerFocused">#f6d282</color>
+    <color name="fabHome">#f6d282</color>
     <color name="btnConfirmarAventura">#ff0b9c8d</color>
 
     <color name="opcaoMenu">#DA364F</color>
@@ -28,4 +29,5 @@
     <color name="baseAventuraEdicao">#1e2843</color>
 
     <color name="fundoCriarAventura">#ff146e6f</color>
+    <color name="bgnHome">#140721</color>
 </resources>

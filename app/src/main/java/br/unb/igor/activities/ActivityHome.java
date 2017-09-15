@@ -3,6 +3,7 @@ package br.unb.igor.activities;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
@@ -120,7 +121,11 @@ public class ActivityHome extends AppCompatActivity implements
             ImageView imgBar = view.findViewById(R.id.bar);
             ImageView imgIcon = view.findViewById(R.id.icon);
 
+            // Set Fira Sans (Regular) font
+            Typeface firaSans = Typeface.createFromAsset(getAssets(), "FiraSans-Regular.ttf");
+
             textView.setText(options[i]);
+            textView.setTypeface(firaSans);
 
             if (i == 0) {
                 imgIcon.setBackgroundResource(R.drawable.aventuras_icone);

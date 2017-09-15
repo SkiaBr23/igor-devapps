@@ -3,6 +3,7 @@ package br.unb.igor.activities;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -82,6 +83,7 @@ public class LoginActivity extends AppCompatActivity implements
     private ProgressDialog mProgressDialog;
     private DatabaseReference mDatabase;
     private DatabaseReference myRef;
+    private TextView separador;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +101,19 @@ public class LoginActivity extends AppCompatActivity implements
         esqueciSenha = (TextView) findViewById(R.id.txtEsqueciSenha);
         btnEntrar = (Button) findViewById(R.id.btnEntrar);
         signInButton = (SignInButton) findViewById(R.id.sign_in_button);
+        separador = (TextView) findViewById(R.id.txtSeparador);
+
+        // Set Fira Sans (Regular) font
+        Typeface firaSans = Typeface.createFromAsset(getAssets(), "FiraSans-Regular.ttf");
+        Typeface firaSansBold = Typeface.createFromAsset(getAssets(), "FiraSans-Bold.ttf");
+        editTextEmail.setTypeface(firaSans);
+        editTextSenha.setTypeface(firaSans);
+        criarConta.setTypeface(firaSans);
+        esqueciSenha.setTypeface(firaSans);
+        btnEntrar.setTypeface(firaSansBold);
+        checkBoxConectado.setTypeface(firaSans);
+        separador.setTypeface(firaSans);
+
 
         signInButton.setSize(SignInButton.SIZE_STANDARD);
 

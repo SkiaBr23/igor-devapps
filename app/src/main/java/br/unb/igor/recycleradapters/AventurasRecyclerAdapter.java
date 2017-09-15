@@ -1,6 +1,7 @@
 package br.unb.igor.recycleradapters;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -58,8 +59,15 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
             }
             holder.imgViewDeletar.setVisibility(isInEditMode ? View.VISIBLE : View.INVISIBLE);
             holder.txtViewTituloAventura.setText(tituloAventura);
+
             holder.txtViewProximaSessao.setText(PROXIMA_SESSAO + aventura.getDataProximaSessao());
             holder.seekBarSessoesAventura.setProgress(50);
+
+            // Set Fira Sans (Regular) font
+            Typeface firaSans = Typeface.createFromAsset(this.context.getAssets(), "FiraSans-Regular.ttf");
+            holder.txtViewTituloAventura.setTypeface(firaSans);
+            holder.txtViewProximaSessao.setTypeface(firaSans);
+
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

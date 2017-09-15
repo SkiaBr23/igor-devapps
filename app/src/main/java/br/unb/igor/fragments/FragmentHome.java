@@ -1,10 +1,10 @@
 package br.unb.igor.fragments;
 
-import android.support.v4.app.Fragment;
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.widget.TextViewCompat;
+import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -77,6 +77,11 @@ public class FragmentHome extends Fragment {
         btnModoEdicao = root.findViewById(R.id.btnModoEdicao);
         btnCriarAventura = root.findViewById(R.id.btnCriarAventura);
         btnConfirmarAlteracao = root.findViewById(R.id.btnConfirmarAlteracao);
+
+        // Set Fira Sans (Regular) font
+        Typeface firaSans = Typeface.createFromAsset(this.getActivity().getAssets(), "FiraSans-Regular.ttf");
+        txtFloatingMessage.setTypeface(firaSans);
+
         btnCriarAventura.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
