@@ -443,7 +443,8 @@ public class ActivityHome extends AppCompatActivity implements
 
     @Override
     public void onCreateAdventure(String title) {
-        Aventura aventura = new Aventura(title, "09/05", "");
+        String userId = mAuth.getCurrentUser().getUid();
+        Aventura aventura = new Aventura(title, "09/05", userId);
         String key = createAdventureFirebase(aventura);
         aventura.setKey(key);
         aventuras.add(aventura);
