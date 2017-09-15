@@ -131,11 +131,11 @@ public class FragmentHome extends Fragment {
             aventurasRecyclerAdapter.setEditMode(b);
 
             if (b) {
-                btnModoEdicao.setVisibility(View.VISIBLE);
+                //btnModoEdicao.setVisibility(View.VISIBLE);
                 btnCriarAventura.setVisibility(View.GONE);
                 btnConfirmarAlteracao.setVisibility(View.VISIBLE);
             } else {
-                btnModoEdicao.setVisibility(View.GONE);
+                //btnModoEdicao.setVisibility(View.GONE);
                 btnCriarAventura.setVisibility(View.VISIBLE);
                 btnConfirmarAlteracao.setVisibility(View.GONE);
             }
