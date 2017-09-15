@@ -26,4 +26,5 @@
     <string name="menu_settings">Configurações</string>
     <string name="menu_exit">Sair</string>
     <string name="strLonga">&#8230;</string>
+    <string name="msg_loading_adventures">Carregando aventuras...</string>
 </resources>

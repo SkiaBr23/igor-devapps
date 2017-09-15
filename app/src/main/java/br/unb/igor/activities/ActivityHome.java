@@ -33,7 +33,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -43,7 +42,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,7 +49,8 @@ import java.util.Set;
 import br.unb.igor.R;
 import br.unb.igor.fragments.FragmentCriarAventura;
 import br.unb.igor.fragments.FragmentHome;
-import br.unb.igor.listeners.AdventureListener;
+import br.unb.igor.helpers.AdventureListener;
+import br.unb.igor.helpers.OnCompleteHandler;
 import br.unb.igor.model.Aventura;
 
 public class ActivityHome extends AppCompatActivity implements
@@ -311,7 +310,9 @@ public class ActivityHome extends AppCompatActivity implements
                         // Check if adventure id list exists
                         if (idAventuras != null) {
                             // Query adventures on database
-                            fetchAdventures(idAventuras.keySet());
+                            fetchInitialAdventures(idAventuras.keySet());
+                        } else {
+                            fragmentHome.setLoadingComplete();
                         }
                     }
 
@@ -326,7 +327,17 @@ public class ActivityHome extends AppCompatActivity implements
 
     }
 
-    private void fetchAdventures(Set<String> idAventuras) {
+    private void fetchInitialAdventures(Set<String> idAventuras) {
+        final OnCompleteHandler onCompleteHandler = new OnCompleteHandler(1, new OnCompleteHandler.OnCompleteCallback() {
+            @Override
+            public void onComplete(boolean cancelled, Object extra) {
+                fragmentHome.setLoadingComplete();
+            }
+        });
+        if (idAventuras.isEmpty()) {
+            onCompleteHandler.advance();
+            return;
+        }
         for (String key : idAventuras) {
             mDatabase.child("adventures").child(key).addListenerForSingleValueEvent(
                     new ValueEventListener() {
@@ -338,6 +349,7 @@ public class ActivityHome extends AppCompatActivity implements
                                 // Add adventure to list
                                 final int index = aventura.getIndexOf(aventuras, aventura.getKey());
                                 final boolean exists = dataSnapshot.exists();
+                                onCompleteHandler.advance();
 
                                 if (index >= 0) {
                                     if (exists) {
@@ -357,6 +369,7 @@ public class ActivityHome extends AppCompatActivity implements
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
                             Log.w(TAG, "fechAdventures:onCancelled", databaseError.toException());
+                            onCompleteHandler.cancel();
                         }
                     });
         }

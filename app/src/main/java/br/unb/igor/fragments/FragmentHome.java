@@ -4,18 +4,21 @@ import android.support.v4.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.widget.TextViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
+import android.widget.TextView;
 
 import java.util.List;
 
 import br.unb.igor.R;
 import br.unb.igor.activities.ActivityHome;
-import br.unb.igor.listeners.AdventureListener;
+import br.unb.igor.helpers.AdventureListener;
 import br.unb.igor.model.Aventura;
 import br.unb.igor.recycleradapters.AventurasRecyclerAdapter;
 
@@ -28,6 +31,8 @@ public class FragmentHome extends Fragment {
     private FloatingActionButton btnConfirmarAlteracao;
 
     private FragmentCriarAventura mFragmentCriarAventura;
+    private TextView txtFloatingMessage;
+    private ProgressBar progressBarLoading;
     private RecyclerView recyclerViewAventurasHome;
     private ScrollView mScrollView;
     private AventurasRecyclerAdapter aventurasRecyclerAdapter;
@@ -63,6 +68,11 @@ public class FragmentHome extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.home, container, false);
+
+        txtFloatingMessage = root.findViewById(R.id.floatingText);
+        txtFloatingMessage.setText(R.string.msg_loading_adventures);
+
+        progressBarLoading = root.findViewById(R.id.loadingSpinner);
 
         btnModoEdicao = root.findViewById(R.id.btnModoEdicao);
         btnCriarAventura = root.findViewById(R.id.btnCriarAventura);
@@ -129,6 +139,11 @@ public class FragmentHome extends Fragment {
 
     public void toggleEditMode() {
         setEditMode(!isInEditMode);
+    }
+
+    public void setLoadingComplete() {
+        txtFloatingMessage.setVisibility(View.GONE);
+        progressBarLoading.setVisibility(View.GONE);
     }
 
 }

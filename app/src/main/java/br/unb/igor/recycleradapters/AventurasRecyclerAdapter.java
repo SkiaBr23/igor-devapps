@@ -9,7 +9,7 @@ import android.view.ViewGroup;
 import java.util.List;
 
 import br.unb.igor.R;
-import br.unb.igor.listeners.AdventureListener;
+import br.unb.igor.helpers.AdventureListener;
 import br.unb.igor.model.Aventura;
 
 /**
