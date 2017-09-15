@@ -26,4 +26,6 @@
     <string name="menu_settings">Configurações</string>
     <string name="menu_exit">Sair</string>
     <string name="strLonga">&#8230;</string>
+
+    <string name="textoDescricaoAventura">Após o misteriosos desaparecimento do príncipe conhecido como Senhor dos Espinhos, um grupo de embaixadores deve impedir que ast tensões entre os reinos cause uma guerra. O futuro do mundo será decidido na corte do Rei.</string>
 </resources>

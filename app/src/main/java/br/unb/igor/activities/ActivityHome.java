@@ -48,6 +48,7 @@ import java.util.Set;
 
 import br.unb.igor.R;
 import br.unb.igor.fragments.FragmentCriarAventura;
+import br.unb.igor.fragments.FragmentEditarAventura;
 import br.unb.igor.fragments.FragmentHome;
 import br.unb.igor.listeners.AdventureListener;
 import br.unb.igor.model.Aventura;
@@ -411,7 +412,15 @@ public class ActivityHome extends AppCompatActivity implements
 
     @Override
     public void onSelectAdventure(Aventura aventura, int index) {
-
+        FragmentEditarAventura fragmentEditarAventura = new FragmentEditarAventura();
+        Bundle bundle = new Bundle();
+        bundle.putString("tituloAventura", aventura.getTitulo());
+        fragmentEditarAventura.setArguments(bundle);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_frame, fragmentEditarAventura)
+                .addToBackStack(FragmentEditarAventura.TAG)
+                .commit();
     }
 
     @Override

@@ -44,4 +44,85 @@
         android:layout_marginEnd="10dp"
         android:background="@drawable/aba_um"/>
 
+    <TextView
+        android:id="@+id/abaAndamento"
+        app:layout_constraintLeft_toLeftOf="@+id/abasJanelas"
+        app:layout_constraintTop_toTopOf="@+id/abasJanelas"
+        android:text="ANDAMENTO"
+        android:textSize="14sp"
+        android:textColor="@color/preto"
+        android:textStyle="bold"
+        android:layout_marginStart="45dp"
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/abaJogadores"
+        app:layout_constraintRight_toRightOf="@+id/abasJanelas"
+        app:layout_constraintTop_toTopOf="@+id/abasJanelas"
+        android:text="JOGADORES"
+        android:textSize="14sp"
+        android:textColor="@color/preto"
+        android:textStyle="bold"
+        android:layout_marginEnd="50dp"
+        android:layout_marginTop="10dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    
+    
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/boxAndamentoAventura"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/abasJanelas"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="14dp"
+        android:background="@color/fundoCriarConta">
+
+        <EditText
+            android:id="@+id/txtDescricaoAventura"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:textStyle="bold"
+            android:textSize="15sp"
+            android:layout_marginTop="20dp"
+            android:inputType="none"
+            android:text="@string/textoDescricaoAventura"/>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/listaSessoes"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="@+id/txtDescricaoAventura"
+            app:layout_constraintRight_toRightOf="@+id/txtDescricaoAventura"
+            app:layout_constraintTop_toBottomOf="@+id/txtDescricaoAventura">
+
+        </android.support.v7.widget.RecyclerView>
+
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/boxJogadoresAventura"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/abasJanelas"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="14dp"
+        android:visibility="gone"
+        android:background="@color/fundoCriarConta">
+
+
+    </android.support.constraint.ConstraintLayout>
+
 </android.support.constraint.ConstraintLayout>
