@@ -1,11 +1,11 @@
 package br.unb.igor.fragments;
 
 
+import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import br.unb.igor.R;
+import br.unb.igor.helpers.AdventureEditListener;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -22,6 +23,7 @@ public class FragmentEditarAventura extends Fragment {
 
     public static String TAG = FragmentHome.class.getName();
     private String tituloAventura;
+    private String keyAventura;
     private TextView txtTituloAventuraEdicao;
     private EditText txtDescricaoAventura;
     private ImageView abasJanelas;
@@ -29,8 +31,26 @@ public class FragmentEditarAventura extends Fragment {
     private TextView abaJogadores;
     private ConstraintLayout boxAndamentoAventura;
     private ConstraintLayout boxJogadoresAventura;
+    private AdventureEditListener mListener;
+    private FloatingActionButton btnAdicionarSessao;
 
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof AdventureEditListener) {
+            mListener = (AdventureEditListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
 
 
     public FragmentEditarAventura() {
@@ -44,11 +64,13 @@ public class FragmentEditarAventura extends Fragment {
         // Inflate the layout for this fragment
         final View root = inflater.inflate(R.layout.editar_aventura, container, false);
         tituloAventura = getArguments().getString("tituloAventura");
+        keyAventura = getArguments().getString("keyAventura");
         txtTituloAventuraEdicao = (TextView)root.findViewById(R.id.txtTituloAventuraEdicao);
         txtDescricaoAventura = (EditText)root.findViewById(R.id.txtDescricaoAventura);
         abasJanelas = (ImageView)root.findViewById(R.id.abasJanelas);
         abaAndamento = (TextView)root.findViewById(R.id.abaAndamento);
         abaJogadores = (TextView)root.findViewById(R.id.abaJogadores);
+        btnAdicionarSessao = (FloatingActionButton)root.findViewById(R.id.btnAdicionarSessao);
 
         boxAndamentoAventura = (ConstraintLayout)root.findViewById(R.id.boxAndamentoAventura);
         boxJogadoresAventura = (ConstraintLayout)root.findViewById(R.id.boxJogadoresAventura);
@@ -71,6 +93,12 @@ public class FragmentEditarAventura extends Fragment {
             }
         });
 
+        btnAdicionarSessao.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListener.onAdicionarSessao(keyAventura);
+            }
+        });
 
 
 

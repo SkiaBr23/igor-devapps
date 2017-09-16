@@ -2,6 +2,7 @@ package br.unb.igor.model;
 
 import com.google.firebase.database.Exclude;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +58,10 @@ public class Aventura {
     }
 
     public List<Sessao> getSessoes() {
-        return sessoes;
+        if (this.sessoes == null) {
+            this.sessoes = new ArrayList<>();
+        }
+        return this.sessoes;
     }
 
     public void setSessoes(List<Sessao> sessoes) {

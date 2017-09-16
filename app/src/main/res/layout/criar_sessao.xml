@@ -1,0 +1,112 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/fundoCriarAventura"
+    tools:context="br.unb.igor.fragments.FragmentCriarSessao">
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/boxCriarSessao"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/fundo_criar_conta"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="40dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp">
+
+        <ImageView
+            android:id="@+id/btnCloseSessao"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_close"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp"/>
+
+        <TextView
+            android:id="@+id/txtCriarSessao"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/btnCloseSessao"
+            android:text="Criar Sessão"
+            android:textSize="14sp"
+            android:layout_marginStart="5dp"
+            android:textStyle="bold"
+            android:textColor="@color/fundoCriarAventura"
+            android:layout_marginTop="12dp" />
+
+        <TextView
+            android:id="@+id/txtTituloSessao"
+            android:layout_width="wrap_content"
+            android:textStyle="bold"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@+id/txtCriarSessao"
+            app:layout_constraintLeft_toLeftOf="@+id/txtCriarSessao"
+            android:layout_marginTop="20dp"
+            android:textSize="14sp"
+            android:hint="Dê um nome à próxima sessão"
+            />
+
+        <EditText
+            android:id="@+id/editTituloSessao"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/txtTituloSessao"
+            app:layout_constraintLeft_toLeftOf="@+id/txtTituloSessao"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="35dp"
+            android:textColor="@color/preto"
+            android:textStyle="bold"
+            android:hint="Defina seu nome de sessão"
+            />
+
+        <Button
+            android:id="@+id/btnConfirmarSessao"
+            android:layout_width="100dp"
+            android:background="@color/btnConfirmarAventura"
+            android:layout_height="48dp"
+            android:textStyle=""
+            android:textColor="@color/branco"
+            android:text="PRONTO"
+            android:layout_marginTop="20dp"
+            android:textSize="18sp"
+            app:layout_constraintRight_toRightOf="@+id/editTituloSessao"
+            app:layout_constraintTop_toBottomOf="@+id/editTituloSessao"
+            />
+
+        <Button
+            android:id="@+id/btnDataSessao"
+            android:layout_width="100dp"
+            android:background="@color/btnConfirmarAventura"
+            android:layout_height="48dp"
+            android:textStyle=""
+            android:textColor="@color/branco"
+            android:text="DATA"
+            android:layout_marginTop="20dp"
+            android:textSize="18sp"
+            app:layout_constraintLeft_toLeftOf="@+id/txtCriarSessao"
+            app:layout_constraintTop_toBottomOf="@+id/editTituloSessao"
+            />
+
+    </android.support.constraint.ConstraintLayout>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btnCloseCriarSessao"
+        android:layout_width="102dp"
+        app:borderWidth="0dp"
+        app:backgroundTint="@android:color/transparent"
+        app:elevation="0dp"
+        android:layout_height="102dp"
+        android:layout_gravity="end"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp"
+        android:src="@drawable/botao_adicionar_sessao"
+        />
+
+
+</FrameLayout>

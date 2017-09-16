@@ -49,19 +49,24 @@ import java.util.Set;
 
 import br.unb.igor.R;
 import br.unb.igor.fragments.FragmentCriarAventura;
+import br.unb.igor.fragments.FragmentCriarSessao;
 import br.unb.igor.fragments.FragmentEditarAventura;
 import br.unb.igor.fragments.FragmentHome;
 import br.unb.igor.helpers.AdventureListener;
 import br.unb.igor.helpers.OnCompleteHandler;
+import br.unb.igor.helpers.AdventureEditListener;
+import br.unb.igor.helpers.SessionListener;
 import br.unb.igor.model.Aventura;
+import br.unb.igor.model.Sessao;
 
 public class ActivityHome extends AppCompatActivity implements
         AdventureListener, GoogleApiClient.OnConnectionFailedListener,
-        PopupMenu.OnMenuItemClickListener {
+        PopupMenu.OnMenuItemClickListener, AdventureEditListener, SessionListener {
 
     private static final String TAG = ActivityHome.class.getName();
 
     private FragmentHome fragmentHome;
+    private FragmentEditarAventura fragmentEditarAventura;
     private ImageView imgHamburguer;
     private ImageView imgOptionsMenu;
     private DrawerLayout mDrawerLayout;
@@ -180,6 +185,7 @@ public class ActivityHome extends AppCompatActivity implements
 
         final DrawerListAdapter drawerAdapter = new DrawerListAdapter();
         mAuth = FirebaseAuth.getInstance();
+        this.aventuras = new ArrayList<Aventura>();
 
         mDrawerLayout = findViewById(R.id.drawer);
         mDrawerOptions = findViewById(R.id.drawer_options);
@@ -227,7 +233,6 @@ public class ActivityHome extends AppCompatActivity implements
             }
         });
 
-        aventuras = new ArrayList<Aventura>();
         fragmentHome = new FragmentHome();
 
         if (savedInstanceState == null) {
@@ -235,7 +240,14 @@ public class ActivityHome extends AppCompatActivity implements
                     .beginTransaction()
                     .replace(R.id.content_frame, fragmentHome)
                     .commit();
+        } else{
+            fragmentManager
+                    .beginTransaction()
+                    .replace(R.id.content_frame, fragmentHome)
+                    .commit();
         }
+
+        int opa = 2;
 
 
         // Busca de aventuras no FirebaseDatabase
@@ -395,6 +407,9 @@ public class ActivityHome extends AppCompatActivity implements
     }
 
     public List<Aventura> getAdventures() {
+        if (this.aventuras == null) {
+            this.aventuras = new ArrayList<>();
+        }
         return aventuras;
     }
 
@@ -461,9 +476,10 @@ public class ActivityHome extends AppCompatActivity implements
 
     @Override
     public void onSelectAdventure(Aventura aventura, int index) {
-        FragmentEditarAventura fragmentEditarAventura = new FragmentEditarAventura();
+        fragmentEditarAventura = new FragmentEditarAventura();
         Bundle bundle = new Bundle();
         bundle.putString("tituloAventura", aventura.getTitulo());
+        bundle.putString("keyAventura",aventura.getKey());
         fragmentEditarAventura.setArguments(bundle);
         getSupportFragmentManager()
                 .beginTransaction()
@@ -540,6 +556,43 @@ public class ActivityHome extends AppCompatActivity implements
     @Override
     public void onPointerCaptureChanged(boolean hasCapture) {
 
+    }
+
+    @Override
+    public void onAdicionarSessao(String keyAventura) {
+        FragmentCriarSessao fragmentCriarSessao = new FragmentCriarSessao();
+        Bundle bundle = new Bundle();
+        bundle.putString("keyAventura",keyAventura);
+        fragmentCriarSessao.setArguments(bundle);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_frame, fragmentCriarSessao)
+                .addToBackStack(FragmentCriarSessao.TAG)
+                .commit();
+    }
+
+    @Override
+    public void onConfirmarSessao(String keyAventura, String tituloSessao) {
+        Aventura aventuraSelecionada = getAventuraViaKey(keyAventura);
+        if (aventuraSelecionada != null) {
+            Sessao sessaoSaida = new Sessao();
+            sessaoSaida.setResumo(tituloSessao);
+            aventuraSelecionada.getSessoes().add(sessaoSaida);
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.content_frame, fragmentEditarAventura)
+                    .addToBackStack(FragmentEditarAventura.TAG)
+                    .commit();
+        }
+    }
+
+    public Aventura getAventuraViaKey (String key) {
+        for (Aventura aventuraAux : this.aventuras) {
+            if (aventuraAux.getKey().equals(key)) {
+                return aventuraAux;
+            }
+        }
+        return null;
     }
 
 }
