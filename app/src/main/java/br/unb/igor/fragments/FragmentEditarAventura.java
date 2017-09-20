@@ -33,6 +33,7 @@ public class FragmentEditarAventura extends Fragment {
     private ConstraintLayout boxJogadoresAventura;
     private AdventureEditListener mListener;
     private FloatingActionButton btnAdicionarSessao;
+    private FloatingActionButton btnAdicionarJogadores;
 
 
     @Override
@@ -71,6 +72,7 @@ public class FragmentEditarAventura extends Fragment {
         abaAndamento = (TextView)root.findViewById(R.id.abaAndamento);
         abaJogadores = (TextView)root.findViewById(R.id.abaJogadores);
         btnAdicionarSessao = (FloatingActionButton)root.findViewById(R.id.btnAdicionarSessao);
+        btnAdicionarJogadores = (FloatingActionButton)root.findViewById(R.id.btnAdicionarJogador);
 
         boxAndamentoAventura = (ConstraintLayout)root.findViewById(R.id.boxAndamentoAventura);
         boxJogadoresAventura = (ConstraintLayout)root.findViewById(R.id.boxJogadoresAventura);
@@ -81,6 +83,8 @@ public class FragmentEditarAventura extends Fragment {
                 boxAndamentoAventura.setVisibility(View.GONE);
                 boxJogadoresAventura.setVisibility(View.VISIBLE);
                 abasJanelas.setBackground(getResources().getDrawable(R.drawable.aba_dois));
+                btnAdicionarSessao.setVisibility(View.GONE);
+                btnAdicionarJogadores.setVisibility(View.VISIBLE);
             }
         });
 
@@ -90,6 +94,8 @@ public class FragmentEditarAventura extends Fragment {
                 boxAndamentoAventura.setVisibility(View.VISIBLE);
                 boxJogadoresAventura.setVisibility(View.GONE);
                 abasJanelas.setBackground(getResources().getDrawable(R.drawable.aba_um));
+                btnAdicionarSessao.setVisibility(View.VISIBLE);
+                btnAdicionarJogadores.setVisibility(View.GONE);
             }
         });
 
