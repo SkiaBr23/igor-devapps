@@ -80,6 +80,7 @@
         app:layout_constraintLeft_toLeftOf="parent"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="14dp"
+        android:visibility="visible"
         android:background="@color/fundoCriarConta">
 
         <EditText
@@ -110,11 +111,12 @@
         <TextView
             android:layout_marginTop="20dp"
             android:id="@+id/txtIndicadorNenhumaSessao"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:text="Você não possui sessões registradas"
-            app:layout_constraintLeft_toLeftOf="@+id/txtDescricaoAventura"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/txtDescricaoAventura"
             app:layout_constraintBottom_toBottomOf="parent"
             />
@@ -133,6 +135,83 @@
         android:layout_marginEnd="14dp"
         android:visibility="gone"
         android:background="@color/fundoCriarConta">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/profileImageMestre"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:src="@drawable/mfx_profile"
+            app:civ_border_width="0dp"
+            app:civ_border_color="#FF000000"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="10dp"
+            />
+        
+        <TextView
+            android:id="@+id/txtMestre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Mestre"
+            android:textColor="@color/preto"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="10dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/profileImageMestre"
+            />
+
+        <TextView
+            android:id="@+id/txtNomeMestre"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Maximillian"
+            android:textStyle="italic"
+            android:textSize="18sp"
+            app:layout_constraintBaseline_toBaselineOf="@+id/txtMestre"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toRightOf="@+id/txtMestre"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="5dp"
+            />
+
+        <TextView
+            android:id="@+id/txtDescricaoPersonagem"
+            android:layout_width="0dp"
+            android:textSize="16sp"
+            android:textColor="@color/preto"
+            android:layout_height="wrap_content"
+            android:text="@string/txtDescricaoPersonagem"
+            app:layout_constraintTop_toBottomOf="@+id/txtMestre"
+            app:layout_constraintLeft_toLeftOf="@+id/txtMestre"
+            app:layout_constraintRight_toRightOf="parent"
+            />
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/listaJogadores"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/profileImageMestre">
+
+        </android.support.v7.widget.RecyclerView>
+
+        <TextView
+            android:layout_marginTop="20dp"
+            android:id="@+id/txtIndicadorNenhumJogador"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:text="Você não adicionou jogadores"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/profileImageMestre"
+            app:layout_constraintBottom_toBottomOf="parent"
+            />
 
 
     </android.support.constraint.ConstraintLayout>
