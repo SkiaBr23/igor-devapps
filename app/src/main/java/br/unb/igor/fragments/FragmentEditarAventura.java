@@ -13,8 +13,14 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.squareup.picasso.Picasso;
+
 import br.unb.igor.R;
 import br.unb.igor.helpers.AdventureEditListener;
+import br.unb.igor.helpers.CircleTransform;
+import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -34,6 +40,9 @@ public class FragmentEditarAventura extends Fragment {
     private AdventureEditListener mListener;
     private FloatingActionButton btnAdicionarSessao;
     private FloatingActionButton btnAdicionarJogadores;
+    private FirebaseAuth mAuth;
+    private CircleImageView profileImageMestre;
+    private TextView txtNomeMestre;
 
 
     @Override
@@ -73,6 +82,27 @@ public class FragmentEditarAventura extends Fragment {
         abaJogadores = (TextView)root.findViewById(R.id.abaJogadores);
         btnAdicionarSessao = (FloatingActionButton)root.findViewById(R.id.btnAdicionarSessao);
         btnAdicionarJogadores = (FloatingActionButton)root.findViewById(R.id.btnAdicionarJogador);
+        profileImageMestre = (CircleImageView)root.findViewById(R.id.profileImageMestre);
+        txtNomeMestre = (TextView)root.findViewById(R.id.txtNomeMestre);
+
+        mAuth = FirebaseAuth.getInstance();
+
+        mAuth = FirebaseAuth.getInstance();
+        if(mAuth.getCurrentUser() != null) {
+            FirebaseUser user = mAuth.getCurrentUser();
+            if (user.getDisplayName() != null) {
+                txtNomeMestre.setText(user.getDisplayName());
+            } else {
+                txtNomeMestre.setText(user.getEmail());
+            }
+            if (user.getPhotoUrl() != null) {
+                Picasso.with(profileImageMestre.getContext()).load(user.getPhotoUrl()).transform(new CircleTransform()).into(profileImageMestre);
+            }
+
+        } else {
+            txtNomeMestre.setText("Unknown User");
+        }
+
 
         boxAndamentoAventura = (ConstraintLayout)root.findViewById(R.id.boxAndamentoAventura);
         boxJogadoresAventura = (ConstraintLayout)root.findViewById(R.id.boxJogadoresAventura);

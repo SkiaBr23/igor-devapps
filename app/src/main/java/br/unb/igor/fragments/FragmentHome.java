@@ -147,8 +147,8 @@ public class FragmentHome extends Fragment {
     }
 
     public void setLoadingComplete() {
-        //txtFloatingMessage.setVisibility(View.GONE);
-        //progressBarLoading.setVisibility(View.GONE);
+        txtFloatingMessage.setVisibility(View.GONE);
+        progressBarLoading.setVisibility(View.GONE);
     }
 
 }
