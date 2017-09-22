@@ -86,7 +86,7 @@
             android:layout_height="48dp"
             android:textStyle=""
             android:textColor="@color/branco"
-            android:text="DATA"
+            android:text="00/00/00"
             android:layout_marginTop="20dp"
             android:textSize="18sp"
             app:layout_constraintLeft_toLeftOf="@+id/txtCriarSessao"
