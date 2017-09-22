@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,9 +19,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import br.unb.igor.R;
+import br.unb.igor.activities.ActivityHome;
 import br.unb.igor.helpers.AdventureEditListener;
 import br.unb.igor.helpers.CircleTransform;
+import br.unb.igor.model.Aventura;
+import br.unb.igor.model.Sessao;
+import br.unb.igor.recycleradapters.SessoesRecyclerAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 /**
@@ -43,6 +52,12 @@ public class FragmentEditarAventura extends Fragment {
     private FirebaseAuth mAuth;
     private CircleImageView profileImageMestre;
     private TextView txtNomeMestre;
+    private TextView txtIndicadorNenhumaSessao;
+
+    private RecyclerView recyclerViewListaSessoes;
+    private SessoesRecyclerAdapter sessoesRecyclerAdapter;
+    private RecyclerView.LayoutManager layoutManager;
+    private List<Sessao> sessoes;
 
 
     @Override
@@ -84,10 +99,27 @@ public class FragmentEditarAventura extends Fragment {
         btnAdicionarJogadores = (FloatingActionButton)root.findViewById(R.id.btnAdicionarJogador);
         profileImageMestre = (CircleImageView)root.findViewById(R.id.profileImageMestre);
         txtNomeMestre = (TextView)root.findViewById(R.id.txtNomeMestre);
+        txtIndicadorNenhumaSessao = (TextView)root.findViewById(R.id.txtIndicadorNenhumaSessao);
+        recyclerViewListaSessoes = (RecyclerView)root.findViewById(R.id.recyclerViewListaSessoes);
 
-        mAuth = FirebaseAuth.getInstance();
+        System.out.println("Criou view");
 
-        mAuth = FirebaseAuth.getInstance();
+        for (Aventura aventura : ((ActivityHome)getActivity()).getAdventures()) {
+            if (aventura.getKey().equals(getArguments().getString("keyAventura"))) {
+                sessoes = aventura.getSessoes();
+            }
+        }
+
+        if (sessoes.size() > 0) {
+            txtIndicadorNenhumaSessao.setVisibility(View.GONE);
+            recyclerViewListaSessoes.setVisibility(View.VISIBLE);
+        } else {
+            recyclerViewListaSessoes.setVisibility(View.GONE);
+        }
+
+             mAuth = FirebaseAuth.getInstance();
+
+             mAuth = FirebaseAuth.getInstance();
         if(mAuth.getCurrentUser() != null) {
             FirebaseUser user = mAuth.getCurrentUser();
             if (user.getDisplayName() != null) {
@@ -143,7 +175,20 @@ public class FragmentEditarAventura extends Fragment {
 
         txtTituloAventuraEdicao.setText(tituloAventura);
 
+        layoutManager = new LinearLayoutManager(getActivity());
+        recyclerViewListaSessoes.setLayoutManager(layoutManager);
+        sessoesRecyclerAdapter = new SessoesRecyclerAdapter(getActivity(), mListener, getSessoes());
+        recyclerViewListaSessoes.setAdapter(sessoesRecyclerAdapter);
+        sessoesRecyclerAdapter.notifyDataSetChanged();
+
         return root;
+    }
+
+    public List<Sessao> getSessoes () {
+        if (this.sessoes == null) {
+            this.sessoes = new ArrayList<>();
+        }
+        return this.sessoes;
     }
 
 }

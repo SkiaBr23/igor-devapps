@@ -571,7 +571,7 @@ public class LoginActivity extends AppCompatActivity implements
                     }
                 }
             });
-
+//TODO: arrumar loginSucess e loginFailed no completeListener acima
         new android.os.Handler().postDelayed(
             new Runnable() {
                 public void run() {

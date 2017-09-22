@@ -569,6 +569,11 @@ public class ActivityHome extends AppCompatActivity implements
     }
 
     @Override
+    public void onSelectSessao(Sessao sessao, int index) {
+
+    }
+
+    @Override
     public void onConfirmarSessao(String keyAventura, String tituloSessao, String dataSessao) {
         Aventura aventuraSelecionada = getAventuraViaKey(keyAventura);
         if (aventuraSelecionada != null) {
@@ -576,6 +581,9 @@ public class ActivityHome extends AppCompatActivity implements
             sessaoSaida.setResumo(tituloSessao);
             sessaoSaida.setData(dataSessao);
             aventuraSelecionada.getSessoes().add(sessaoSaida);
+            Bundle bundle = new Bundle();
+            bundle.putString("keyAventura", aventuraSelecionada.getKey());
+            fragmentEditarAventura.setArguments(bundle);
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.content_frame, fragmentEditarAventura)

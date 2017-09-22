@@ -53,7 +53,7 @@
         android:textColor="@color/preto"
         android:textStyle="bold"
         android:layout_marginStart="45dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="12.5dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
@@ -66,7 +66,7 @@
         android:textColor="@color/preto"
         android:textStyle="bold"
         android:layout_marginEnd="50dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="12.5dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
     
@@ -74,12 +74,14 @@
     <android.support.constraint.ConstraintLayout
         android:id="@+id/boxAndamentoAventura"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         app:layout_constraintTop_toBottomOf="@+id/abasJanelas"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="14dp"
+        android:layout_marginBottom="30dp"
         android:visibility="visible"
         android:background="@color/fundoCriarConta">
 
@@ -99,12 +101,15 @@
             android:text="@string/textoDescricaoAventura"/>
 
         <android.support.v7.widget.RecyclerView
-            android:id="@+id/listaSessoes"
+            android:id="@+id/recyclerViewListaSessoes"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:layout_marginBottom="10dp"
+            android:visibility="gone"
             app:layout_constraintLeft_toLeftOf="@+id/txtDescricaoAventura"
             app:layout_constraintRight_toRightOf="@+id/txtDescricaoAventura"
-            app:layout_constraintTop_toBottomOf="@+id/txtDescricaoAventura">
+            app:layout_constraintTop_toBottomOf="@+id/txtDescricaoAventura"
+            app:layout_constraintBottom_toBottomOf="parent">
 
         </android.support.v7.widget.RecyclerView>
 
@@ -118,7 +123,6 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/txtDescricaoAventura"
-            app:layout_constraintBottom_toBottomOf="parent"
             />
 
 
