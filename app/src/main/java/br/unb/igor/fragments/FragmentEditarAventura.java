@@ -28,6 +28,7 @@ import br.unb.igor.helpers.AdventureEditListener;
 import br.unb.igor.helpers.CircleTransform;
 import br.unb.igor.model.Aventura;
 import br.unb.igor.model.Sessao;
+import br.unb.igor.recycleradapters.JogadoresRecyclerAdapter;
 import br.unb.igor.recycleradapters.SessoesRecyclerAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -53,11 +54,17 @@ public class FragmentEditarAventura extends Fragment {
     private CircleImageView profileImageMestre;
     private TextView txtNomeMestre;
     private TextView txtIndicadorNenhumaSessao;
+    private TextView txtIndicadorNenhumJogador;
 
     private RecyclerView recyclerViewListaSessoes;
+    private RecyclerView recyclerViewListaJogadores;
     private SessoesRecyclerAdapter sessoesRecyclerAdapter;
     private RecyclerView.LayoutManager layoutManager;
+
+    private JogadoresRecyclerAdapter jogadoresRecyclerAdapter;
+    private RecyclerView.LayoutManager layoutManagerJogadores;
     private List<Sessao> sessoes;
+    private List<String> usersID;
 
 
     @Override
@@ -100,22 +107,32 @@ public class FragmentEditarAventura extends Fragment {
         profileImageMestre = (CircleImageView)root.findViewById(R.id.profileImageMestre);
         txtNomeMestre = (TextView)root.findViewById(R.id.txtNomeMestre);
         txtIndicadorNenhumaSessao = (TextView)root.findViewById(R.id.txtIndicadorNenhumaSessao);
+        txtIndicadorNenhumJogador = (TextView)root.findViewById(R.id.txtIndicadorNenhumJogador);
         recyclerViewListaSessoes = (RecyclerView)root.findViewById(R.id.recyclerViewListaSessoes);
-
-        System.out.println("Criou view");
+        recyclerViewListaJogadores = (RecyclerView)root.findViewById(R.id.recyclerViewListaJogadores);
 
         for (Aventura aventura : ((ActivityHome)getActivity()).getAdventures()) {
             if (aventura.getKey().equals(getArguments().getString("keyAventura"))) {
                 sessoes = aventura.getSessoes();
+                usersID = aventura.getJogadoresUserIds();
             }
         }
 
-        if (sessoes.size() > 0) {
+        if (getSessoes().size() > 0) {
             txtIndicadorNenhumaSessao.setVisibility(View.GONE);
             recyclerViewListaSessoes.setVisibility(View.VISIBLE);
         } else {
             recyclerViewListaSessoes.setVisibility(View.GONE);
         }
+
+        /*if (getUsersID().size() > 0) {
+            txtIndicadorNenhumJogador.setVisibility(View.GONE);
+            recyclerViewListaJogadores.setVisibility(View.VISIBLE);
+        } else {
+            recyclerViewListaJogadores.setVisibility(View.GONE);
+        }*/
+
+
 
              mAuth = FirebaseAuth.getInstance();
 
@@ -181,6 +198,11 @@ public class FragmentEditarAventura extends Fragment {
         recyclerViewListaSessoes.setAdapter(sessoesRecyclerAdapter);
         sessoesRecyclerAdapter.notifyDataSetChanged();
 
+        layoutManagerJogadores = new LinearLayoutManager(getActivity());
+        recyclerViewListaJogadores.setLayoutManager(layoutManagerJogadores);
+        jogadoresRecyclerAdapter = new JogadoresRecyclerAdapter(getActivity(), mListener, getUsersID());
+        recyclerViewListaJogadores.setAdapter(jogadoresRecyclerAdapter);
+
         return root;
     }
 
@@ -189,6 +211,13 @@ public class FragmentEditarAventura extends Fragment {
             this.sessoes = new ArrayList<>();
         }
         return this.sessoes;
+    }
+
+    public List<String> getUsersID () {
+        if (this.usersID == null) {
+            this.usersID = new ArrayList<>();
+        }
+        return this.usersID;
     }
 
 }
