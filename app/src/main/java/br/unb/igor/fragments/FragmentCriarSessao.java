@@ -108,8 +108,10 @@ public class FragmentCriarSessao extends Fragment {
                         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
                     }
                     String titleSession = editTituloSessao.getText().toString();
+                    String dateSession = btnDataSessao.getText().toString();
                     editTituloSessao.setText("");
-                    mListener.onConfirmarSessao(keyAdventure,titleSession);
+                    btnDataSessao.setText("00/00/00");
+                    mListener.onConfirmarSessao(keyAdventure,titleSession, dateSession);
                 }
             }
         });

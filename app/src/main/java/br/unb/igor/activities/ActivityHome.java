@@ -247,9 +247,6 @@ public class ActivityHome extends AppCompatActivity implements
                     .commit();
         }
 
-        int opa = 2;
-
-
         // Busca de aventuras no FirebaseDatabase
 
         mAuth = FirebaseAuth.getInstance();
@@ -572,11 +569,12 @@ public class ActivityHome extends AppCompatActivity implements
     }
 
     @Override
-    public void onConfirmarSessao(String keyAventura, String tituloSessao) {
+    public void onConfirmarSessao(String keyAventura, String tituloSessao, String dataSessao) {
         Aventura aventuraSelecionada = getAventuraViaKey(keyAventura);
         if (aventuraSelecionada != null) {
             Sessao sessaoSaida = new Sessao();
             sessaoSaida.setResumo(tituloSessao);
+            sessaoSaida.setData(dataSessao);
             aventuraSelecionada.getSessoes().add(sessaoSaida);
             getSupportFragmentManager()
                     .beginTransaction()
