@@ -40,6 +40,7 @@ public class FragmentHome extends Fragment {
     private List<Aventura> aventuras;
     private AdventureListener mListener;
     private boolean isInEditMode = false;
+    private boolean isLoading = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -73,6 +74,10 @@ public class FragmentHome extends Fragment {
         txtFloatingMessage.setText(R.string.msg_loading_adventures);
 
         progressBarLoading = root.findViewById(R.id.loadingSpinner);
+
+        if (!isLoading) {
+            setLoadingComplete();
+        }
 
         btnModoEdicao = root.findViewById(R.id.btnModoEdicao);
         btnCriarAventura = root.findViewById(R.id.btnCriarAventura);
@@ -147,8 +152,13 @@ public class FragmentHome extends Fragment {
     }
 
     public void setLoadingComplete() {
-        txtFloatingMessage.setVisibility(View.GONE);
-        progressBarLoading.setVisibility(View.GONE);
+        if (txtFloatingMessage != null)
+            txtFloatingMessage.setVisibility(View.GONE);
+
+        if (progressBarLoading != null)
+            progressBarLoading.setVisibility(View.GONE);
+
+        isLoading = false;
     }
 
 }
