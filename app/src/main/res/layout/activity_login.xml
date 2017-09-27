@@ -114,25 +114,31 @@
         app:layout_constraintTop_toBottomOf="@+id/checkBoxConectado"
         />
 
-    <TextView
+    <Button
         android:id="@+id/txtCriarConta"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
+        android:text="@string/criarConta"
+        android:textSize="14sp"
         android:textColor="@color/btnEntrar"
+        android:background="@color/transp"
+        android:textAllCaps="false"
         app:layout_constraintLeft_toLeftOf="@+id/checkBoxConectado"
-        app:layout_constraintTop_toBottomOf="@+id/btnEntrar"
-        android:text="@string/criarConta"/>
+        app:layout_constraintTop_toBottomOf="@+id/btnEntrar"/>
 
-    <TextView
+    <Button
         android:id="@+id/txtEsqueciSenha"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
+        android:text="@string/esqueciSenha"
+        android:textSize="14sp"
         android:textColor="@color/branco"
+        android:background="@color/transp"
+        android:textAllCaps="false"
         app:layout_constraintRight_toRightOf="@+id/btnEntrar"
-        app:layout_constraintTop_toBottomOf="@+id/btnEntrar"
-        android:text="@string/esqueciSenha"/>
+        app:layout_constraintTop_toBottomOf="@+id/btnEntrar"/>
 
     <!-- Login facebook button -->
     <com.facebook.login.widget.LoginButton

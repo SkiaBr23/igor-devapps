@@ -67,7 +67,7 @@ public class FragmentHome extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View root = inflater.inflate(R.layout.home, container, false);
+        final View root = inflater.inflate(R.layout.fragment_home, container, false);
 
         txtFloatingMessage = root.findViewById(R.id.floatingText);
         txtFloatingMessage.setText(R.string.msg_loading_adventures);
