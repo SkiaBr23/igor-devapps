@@ -1,13 +1,11 @@
 package br.unb.igor.activities;
 
-import android.graphics.Color;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -16,7 +14,7 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import br.unb.igor.R;
 
-public class ForgotPasswordActivity extends AppCompatActivity {
+public class ActivityForgotPassword extends AppCompatActivity {
 
     private EditText emailForgotPassword;
     private Button buttonForgotPassword;
@@ -43,10 +41,10 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
-                                Toast.makeText(ForgotPasswordActivity.this, "Email de redefinição de senha enviado!", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ActivityForgotPassword.this, "Email de redefinição de senha enviado!", Toast.LENGTH_SHORT).show();
                                 callLoginActivity();
                             } else {
-                                Toast.makeText(ForgotPasswordActivity.this, "Falha no envio do email", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(ActivityForgotPassword.this, "Falha no envio do email", Toast.LENGTH_SHORT).show();
                             }
                         }
                     });

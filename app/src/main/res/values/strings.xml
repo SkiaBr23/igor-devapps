@@ -31,4 +31,10 @@
     <string name="txtDescricaoPersonagem">Mestre impiedoso que não se importa em matar personagens</string>
 
     <string name="textoDescricaoAventura">Após o misteriosos desaparecimento do príncipe conhecido como Senhor dos Espinhos, um grupo de embaixadores deve impedir que ast tensões entre os reinos cause uma guerra. O futuro do mundo será decidido na corte do Rei.</string>
+    <string name="new_account_username_placeholder">Nome de usuário</string>
+    <string name="new_account_email_placeholder">E-mail</string>
+    <string name="new_account_placeholder_password">Senha</string>
+    <string name="new_account_placeholder_birthday">Data de nascimento</string>
+    <string name="new_account_placeholder_gender">Sexo</string>
+    <string name="new_account_button_create">CRIAR</string>
 </resources>

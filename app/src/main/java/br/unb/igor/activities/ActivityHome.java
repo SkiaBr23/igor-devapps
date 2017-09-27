@@ -166,7 +166,7 @@ public class ActivityHome extends AppCompatActivity implements
                     imgIcon.setBackgroundResource(R.drawable.configuracoes_icone_selecionado);
                 } else if (i == 5) {
                     signOut();
-                    Intent loginIntent = new Intent(ActivityHome.this, LoginActivity.class);
+                    Intent loginIntent = new Intent(ActivityHome.this, ActivityLogin.class);
                     startActivity(loginIntent);
                 }
             } else {

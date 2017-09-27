@@ -53,11 +53,11 @@ import com.google.firebase.database.ValueEventListener;
 import br.unb.igor.R;
 import br.unb.igor.model.User;
 
-public class LoginActivity extends AppCompatActivity implements
+public class ActivityLogin extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener {
 
-    private static final String TAG = LoginActivity.class.getName();
+    private static final String TAG = ActivityLogin.class.getName();
 
     private EditText editTextEmail;
     private EditText editTextSenha;
@@ -90,7 +90,7 @@ public class LoginActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
 
 
-        setContentView(R.layout.login);
+        setContentView(R.layout.activity_login);
 
         //Input
         editTextEmail = (EditText) findViewById(R.id.emailLogin);
@@ -120,7 +120,7 @@ public class LoginActivity extends AppCompatActivity implements
         esqueciSenha.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            Intent forgotPasswordIntent = new Intent(LoginActivity.this,ForgotPasswordActivity.class);
+            Intent forgotPasswordIntent = new Intent(ActivityLogin.this,ActivityForgotPassword.class);
             startActivity(forgotPasswordIntent);
             overridePendingTransition(R.anim.fade_in_320ms, R.anim.fade_none);
             }
@@ -269,7 +269,7 @@ public class LoginActivity extends AppCompatActivity implements
 
     private void callSignupActivity() {
         // Start the Signup activity
-        Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
+        Intent intent = new Intent(getApplicationContext(), ActivitySignup.class);
         startActivityForResult(intent, REQUEST_SIGNUP);
         overridePendingTransition(R.anim.fade_in_320ms, R.anim.fade_none);
     }
@@ -379,6 +379,8 @@ public class LoginActivity extends AppCompatActivity implements
             LoginManager.getInstance().logOut();
             loggedFacebook = false;
         }
+
+        loggedEmail = false;
     }
     // [END signOut]
 
@@ -445,7 +447,7 @@ public class LoginActivity extends AppCompatActivity implements
     }
 
     public void callMainActivity(){
-        Intent mainIntent = new Intent(LoginActivity.this, ActivityHome.class);
+        Intent mainIntent = new Intent(ActivityLogin.this, ActivityHome.class);
         startActivity(mainIntent);
         finish();
         overridePendingTransition(R.anim.fade_in_320ms, R.anim.fade_out_320ms);
@@ -525,7 +527,7 @@ public class LoginActivity extends AppCompatActivity implements
                     // signed in user can be handled in the listener.
                     if (!task.isSuccessful()) {
                         Log.w(TAG, "signInWithCredential", task.getException());
-                        Toast.makeText(LoginActivity.this, "Authentication failed.",
+                        Toast.makeText(ActivityLogin.this, "Authentication failed.",
                                 Toast.LENGTH_SHORT).show();
                     } else {
                         userDataRegistered(mAuth.getCurrentUser());
@@ -566,7 +568,7 @@ public class LoginActivity extends AppCompatActivity implements
                     // signed in user can be handled in the listener.
                     if (!task.isSuccessful()) {
                         Log.w(TAG, "signInWithEmail:failed", task.getException());
-                        Toast.makeText(LoginActivity.this, "Login falhou!",
+                        Toast.makeText(ActivityLogin.this, "Login falhou!",
                                 Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -615,7 +617,7 @@ public class LoginActivity extends AppCompatActivity implements
                     // signed in user can be handled in the listener.
                     if (!task.isSuccessful()) {
                         Log.w(TAG, "signInWithCredential", task.getException());
-                        Toast.makeText(LoginActivity.this, "Authentication failed.",
+                        Toast.makeText(ActivityLogin.this, "Authentication failed.",
                                 Toast.LENGTH_SHORT).show();
                         loggedFacebook = false;
                     } else {

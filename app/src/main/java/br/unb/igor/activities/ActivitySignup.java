@@ -19,9 +19,9 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 
 import br.unb.igor.R;
 
-public class SignupActivity extends AppCompatActivity {
+public class ActivitySignup extends AppCompatActivity {
 
-    private static String TAG = SignupActivity.class.getName();
+    private static String TAG = ActivitySignup.class.getName();
 
     EditText _nameText;
     EditText _emailText;
@@ -111,7 +111,7 @@ public class SignupActivity extends AppCompatActivity {
 
         _signupButton.setEnabled(false);
 
-        final ProgressDialog progressDialog = new ProgressDialog(SignupActivity.this,
+        final ProgressDialog progressDialog = new ProgressDialog(ActivitySignup.this,
                 R.style.Theme_AppCompat_Light_Dialog);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Cadastrando....");
@@ -134,7 +134,7 @@ public class SignupActivity extends AppCompatActivity {
                         // the auth state listener will be notified and logic to handle the
                         // signed in user can be handled in the listener.
                         if (!task.isSuccessful()) {
-                            Toast.makeText(SignupActivity.this, "Cadastro falhou",
+                            Toast.makeText(ActivitySignup.this, "Cadastro falhou",
                                     Toast.LENGTH_SHORT).show();
                         } else {
                             setDisplayName(mAuth.getCurrentUser(), name);
