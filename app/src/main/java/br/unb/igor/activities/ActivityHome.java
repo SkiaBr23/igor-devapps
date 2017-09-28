@@ -88,6 +88,12 @@ public class ActivityHome extends AppCompatActivity implements
         Exit
     };
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList("adventures", (ArrayList<Aventura>)aventuras);
+    }
+
     private Screen mCurrentScreen = Screen.Adventures;
 
     private class DrawerListAdapter extends BaseAdapter {
@@ -257,7 +263,15 @@ public class ActivityHome extends AppCompatActivity implements
 
         if (this.aventuras == null) {
             this.aventuras = new ArrayList<>();
-            fetchInitialAdventures();
+            if (savedInstanceState == null) {
+                fetchInitialAdventures();
+            } else {
+                List<Aventura> saved = savedInstanceState.getParcelableArrayList("adventures");
+                for (Aventura a : saved) {
+                    aventuras.add(a);
+                }
+                fragmentHome.setIsLoading(false);
+            }
         }
 
 //        mDatabase.child("users").child(userId).child("adventures").addChildEventListener(
@@ -311,6 +325,8 @@ public class ActivityHome extends AppCompatActivity implements
 
     private void fetchInitialAdventures() {
         final String userId = mAuth.getCurrentUser().getUid();
+        fragmentHome.setIsLoading(true);
+        System.out.println("ActivityHome#fetchInitialAdventures");
         mDatabase.child("users").child(userId).child("adventures").addListenerForSingleValueEvent(
             new ValueEventListener() {
                 @Override
@@ -323,7 +339,7 @@ public class ActivityHome extends AppCompatActivity implements
                         // Query adventures on database
                         fetchInitialAdventures(idAventuras.keySet());
                     } else {
-                        fragmentHome.setLoadingComplete();
+                        fragmentHome.setIsLoading(false);
                     }
                 }
 
@@ -338,7 +354,7 @@ public class ActivityHome extends AppCompatActivity implements
         final OnCompleteHandler onCompleteHandler = new OnCompleteHandler(1, new OnCompleteHandler.OnCompleteCallback() {
             @Override
             public void onComplete(boolean cancelled, Object extra) {
-                fragmentHome.setLoadingComplete();
+                fragmentHome.setIsLoading(false);
             }
         });
         if (idAventuras.isEmpty()) {
@@ -599,7 +615,13 @@ public class ActivityHome extends AppCompatActivity implements
             aventuraSelecionada.getSessoes().add(sessaoSaida);
             Bundle bundle = new Bundle();
             bundle.putString("keyAventura", aventuraSelecionada.getKey());
-            fragmentEditarAventura.setArguments(bundle);
+            if (fragmentEditarAventura == null) {
+                Fragment f = getSupportFragmentManager().findFragmentByTag(FragmentEditarAventura.TAG);
+                if (f != null)
+                    fragmentEditarAventura = (FragmentEditarAventura)f;
+            }
+            if (fragmentEditarAventura != null)
+                fragmentEditarAventura.setArguments(bundle);
             getSupportFragmentManager().popBackStack();
         }
     }

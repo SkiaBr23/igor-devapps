@@ -37,7 +37,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class FragmentEditarAventura extends Fragment {
 
-    public static String TAG = FragmentHome.class.getName();
+    public static String TAG = FragmentEditarAventura.class.getName();
+
     private String tituloAventura;
     private String keyAventura;
     private TextView txtTituloAventuraEdicao;

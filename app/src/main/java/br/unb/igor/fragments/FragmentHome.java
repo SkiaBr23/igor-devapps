@@ -73,9 +73,7 @@ public class FragmentHome extends Fragment {
 
         progressBarLoading = root.findViewById(R.id.loadingSpinner);
 
-        if (!isLoading) {
-            setLoadingComplete();
-        }
+        setIsLoading(isLoading);
 
         btnModoEdicao = root.findViewById(R.id.btnModoEdicao);
         btnCriarAventura = root.findViewById(R.id.btnCriarAventura);
@@ -158,14 +156,15 @@ public class FragmentHome extends Fragment {
         setEditMode(!isInEditMode);
     }
 
-    public void setLoadingComplete() {
+    public void setIsLoading(boolean b) {
+
+        isLoading = b;
+
         if (txtFloatingMessage != null)
-            txtFloatingMessage.setVisibility(View.GONE);
+            txtFloatingMessage.setVisibility(b ? View.VISIBLE : View.GONE);
 
         if (progressBarLoading != null)
-            progressBarLoading.setVisibility(View.GONE);
-
-        isLoading = false;
+            progressBarLoading.setVisibility(b ? View.VISIBLE : View.GONE);
     }
 
     public void notifyItemChangedVisible() {
