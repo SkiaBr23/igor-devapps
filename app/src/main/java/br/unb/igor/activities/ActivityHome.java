@@ -42,13 +42,14 @@ import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import br.unb.igor.R;
-import br.unb.igor.fragments.FragmentCriarAventura;
 import br.unb.igor.fragments.FragmentCriarSessao;
 import br.unb.igor.fragments.FragmentEditarAventura;
 import br.unb.igor.fragments.FragmentHome;
@@ -85,9 +86,7 @@ public class ActivityHome extends AppCompatActivity implements
         Notifications,
         Settings,
         Exit
-    }
-
-    ;
+    };
 
     private Screen mCurrentScreen = Screen.Adventures;
 
@@ -185,7 +184,6 @@ public class ActivityHome extends AppCompatActivity implements
 
         final DrawerListAdapter drawerAdapter = new DrawerListAdapter();
         mAuth = FirebaseAuth.getInstance();
-        this.aventuras = new ArrayList<Aventura>();
 
         mDrawerLayout = findViewById(R.id.drawer);
         mDrawerOptions = findViewById(R.id.drawer_options);
@@ -225,7 +223,7 @@ public class ActivityHome extends AppCompatActivity implements
             @Override
             public void onBackStackChanged() {
                 Fragment currentFragment = fragmentManager.findFragmentById(R.id.content_frame);
-                if (currentFragment != null && currentFragment instanceof FragmentCriarAventura) {
+                if (currentFragment == null || !(currentFragment instanceof FragmentHome)) {
                     imgOptionsMenu.setVisibility(View.INVISIBLE);
                 } else {
                     imgOptionsMenu.setVisibility(View.VISIBLE);
@@ -233,17 +231,14 @@ public class ActivityHome extends AppCompatActivity implements
             }
         });
 
-        fragmentHome = new FragmentHome();
+        fragmentHome = (FragmentHome)getScreenFragment(Screen.Adventures);
 
+        // If there is a saved instance, then don't replace the fragment
+        // so the currently active fragment remains so
         if (savedInstanceState == null) {
             fragmentManager
                     .beginTransaction()
-                    .replace(R.id.content_frame, fragmentHome)
-                    .commit();
-        } else{
-            fragmentManager
-                    .beginTransaction()
-                    .replace(R.id.content_frame, fragmentHome)
+                    .replace(R.id.content_frame, fragmentHome, FragmentHome.TAG)
                     .commit();
         }
 
@@ -260,9 +255,10 @@ public class ActivityHome extends AppCompatActivity implements
             BUSCANDO INFORMACOES DE AVENTURAS DO USUARIO NO FIREBASE DB
         */
 
-        final String userId = mAuth.getCurrentUser().getUid();
-
-        fetchInitialAdventures();
+        if (this.aventuras == null) {
+            this.aventuras = new ArrayList<>();
+            fetchInitialAdventures();
+        }
 
 //        mDatabase.child("users").child(userId).child("adventures").addChildEventListener(
 //                new ChildEventListener() {
@@ -302,44 +298,40 @@ public class ActivityHome extends AppCompatActivity implements
 
         if (mAuth.getCurrentUser().getProviders().contains("google.com")) {
             GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                    .requestIdToken(getString(R.string.web_client_id))
-                    .requestEmail()
-                    .build();
+                .requestIdToken(getString(R.string.web_client_id))
+                .requestEmail()
+                .build();
 
             mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .enableAutoManage(this, this)
-                    .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                    .build();
+                .enableAutoManage(this, this)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
         }
     }
 
     private void fetchInitialAdventures() {
         final String userId = mAuth.getCurrentUser().getUid();
         mDatabase.child("users").child(userId).child("adventures").addListenerForSingleValueEvent(
-                new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        GenericTypeIndicator<HashMap<String, Object>> genericTypeIndicator = new GenericTypeIndicator<HashMap<String, Object>>() {
-                        };
-                        HashMap<String, Object> idAventuras = dataSnapshot.getValue(genericTypeIndicator);
-                        // Check if adventure id list exists
-                        if (idAventuras != null) {
-                            // Query adventures on database
-                            fetchInitialAdventures(idAventuras.keySet());
-                        } else {
-                            fragmentHome.setLoadingComplete();
-                        }
+            new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    GenericTypeIndicator<HashMap<String, Object>> genericTypeIndicator = new GenericTypeIndicator<HashMap<String, Object>>() {
+                    };
+                    HashMap<String, Object> idAventuras = dataSnapshot.getValue(genericTypeIndicator);
+                    // Check if adventure id list exists
+                    if (idAventuras != null) {
+                        // Query adventures on database
+                        fetchInitialAdventures(idAventuras.keySet());
+                    } else {
+                        fragmentHome.setLoadingComplete();
                     }
+                }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                        Log.w(TAG, "getAdventuresIds:onCancelled", databaseError.toException());
-                    }
-                });
-
-        // fragmentHome.getRecyclerAdapter().notifyDataSetChanged();
-        // showHomeFragment();
-
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Log.w(TAG, "getAdventuresIds:onCancelled", databaseError.toException());
+                }
+            });
     }
 
     private void fetchInitialAdventures(Set<String> idAventuras) {
@@ -397,6 +389,15 @@ public class ActivityHome extends AppCompatActivity implements
             case R.id.action_editar:
                 fragmentHome.setEditMode(true);
                 break;
+            case R.id.action_ordenar:
+                Collections.sort(aventuras, new Comparator<Aventura>() {
+                    @Override
+                    public int compare(Aventura left, Aventura right) {
+                        return left.getTitulo().compareToIgnoreCase(right.getTitulo());
+                    }
+                });
+                fragmentHome.notifyItemChangedVisible();
+                break;
             default:
                 break;
         }
@@ -426,10 +427,15 @@ public class ActivityHome extends AppCompatActivity implements
 
     protected Fragment getScreenFragment(Screen screen) {
         Fragment fragment = null;
+        FragmentManager fm = getSupportFragmentManager();
         switch (screen) {
             case Adventures:
                 if (fragmentHome == null) {
-                    fragmentHome = new FragmentHome();
+                    fragment = fm.findFragmentByTag(FragmentHome.TAG);
+                    if (fragment != null)
+                        fragmentHome = (FragmentHome)fragment;
+                    else
+                        fragmentHome = new FragmentHome();
                 }
                 fragment = fragmentHome;
                 break;
@@ -450,12 +456,22 @@ public class ActivityHome extends AppCompatActivity implements
             mDrawerLayout.closeDrawer(Gravity.LEFT);
             return;
         }
+        if (fragmentHome != null && fragmentHome.isInEditMode()) {
+            fragmentHome.setEditMode(false);
+            return;
+        }
         super.onBackPressed();
         View view = this.getCurrentFocus();
         // Fecha o keyboard, durante a criação de aventura, caso o usuario clique sobre o icone de close
         if (view != null) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            if (imm.isActive()) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            } else {
+                FragmentManager fm = getSupportFragmentManager();
+                if (fm.getFragments().size() > 1)
+                    fm.popBackStack();
+            }
         }
     }
 
@@ -476,13 +492,13 @@ public class ActivityHome extends AppCompatActivity implements
         fragmentEditarAventura = new FragmentEditarAventura();
         Bundle bundle = new Bundle();
         bundle.putString("tituloAventura", aventura.getTitulo());
-        bundle.putString("keyAventura",aventura.getKey());
+        bundle.putString("keyAventura", aventura.getKey());
         fragmentEditarAventura.setArguments(bundle);
         getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_frame, fragmentEditarAventura)
-                .addToBackStack(FragmentEditarAventura.TAG)
-                .commit();
+            .beginTransaction()
+            .replace(R.id.content_frame, fragmentEditarAventura)
+            .addToBackStack(FragmentEditarAventura.TAG)
+            .commit();
     }
 
     @Override
@@ -559,7 +575,7 @@ public class ActivityHome extends AppCompatActivity implements
     public void onAdicionarSessao(String keyAventura) {
         FragmentCriarSessao fragmentCriarSessao = new FragmentCriarSessao();
         Bundle bundle = new Bundle();
-        bundle.putString("keyAventura",keyAventura);
+        bundle.putString("keyAventura", keyAventura);
         fragmentCriarSessao.setArguments(bundle);
         getSupportFragmentManager()
                 .beginTransaction()
@@ -584,11 +600,7 @@ public class ActivityHome extends AppCompatActivity implements
             Bundle bundle = new Bundle();
             bundle.putString("keyAventura", aventuraSelecionada.getKey());
             fragmentEditarAventura.setArguments(bundle);
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.content_frame, fragmentEditarAventura)
-                    .addToBackStack(FragmentEditarAventura.TAG)
-                    .commit();
+            getSupportFragmentManager().popBackStack();
         }
     }
 

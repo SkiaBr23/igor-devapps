@@ -37,7 +37,7 @@ public class ActivitySignup extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.criar_conta);
+        setContentView(R.layout.activity_criar_conta);
 
         mAuth = FirebaseAuth.getInstance();
 

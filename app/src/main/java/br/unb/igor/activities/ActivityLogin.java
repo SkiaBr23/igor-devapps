@@ -566,28 +566,16 @@ public class ActivityLogin extends AppCompatActivity implements
                     // If sign in fails, display a message to the user. If sign in succeeds
                     // the auth state listener will be notified and logic to handle the
                     // signed in user can be handled in the listener.
-                    if (!task.isSuccessful()) {
-                        Log.w(TAG, "signInWithEmail:failed", task.getException());
-                        Toast.makeText(ActivityLogin.this, "Login falhou!",
-                                Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-//TODO: arrumar loginSucess e loginFailed no completeListener acima
-        new android.os.Handler().postDelayed(
-            new Runnable() {
-                public void run() {
-                    // On complete call either onLoginSuccess or onLoginFailed
-
-                    if (mAuth.getCurrentUser() != null) {
+                    if (task.isSuccessful()) {
                         onLoginSuccess();
                     } else {
                         onLoginFailed();
+                        Log.w(TAG, "signInWithEmail:failed", task.getException());
                     }
-                    //
-                    progressDialog.dismiss();
+
+                    progressDialog.cancel();
                 }
-            }, 2000);
+            });
     }
 
     public void onLoginSuccess() {

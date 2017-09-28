@@ -26,7 +26,8 @@
         <activity
             android:name=".activities.ActivityLogin"
             android:label="@string/title_activity_login"
-            android:theme="@style/AppFullScreenWhiteAccent">
+            android:theme="@style/AppFullScreenWhiteAccent"
+            android:windowSoftInputMode="stateUnchanged">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />
@@ -55,7 +56,8 @@
 
         <activity
             android:name=".activities.ActivityHome"
-            android:theme="@style/AppFullScreen">
+            android:theme="@style/AppFullScreen"
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />

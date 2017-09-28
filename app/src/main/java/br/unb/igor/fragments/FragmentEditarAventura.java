@@ -132,12 +132,10 @@ public class FragmentEditarAventura extends Fragment {
             recyclerViewListaJogadores.setVisibility(View.GONE);
         }*/
 
-
-
              mAuth = FirebaseAuth.getInstance();
 
              mAuth = FirebaseAuth.getInstance();
-        if(mAuth.getCurrentUser() != null) {
+        if (mAuth.getCurrentUser() != null) {
             FirebaseUser user = mAuth.getCurrentUser();
             if (user.getDisplayName() != null) {
                 txtNomeMestre.setText(user.getDisplayName());
@@ -151,7 +149,6 @@ public class FragmentEditarAventura extends Fragment {
         } else {
             txtNomeMestre.setText("Unknown User");
         }
-
 
         boxAndamentoAventura = (ConstraintLayout)root.findViewById(R.id.boxAndamentoAventura);
         boxJogadoresAventura = (ConstraintLayout)root.findViewById(R.id.boxJogadoresAventura);
@@ -185,8 +182,6 @@ public class FragmentEditarAventura extends Fragment {
             }
         });
 
-
-
         txtDescricaoAventura.setClickable(false);
         txtDescricaoAventura.setFocusable(false);
 
@@ -219,5 +214,7 @@ public class FragmentEditarAventura extends Fragment {
         }
         return this.usersID;
     }
+
+
 
 }

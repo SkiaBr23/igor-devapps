@@ -5,6 +5,7 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -43,12 +44,6 @@ public class FragmentHome extends Fragment {
     private boolean isLoading = true;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        aventuras = ((ActivityHome)getActivity()).getAdventures();
-    }
-
-    @Override
     public void onAttach(Context context) {
         super.onAttach(context);
         if (context instanceof AdventureListener) {
@@ -69,6 +64,9 @@ public class FragmentHome extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.fragment_home, container, false);
+
+        aventuras = ((ActivityHome)getActivity()).getAdventures();
+        setRetainInstance(true);
 
         txtFloatingMessage = root.findViewById(R.id.floatingText);
         txtFloatingMessage.setText(R.string.msg_loading_adventures);
@@ -91,14 +89,19 @@ public class FragmentHome extends Fragment {
             @Override
             public void onClick(View view) {
 
+                FragmentManager fm = getActivity().getSupportFragmentManager();
+
                 if (mFragmentCriarAventura == null) {
-                    mFragmentCriarAventura = new FragmentCriarAventura();
+                    Fragment f = fm.findFragmentByTag(FragmentCriarAventura.TAG);
+                    if (f != null)
+                        mFragmentCriarAventura = (FragmentCriarAventura)f;
+                    else
+                        mFragmentCriarAventura = new FragmentCriarAventura();
                 }
 
-                getActivity()
-                    .getSupportFragmentManager()
+                fm
                     .beginTransaction()
-                    .add(R.id.content_frame, mFragmentCriarAventura)
+                    .replace(R.id.content_frame, mFragmentCriarAventura)
                     .addToBackStack(FragmentCriarAventura.TAG)
                     .commit();
             }
@@ -147,6 +150,10 @@ public class FragmentHome extends Fragment {
         }
     }
 
+    public boolean isInEditMode() {
+        return isInEditMode;
+    }
+
     public void toggleEditMode() {
         setEditMode(!isInEditMode);
     }
@@ -159,6 +166,13 @@ public class FragmentHome extends Fragment {
             progressBarLoading.setVisibility(View.GONE);
 
         isLoading = false;
+    }
+
+    public void notifyItemChangedVisible() {
+        LinearLayoutManager llm = (LinearLayoutManager)recyclerViewAventurasHome.getLayoutManager();
+        int from = llm.findFirstVisibleItemPosition();
+        int to = llm.findLastVisibleItemPosition();
+        aventurasRecyclerAdapter.notifyItemRangeChanged(from, to - from + 1);
     }
 
 }
