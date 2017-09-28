@@ -49,7 +49,6 @@ public class Aventura implements Parcelable {
                 return aventuras.indexOf(aventura);
             }
         }
-
         return -1;
     }
     public String getKey() {

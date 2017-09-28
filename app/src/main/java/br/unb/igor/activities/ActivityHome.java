@@ -544,20 +544,21 @@ public class ActivityHome extends AppCompatActivity implements
         final String userId = mAuth.getCurrentUser().getUid();
         String key = mDatabase.child("adventures").push().getKey();
         aventura.setKey(key);
-
+        aventura.setMestreUserId(userId);
         Map<String, Object> childUpdates = new HashMap<>();
         childUpdates.put("/adventures/" + key, aventura);
         childUpdates.put("/users/" + userId + "/adventures/" + key, true);
 
         mDatabase.updateChildren(childUpdates);
-
         return key;
     }
 
     private void removeAdventureFirebase(final Aventura aventura) {
-        final String userId = mAuth.getCurrentUser().getUid();
-        mDatabase.child("adventures").child(aventura.getKey()).removeValue();
-        mDatabase.child("users").child(userId).child("adventures").child(aventura.getKey()).removeValue();
+        if(mAuth.getCurrentUser() != null) {
+            final String userId = mAuth.getCurrentUser().getUid();
+            mDatabase.child("adventures").child(aventura.getKey()).removeValue();
+            mDatabase.child("users").child(userId).child("adventures").child(aventura.getKey()).removeValue();
+        }
     }
 
     // [START signOut]
