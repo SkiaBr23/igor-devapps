@@ -48,7 +48,7 @@ public class SessoesRecyclerAdapter extends RecyclerView.Adapter<SessoesViewHold
     @Override
     public void onBindViewHolder(final SessoesViewHolder holder, int position) {
         if (position < sessoes.size()) {
-            String tituloSessao = sessoes.get(holder.getAdapterPosition()).getResumo();
+            String tituloSessao = sessoes.get(holder.getAdapterPosition()).getTitulo();
             String dataSessao = sessoes.get(holder.getAdapterPosition()).getData().substring(0,5);
             if (tituloSessao.length() > 23) {
                 tituloSessao = tituloSessao.substring(0,20) + this.context.getResources().getString(R.string.strLonga);
@@ -88,6 +88,8 @@ public class SessoesRecyclerAdapter extends RecyclerView.Adapter<SessoesViewHold
 
     @Override
     public long getItemId(int position) {
-        return sessoes.get(position).getNumeroSessao();
+        //return sessoes.get(position).getNumeroSessao();
+        //TODO: isso dá problema? @maximillianfx
+        return (long) position;
     }
 }

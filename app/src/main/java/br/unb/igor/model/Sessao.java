@@ -9,9 +9,46 @@ import android.os.Parcelable;
 
 public class Sessao implements Parcelable {
 
+    String titulo;
     String resumo;
-    int numeroSessao;
     String data;
+    Boolean finalizada;
+    String keyAventura;
+
+    public Sessao() {
+    }
+
+    public Sessao(String keyAventura, String titulo, String data) {
+        this.data = data;
+        this.keyAventura = keyAventura;
+        this.titulo = titulo;
+        this.resumo = "";
+        this.finalizada = false;
+    }
+
+    public String getKeyAventura() {
+        return keyAventura;
+    }
+
+    public void setKeyAventura(String keyAventura) {
+        this.keyAventura = keyAventura;
+    }
+
+    public String getTitulo() {
+        return titulo;
+    }
+
+    public void setTitulo(String titulo) {
+        this.titulo = titulo;
+    }
+
+    public Boolean getFinalizada() {
+        return finalizada;
+    }
+
+    public void setFinalizada(Boolean finalizada) {
+        this.finalizada = finalizada;
+    }
 
     public String getResumo() {
         return resumo;
@@ -19,14 +56,6 @@ public class Sessao implements Parcelable {
 
     public void setResumo(String resumo) {
         this.resumo = resumo;
-    }
-
-    public int getNumeroSessao() {
-        return numeroSessao;
-    }
-
-    public void setNumeroSessao(int numeroSessao) {
-        this.numeroSessao = numeroSessao;
     }
 
     public String getData() {
@@ -45,8 +74,8 @@ public class Sessao implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(resumo);
-        parcel.writeInt(numeroSessao);
         parcel.writeString(data);
+        parcel.writeInt((finalizada ? 1: 0));
     }
 
     public final static Parcelable.Creator<Sessao> CREATOR = new Parcelable.Creator<Sessao>() {
@@ -55,8 +84,8 @@ public class Sessao implements Parcelable {
         public Sessao createFromParcel(Parcel parcel) {
             Sessao s = new Sessao();
             s.resumo = parcel.readString();
-            s.numeroSessao = parcel.readInt();
             s.data = parcel.readString();
+            s.finalizada = parcel.readInt() != 0;
             return s;
         }
 

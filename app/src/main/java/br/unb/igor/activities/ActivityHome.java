@@ -563,7 +563,7 @@ public class ActivityHome extends AppCompatActivity implements
 
     // [START signOut]
     private void signOut() {
-        if (mAuth.getCurrentUser() != null) {
+        if (mAuth.getCurrentUser() != null && mAuth.getCurrentUser().getProviders() != null) {
             if (mAuth.getCurrentUser().getProviders().contains("google.com")) {
                 Auth.GoogleSignInApi.signOut(mGoogleApiClient);
             }
@@ -610,10 +610,13 @@ public class ActivityHome extends AppCompatActivity implements
     public void onConfirmarSessao(String keyAventura, String tituloSessao, String dataSessao) {
         Aventura aventuraSelecionada = getAventuraViaKey(keyAventura);
         if (aventuraSelecionada != null) {
-            Sessao sessaoSaida = new Sessao();
-            sessaoSaida.setResumo(tituloSessao);
-            sessaoSaida.setData(dataSessao);
+            Sessao sessaoSaida = new Sessao(keyAventura, tituloSessao, dataSessao);
+
+            if(aventuraSelecionada.getSessoes() == null){
+                aventuraSelecionada.setSessoes(new ArrayList<Sessao>(0));
+            }
             aventuraSelecionada.getSessoes().add(sessaoSaida);
+            createSessionFirebase(keyAventura, sessaoSaida);
             Bundle bundle = new Bundle();
             bundle.putString("keyAventura", aventuraSelecionada.getKey());
             if (fragmentEditarAventura == null) {
@@ -625,6 +628,10 @@ public class ActivityHome extends AppCompatActivity implements
                 fragmentEditarAventura.setArguments(bundle);
             getSupportFragmentManager().popBackStack();
         }
+    }
+
+    public void createSessionFirebase(final String keyAventura, final Sessao sessao){
+        //TODO: Fazer essa merda
     }
 
     public Aventura getAventuraViaKey (String key) {
