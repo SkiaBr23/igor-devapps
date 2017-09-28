@@ -21,7 +21,7 @@
             android:minHeight="?attr/actionBarSize"
             app:contentInsetLeft="0dp"
             app:contentInsetStart="0dp"
-            app:theme="@style/Base.Theme.AppCompat.Light.DarkActionBar"
+            android:theme="@style/Base.Theme.AppCompat.Light.DarkActionBar"
             android:weightSum="1">
 
             <android.support.constraint.ConstraintLayout
