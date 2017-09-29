@@ -4,6 +4,7 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="branco">#ffffff</color>
+    <color name="redError">#da2929</color>
     <color name="cinzaCriarConta">#585757</color>
     <color name="preto">#ff000000</color>
     <color name="btnEntrar">#00e2ba</color>

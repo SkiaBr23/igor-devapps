@@ -2,6 +2,7 @@ package br.unb.igor.activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -12,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -41,6 +43,8 @@ import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -57,11 +61,17 @@ public class ActivityLogin extends AppCompatActivity implements
         GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener {
 
-    private static final String TAG = ActivityLogin.class.getName();
+    public static final String TAG = ActivityLogin.class.getName();
+
+    private static final String PREF_FILENAME = "IgorRPG:PrefsFile";
+    private static final String PREF_KEY_EMAIL = "email";
+    private static final String PREF_KEY_PASSWORD = "pass";
+    private static final String PREF_KEY_REMEMBER_ME = "rememberme";
 
     private EditText editTextEmail;
     private EditText editTextSenha;
     private CheckBox checkBoxConectado;
+    private CheckBox checkBoxRememberMe;
     private ImageView btnFacebook;
     private String DEFAULT_PROFILE_PHOTO_URL = "http://www.alass.org/wp-content/uploads/default.png";
     private TextView criarConta;
@@ -89,7 +99,6 @@ public class ActivityLogin extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         setContentView(R.layout.activity_login);
 
         //Input
@@ -97,6 +106,7 @@ public class ActivityLogin extends AppCompatActivity implements
         editTextSenha = (EditText) findViewById(R.id.senhaLogin);
         btnFacebook = (ImageView) findViewById(R.id.btnFacebook);
         checkBoxConectado = (CheckBox) findViewById(R.id.checkBoxConectado);
+        checkBoxRememberMe = (CheckBox) findViewById(R.id.checkBoxRememberMe);
         criarConta = (TextView) findViewById(R.id.txtCriarConta);
         esqueciSenha = (TextView) findViewById(R.id.txtEsqueciSenha);
         btnEntrar = (Button) findViewById(R.id.btnEntrar);
@@ -114,8 +124,31 @@ public class ActivityLogin extends AppCompatActivity implements
         checkBoxConectado.setTypeface(firaSans);
         separador.setTypeface(firaSans);
 
+        final SharedPreferences sharedPreferences = getSharedPreferences(PREF_FILENAME, MODE_PRIVATE);
 
-        signInButton.setSize(SignInButton.SIZE_STANDARD);
+        boolean rememberMeEnabled = sharedPreferences.getBoolean(PREF_KEY_REMEMBER_ME, false);
+
+        if (rememberMeEnabled) {
+            String emailStringCache = sharedPreferences.getString(PREF_KEY_EMAIL, "");
+            String passStringCache = sharedPreferences.getString(PREF_KEY_PASSWORD, "");
+            editTextEmail.setText(emailStringCache);
+            editTextSenha.setText(passStringCache);
+            checkBoxRememberMe.setChecked(true);
+        }
+
+        checkBoxRememberMe.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean(PREF_KEY_REMEMBER_ME, b);
+                if (!b) {
+                    editor
+                        .putString(PREF_KEY_EMAIL, "")
+                        .putString(PREF_KEY_PASSWORD, "");
+                }
+                editor.apply();
+            }
+        });
 
         esqueciSenha.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -126,6 +159,7 @@ public class ActivityLogin extends AppCompatActivity implements
             }
         });
 
+        signInButton.setSize(SignInButton.SIZE_STANDARD);
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -146,16 +180,15 @@ public class ActivityLogin extends AppCompatActivity implements
             if (isLoggedIn()) {
                 userDataRegistered(mAuth.getCurrentUser());
                 callMainActivity();
-            } else {
-                if (editTextEmail.getText().toString().length() == 0) {
-                    editTextEmail.setError("Preencha com seu e-mail!");
-                    editTextEmail.setTextColor(Color.BLACK);
-                } else if (editTextSenha.getText().toString().length() == 0) {
-                    editTextSenha.setError("Preencha com sua senha!");
-                    editTextSenha.setTextColor(Color.BLACK);
-                } else {
-                    loginWithPassword();
+            } else if (validate()) {
+                if (checkBoxRememberMe.isChecked()) {
+                    sharedPreferences
+                        .edit()
+                        .putString(PREF_KEY_EMAIL, editTextEmail.getText().toString())
+                        .putString(PREF_KEY_PASSWORD, editTextSenha.getText().toString())
+                        .apply();
                 }
+                loginWithPassword();
             }
 
             }
@@ -218,16 +251,7 @@ public class ActivityLogin extends AppCompatActivity implements
                 .build();
         // [END build_client]
 
-        // [START customize_button]
-        // Set the dimensions of the sign-in button.
-        signInButton = (SignInButton) findViewById(R.id.sign_in_button);
-        signInButton.setSize(SignInButton.SIZE_STANDARD);
-        // [END customize_button]
-
-
         // FACEBOOK
-
-
         mCallbackManager = CallbackManager.Factory.create();
         fbLoginButton = (LoginButton) findViewById(R.id.fb_login_button);
         fbLoginButton.setReadPermissions("email", "public_profile");
@@ -250,7 +274,6 @@ public class ActivityLogin extends AppCompatActivity implements
                 // ...
             }
         });
-
 
         accessTokenTracker = new AccessTokenTracker() {
             @Override
@@ -541,7 +564,6 @@ public class ActivityLogin extends AppCompatActivity implements
         Log.d(TAG, "LoginWithPassword");
 
         if (!validate()) {
-            onLoginFailed();
             return;
         }
 
@@ -569,7 +591,7 @@ public class ActivityLogin extends AppCompatActivity implements
                     if (task.isSuccessful()) {
                         onLoginSuccess();
                     } else {
-                        onLoginFailed();
+                        onLoginFailed(task.getException());
                         Log.w(TAG, "signInWithEmail:failed", task.getException());
                     }
 
@@ -584,9 +606,14 @@ public class ActivityLogin extends AppCompatActivity implements
         callMainActivity();
     }
 
-    public void onLoginFailed() {
-        Toast.makeText(this, "Login falhou!", Toast.LENGTH_LONG).show();
-
+    public void onLoginFailed(Exception exception) {
+        if (exception != null &&
+            (exception instanceof FirebaseAuthInvalidUserException ||
+             exception instanceof FirebaseAuthInvalidCredentialsException)) {
+            Toast.makeText(this, R.string.msg_invalid_login, Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(this, R.string.msg_login_not_possible, Toast.LENGTH_LONG).show();
+        }
         this.btnEntrar.setEnabled(true);
     }
 
@@ -617,26 +644,35 @@ public class ActivityLogin extends AppCompatActivity implements
     }
 
     public boolean validate() {
-        boolean valid = true;
 
         String email = editTextEmail.getText().toString();
         String password = editTextSenha.getText().toString();
 
-        if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            editTextEmail.setError("insira um e-mail válido");
-            valid = false;
+        if (email.isEmpty()) {
+            editTextEmail.requestFocus();
+            editTextEmail.setError(getString(R.string.msg_login_empty_email));
+            return false;
+        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            editTextEmail.requestFocus();
+            editTextEmail.setError(getString(R.string.msg_login_invalid_email));
+            return false;
         } else {
             editTextEmail.setError(null);
         }
 
-        if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
+        if (password.isEmpty()) {
+            editTextSenha.requestFocus();
+            editTextSenha.setError(getString(R.string.msg_login_empty_password));
+            return false;
+        } else if (password.length() < 4 || password.length() > 10) {
+            editTextSenha.requestFocus();
             editTextSenha.setError("entre 4 e 10 caracteres");
-            valid = false;
+            return false;
         } else {
             editTextSenha.setError(null);
         }
 
-        return valid;
+        return true;
     }
 
 

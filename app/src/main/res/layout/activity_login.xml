@@ -18,8 +18,12 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <android.support.constraint.ConstraintLayout
             android:layout_width="match_parent"
@@ -32,74 +36,19 @@
                 app:layout_constraintRight_toRightOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:layout_width="150dp"
-                android:layout_height="150dp"
+                android:layout_height="135dp"
+                android:scaleType="fitCenter"
                 android:src="@drawable/igor_login_igor_icon"
                 />
 
             <ImageView
                 android:id="@+id/btnFacebook"
-                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/logoAppSplashScreen"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
                 android:layout_width="200dp"
                 android:layout_height="50dp"
-                android:layout_marginTop="150dp"
                 android:src="@drawable/igor_signup_botao_facebook"
-                />
-
-            <TextView
-                android:id="@+id/txtSeparador"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/txtSeparadoLogin"
-                android:textColor="@color/branco"
-                app:layout_constraintTop_toBottomOf="@+id/btnFacebook"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintLeft_toLeftOf="parent"
-                android:layout_marginTop="75dp"
-                />
-
-            <EditText
-                android:id="@+id/emailLogin"
-                android:layout_width="250dp"
-                android:hint="E-mail"
-                android:maxLines="1"
-                android:imeOptions="actionNext"
-                android:textColor="@color/branco"
-                android:textColorHint="@color/branco"
-                android:inputType="textEmailAddress"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/branco"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/txtSeparador"
-                />
-
-            <EditText
-                android:id="@+id/senhaLogin"
-                android:layout_width="250dp"
-                android:hint="Senha"
-                android:maxLines="1"
-                android:imeOptions="actionDone"
-                android:textColor="@color/branco"
-                android:inputType="textPassword"
-                android:textColorHint="@color/branco"
-                android:layout_height="wrap_content"
-                android:backgroundTint="@color/branco"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintRight_toRightOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/emailLogin"
-                />
-
-            <CheckBox
-                android:id="@+id/checkBoxConectado"
-                app:layout_constraintTop_toBottomOf="@+id/senhaLogin"
-                app:layout_constraintLeft_toLeftOf="@+id/senhaLogin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/branco"
-                android:buttonTint="@color/branco"
-                android:text="@string/manterConectado"
                 />
 
             <com.google.android.gms.common.SignInButton
@@ -108,17 +57,83 @@
                 app:layout_constraintRight_toRightOf="@+id/btnFacebook"
                 android:layout_width="200dp"
                 android:layout_height="40dp"
-                android:text="@string/common_signin_button_text_long"
-                android:layout_marginBottom="8dp"
-                app:layout_constraintBottom_toTopOf="@+id/txtSeparador" />
+                android:text="@string/common_signin_button_text_long" />
+
+            <TextView
+                android:id="@+id/txtSeparador"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/txtSeparadoLogin"
+                android:textColor="@color/branco"
+                app:layout_constraintTop_toBottomOf="@+id/sign_in_button"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                android:layout_marginTop="16dp"
+                />
+
+            <EditText
+                android:id="@+id/emailLogin"
+                android:layout_width="250dp"
+                android:hint="@string/msg_email"
+                android:maxLines="1"
+                android:imeOptions="actionNext"
+                android:textColor="@color/branco"
+                android:textColorHint="@color/branco"
+                android:inputType="textEmailAddress"
+                android:layout_height="wrap_content"
+                app:backgroundTint="@color/branco"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txtSeparador"
+                />
+
+            <EditText
+                android:id="@+id/senhaLogin"
+                android:layout_width="250dp"
+                android:hint="@string/msg_password"
+                android:maxLines="1"
+                android:imeOptions="actionDone"
+                android:textColor="@color/branco"
+                android:inputType="textPassword"
+                android:textColorHint="@color/branco"
+                android:layout_height="wrap_content"
+                app:backgroundTint="@color/branco"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/emailLogin"
+                />
+
+            <CheckBox
+                android:id="@+id/checkBoxRememberMe"
+                app:layout_constraintTop_toBottomOf="@+id/senhaLogin"
+                app:layout_constraintLeft_toLeftOf="@+id/senhaLogin"
+                android:layout_marginTop="3dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/branco"
+                app:buttonTint="@color/branco"
+                android:text="@string/msg_login_remember_me"
+                />
+
+            <CheckBox
+                android:id="@+id/checkBoxConectado"
+                app:layout_constraintTop_toBottomOf="@+id/checkBoxRememberMe"
+                app:layout_constraintLeft_toLeftOf="@+id/senhaLogin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/branco"
+                app:buttonTint="@color/branco"
+                android:text="@string/manterConectado"
+                />
 
             <Button
                 android:id="@+id/btnEntrar"
-                android:layout_width="120dp"
+                android:layout_width="124dp"
                 android:background="@color/btnEntrar"
                 android:layout_height="48dp"
                 android:text="@string/btnEntrar"
-                android:textSize="19sp"
+                android:textSize="16sp"
+                android:textColor="@color/bgnToolbar"
                 android:layout_marginTop="20dp"
                 app:layout_constraintRight_toRightOf="@+id/senhaLogin"
                 app:layout_constraintTop_toBottomOf="@+id/checkBoxConectado"
@@ -162,9 +177,7 @@
                 android:paddingBottom="11dp"
                 android:textSize="15sp"
                 android:layout_gravity="center_horizontal"
-                android:visibility="gone"
-                tools:layout_editor_absoluteY="8dp"
-                tools:layout_editor_absoluteX="0dp" />
+                android:visibility="gone" />
 
         </android.support.constraint.ConstraintLayout>
 

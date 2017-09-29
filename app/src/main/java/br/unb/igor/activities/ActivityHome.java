@@ -65,6 +65,7 @@ public class ActivityHome extends AppCompatActivity implements
         PopupMenu.OnMenuItemClickListener, AdventureEditListener, SessionListener {
 
     private static final String TAG = ActivityHome.class.getName();
+    private static final String BUNDLE_ADVENTURES = "Adventures";
 
     private FragmentHome fragmentHome;
     private FragmentEditarAventura fragmentEditarAventura;
@@ -91,7 +92,7 @@ public class ActivityHome extends AppCompatActivity implements
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList("adventures", (ArrayList<Aventura>)aventuras);
+        outState.putParcelableArrayList(BUNDLE_ADVENTURES, (ArrayList<Aventura>)aventuras);
     }
 
     private Screen mCurrentScreen = Screen.Adventures;
@@ -266,7 +267,7 @@ public class ActivityHome extends AppCompatActivity implements
             if (savedInstanceState == null) {
                 fetchInitialAdventures();
             } else {
-                List<Aventura> saved = savedInstanceState.getParcelableArrayList("adventures");
+                List<Aventura> saved = savedInstanceState.getParcelableArrayList(BUNDLE_ADVENTURES);
                 for (Aventura a : saved) {
                     aventuras.add(a);
                 }
