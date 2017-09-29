@@ -119,6 +119,9 @@ public class FragmentEditarAventura extends Fragment {
             }
         }
 
+        //Ajustar aqui quando houver busca de jogadores na base do FireBase
+        txtIndicadorNenhumJogador.setVisibility(View.GONE);
+
         if (getSessoes().size() > 0) {
             txtIndicadorNenhumaSessao.setVisibility(View.GONE);
             recyclerViewListaSessoes.setVisibility(View.VISIBLE);
