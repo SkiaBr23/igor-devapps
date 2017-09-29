@@ -223,18 +223,13 @@ public class ActivityHome extends AppCompatActivity implements
                 popup.show();
             }
         });
-
         final FragmentManager fragmentManager = getSupportFragmentManager();
+        updateThreeDotsMenu();
         fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             // Esconde os tres pontinhos na tela de criacao de aventura
             @Override
             public void onBackStackChanged() {
-                Fragment currentFragment = fragmentManager.findFragmentById(R.id.content_frame);
-                if (currentFragment == null || !(currentFragment instanceof FragmentHome)) {
-                    imgOptionsMenu.setVisibility(View.INVISIBLE);
-                } else {
-                    imgOptionsMenu.setVisibility(View.VISIBLE);
-                }
+              updateThreeDotsMenu();
             }
         });
 
@@ -321,6 +316,15 @@ public class ActivityHome extends AppCompatActivity implements
                 .enableAutoManage(this, this)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
+        }
+    }
+
+    private void updateThreeDotsMenu() {
+        Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.content_frame);
+        if (currentFragment == null || !(currentFragment instanceof FragmentHome)) {
+            imgOptionsMenu.setVisibility(View.INVISIBLE);
+        } else {
+            imgOptionsMenu.setVisibility(View.VISIBLE);
         }
     }
 
