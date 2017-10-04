@@ -225,15 +225,8 @@ public class ActivityHome extends AppCompatActivity implements
                 popup.show();
             }
         });
+
         final FragmentManager fragmentManager = getSupportFragmentManager();
-        //updateThreeDotsMenu();
-        fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
-            // Esconde os tres pontinhos na tela de criacao de aventura
-            @Override
-            public void onBackStackChanged() {
-              updateThreeDotsMenu();
-            }
-        });
 
         fragmentHome = (FragmentHome)getScreenFragment(Screen.Adventures);
 
@@ -241,9 +234,9 @@ public class ActivityHome extends AppCompatActivity implements
         // so the currently active fragment remains so
         if (savedInstanceState == null) {
             fragmentManager
-                    .beginTransaction()
-                    .replace(R.id.content_frame, fragmentHome, FragmentHome.TAG)
-                    .commit();
+                .beginTransaction()
+                .replace(R.id.content_frame, fragmentHome, FragmentHome.TAG)
+                .commit();
         }
 
         // Busca de aventuras no FirebaseDatabase
@@ -319,14 +312,24 @@ public class ActivityHome extends AppCompatActivity implements
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
                 .build();
         }
+
+        updateThreeDotsMenu();
+
+        fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            // Esconde os tres pontinhos na tela de criacao de aventura
+            @Override
+            public void onBackStackChanged() {
+                updateThreeDotsMenu();
+            }
+        });
     }
 
     private void updateThreeDotsMenu() {
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.content_frame);
-        if (currentFragment == null || !(currentFragment instanceof FragmentHome)) {
-            imgOptionsMenu.setVisibility(View.INVISIBLE);
-        } else {
+        if (currentFragment == null || currentFragment instanceof FragmentHome) {
             imgOptionsMenu.setVisibility(View.VISIBLE);
+        } else {
+            imgOptionsMenu.setVisibility(View.INVISIBLE);
         }
     }
 
