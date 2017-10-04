@@ -26,6 +26,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
@@ -50,6 +51,7 @@ import java.util.Map;
 import java.util.Set;
 
 import br.unb.igor.R;
+import br.unb.igor.fragments.FragmentAdicionarJogador;
 import br.unb.igor.fragments.FragmentCriarSessao;
 import br.unb.igor.fragments.FragmentEditarAventura;
 import br.unb.igor.fragments.FragmentHome;
@@ -224,7 +226,7 @@ public class ActivityHome extends AppCompatActivity implements
             }
         });
         final FragmentManager fragmentManager = getSupportFragmentManager();
-        updateThreeDotsMenu();
+        //updateThreeDotsMenu();
         fragmentManager.addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             // Esconde os tres pontinhos na tela de criacao de aventura
             @Override
@@ -609,6 +611,24 @@ public class ActivityHome extends AppCompatActivity implements
     @Override
     public void onSelectSessao(Sessao sessao, int index) {
 
+    }
+
+    @Override
+    public void onAdicionarJogador(String keyAventura) {
+        FragmentAdicionarJogador fragmentAdicionarJogador = new FragmentAdicionarJogador();
+        Bundle bundle = new Bundle();
+        bundle.putString("keyAventura", keyAventura);
+        fragmentAdicionarJogador.setArguments(bundle);
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_frame, fragmentAdicionarJogador)
+                .addToBackStack(FragmentAdicionarJogador.TAG)
+                .commit();
+    }
+
+    @Override
+    public void onAdicionaJogadorPesquisado(int index) {
+        Toast.makeText(getApplicationContext(),"Index: " + index,Toast.LENGTH_SHORT).show();
     }
 
     @Override

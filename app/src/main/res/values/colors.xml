@@ -6,6 +6,7 @@
     <color name="branco">#ffffff</color>
     <color name="redError">#da2929</color>
     <color name="cinzaCriarConta">#585757</color>
+    <color name="cinzaPesquisaUsuario">#5f585757</color>
     <color name="preto">#ff000000</color>
     <color name="btnEntrar">#00e2ba</color>
     <color name="fundoCriarConta">#ffe2e2e1</color>

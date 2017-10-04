@@ -6,4 +6,6 @@ import br.unb.igor.model.Sessao;
 public interface AdventureEditListener {
     void onAdicionarSessao(String keyAventura);
     void onSelectSessao (Sessao sessao, int index);
+    void onAdicionarJogador(String keyAventura);
+    void onAdicionaJogadorPesquisado (int index);
 }

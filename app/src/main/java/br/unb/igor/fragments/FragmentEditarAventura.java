@@ -67,6 +67,8 @@ public class FragmentEditarAventura extends Fragment {
     private List<Sessao> sessoes;
     private List<String> usersID;
 
+    private static String tipoExibicao = "listaJogadoresAventura";
+
 
     @Override
     public void onAttach(Context context) {
@@ -114,6 +116,7 @@ public class FragmentEditarAventura extends Fragment {
 
         for (Aventura aventura : ((ActivityHome)getActivity()).getAdventures()) {
             if (aventura.getKey().equals(getArguments().getString("keyAventura"))) {
+                tituloAventura = aventura.getTitulo();
                 sessoes = aventura.getListaSessoes();
                 usersID = aventura.getJogadoresUserIds();
             }
@@ -186,6 +189,13 @@ public class FragmentEditarAventura extends Fragment {
             }
         });
 
+        btnAdicionarJogadores.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListener.onAdicionarJogador(keyAventura);
+            }
+        });
+
         txtDescricaoAventura.setClickable(false);
         txtDescricaoAventura.setFocusable(false);
 
@@ -199,7 +209,7 @@ public class FragmentEditarAventura extends Fragment {
 
         layoutManagerJogadores = new LinearLayoutManager(getActivity());
         recyclerViewListaJogadores.setLayoutManager(layoutManagerJogadores);
-        jogadoresRecyclerAdapter = new JogadoresRecyclerAdapter(getActivity(), mListener, getUsersID());
+        jogadoresRecyclerAdapter = new JogadoresRecyclerAdapter(getActivity(), mListener, getUsersID(), tipoExibicao);
         recyclerViewListaJogadores.setAdapter(jogadoresRecyclerAdapter);
 
         return root;

@@ -1,0 +1,77 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/baseAventuraEdicao"
+    tools:context="br.unb.igor.fragments.FragmentAdicionarJogador">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/bkgEditarAventura"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_width="0dp"
+            android:layout_height="500dp"
+            android:layout_marginBottom="380dp"
+            android:background="@drawable/igor_login_backgrownd"/>
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/boxDadosPesquisaUsuario"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_width="0dp"
+            android:background="@color/cinzaPesquisaUsuario"
+            android:layout_height="60dp">
+
+            <EditText
+                android:id="@+id/editTextPesquisaUsuario"
+                android:layout_width="0dp"
+                android:layout_height="60dp"
+                android:hint="Pesquisar"
+                android:singleLine="true"
+                android:imeOptions="actionSearch"
+                android:textColor="@color/branco"
+                android:textColorHint="@color/branco"
+                android:layout_marginStart="10dp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintRight_toLeftOf="@+id/imgBtnLimparTxtPesqUsuario"
+                />
+
+            <ImageButton
+                android:id="@+id/imgBtnLimparTxtPesqUsuario"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="0dp"
+                android:background="@drawable/ic_clear"
+                app:layout_constraintLeft_toRightOf="@+id/editTextPesquisaUsuario"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerViewListaPesquisaJogadores"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/boxDadosPesquisaUsuario">
+
+        </android.support.v7.widget.RecyclerView>
+
+    </android.support.constraint.ConstraintLayout>
+
+</FrameLayout>

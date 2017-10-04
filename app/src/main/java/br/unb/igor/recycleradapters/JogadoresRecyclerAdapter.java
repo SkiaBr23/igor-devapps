@@ -1,6 +1,8 @@
 package br.unb.igor.recycleradapters;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -23,13 +25,14 @@ public class JogadoresRecyclerAdapter extends RecyclerView.Adapter<JogadoresView
     private Context context;
     private AdventureEditListener mListener;
     private List<String> jogadoresID;
-    private List<String> aventuras;
+    private String tipoExibicao;
 
-    public JogadoresRecyclerAdapter(Context context, AdventureEditListener listener, List<String> jogadoresID) {
+    public JogadoresRecyclerAdapter(Context context, AdventureEditListener listener, List<String> jogadoresID, String tipoExibicao) {
         this.context = context;
         this.mListener = listener;
         this.jogadoresID = jogadoresID;
         setHasStableIds(true);
+        this.tipoExibicao = tipoExibicao;
     }
 
     public void setJogadoresID (List<String> jogadoresID) {
@@ -46,6 +49,18 @@ public class JogadoresRecyclerAdapter extends RecyclerView.Adapter<JogadoresView
 
     @Override
     public void onBindViewHolder(final JogadoresViewHolder holder, int position) {
+        if (tipoExibicao.equals("pesquisaJogadores")) {
+            holder.txtNomeJogador.setTextColor(ColorStateList.valueOf(Color.WHITE));
+            holder.txtNomePersonagem.setTextColor(ColorStateList.valueOf(Color.WHITE));
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    int index = holder.getAdapterPosition();
+                    //TODO: Incluir id do usuario na chamada do metodo depois
+                    mListener.onAdicionaJogadorPesquisado(index);
+                }
+            });
+        }
     }
 
     @Override
