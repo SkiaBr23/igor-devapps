@@ -28,7 +28,7 @@ public class Aventura implements Parcelable {
     List<String> jogadoresUserIds;
     List<String> anotacoes;
     List<FichaJogador> fichas;
-    List<Sessao> sessoes;
+    HashMap<String,Sessao> sessoes;
 
     public Aventura() {
         // Empty constructor for json deserialization =)
@@ -59,14 +59,14 @@ public class Aventura implements Parcelable {
         this.key = key;
     }
 
-    public List<Sessao> getSessoes() {
+    public HashMap<String, Sessao> getSessoes() {
         if (this.sessoes == null) {
-            this.sessoes = new ArrayList<>();
+            this.sessoes = new HashMap<>();
         }
         return this.sessoes;
     }
 
-    public void setSessoes(List<Sessao> sessoes) {
+    public void setSessoes(HashMap<String, Sessao> sessoes) {
         this.sessoes = sessoes;
     }
 
@@ -198,7 +198,7 @@ public class Aventura implements Parcelable {
         parcel.writeStringList(jogadoresUserIds);
         parcel.writeStringList(anotacoes);
 //        List<FichaJogador> fichas;
-        parcel.writeList(sessoes);
+        parcel.writeMap(sessoes);
     }
 
     public static final Parcelable.Creator<Aventura> CREATOR = new Parcelable.Creator<Aventura>() {
@@ -220,7 +220,7 @@ public class Aventura implements Parcelable {
             a.anotacoes = new ArrayList<>();
             parcel.readStringList(a.anotacoes);
 
-            parcel.readList(a.sessoes, Sessao.class.getClassLoader());
+            parcel.readMap(a.sessoes, Sessao.class.getClassLoader());
             return a;
         }
 
@@ -229,4 +229,12 @@ public class Aventura implements Parcelable {
             return new Aventura[size];
         }
     };
+
+    public List<Sessao> getListaSessoes() {
+        if(this.sessoes != null){
+            return new ArrayList<>(sessoes.values());
+        } else {
+            return new ArrayList<>(0);
+        }
+    }
 }

@@ -617,11 +617,8 @@ public class ActivityHome extends AppCompatActivity implements
         if (aventuraSelecionada != null) {
             Sessao sessaoSaida = new Sessao(keyAventura, tituloSessao, dataSessao);
 
-            if(aventuraSelecionada.getSessoes() == null){
-                aventuraSelecionada.setSessoes(new ArrayList<Sessao>(0));
-            }
-            aventuraSelecionada.getSessoes().add(sessaoSaida);
-            createSessionFirebase(keyAventura, sessaoSaida);
+            String sessaoKey = createSessionFirebase(keyAventura, sessaoSaida);
+            aventuraSelecionada.getSessoes().put(sessaoKey,sessaoSaida);
             Bundle bundle = new Bundle();
             bundle.putString("keyAventura", aventuraSelecionada.getKey());
             if (fragmentEditarAventura == null) {
@@ -635,8 +632,13 @@ public class ActivityHome extends AppCompatActivity implements
         }
     }
 
-    public void createSessionFirebase(final String keyAventura, final Sessao sessao){
-        //TODO: Fazer essa merda
+    public String createSessionFirebase(final String keyAventura, final Sessao sessao){
+        String key = mDatabase.child("adventures").child(keyAventura).child("sessions").push().getKey();
+        sessao.setKey(key);
+        Map<String, Object> childUpdates = new HashMap<>();
+        childUpdates.put("/adventures/" + keyAventura + "/sessoes/" + key, sessao);
+        mDatabase.updateChildren(childUpdates);
+        return key;
     }
 
     public Aventura getAventuraViaKey (String key) {

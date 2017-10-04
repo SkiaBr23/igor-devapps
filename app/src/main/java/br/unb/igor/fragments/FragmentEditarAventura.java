@@ -114,7 +114,7 @@ public class FragmentEditarAventura extends Fragment {
 
         for (Aventura aventura : ((ActivityHome)getActivity()).getAdventures()) {
             if (aventura.getKey().equals(getArguments().getString("keyAventura"))) {
-                sessoes = aventura.getSessoes();
+                sessoes = aventura.getListaSessoes();
                 usersID = aventura.getJogadoresUserIds();
             }
         }
