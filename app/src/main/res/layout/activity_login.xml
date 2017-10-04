@@ -104,20 +104,8 @@
                 />
 
             <CheckBox
-                android:id="@+id/checkBoxRememberMe"
-                app:layout_constraintTop_toBottomOf="@+id/senhaLogin"
-                app:layout_constraintLeft_toLeftOf="@+id/senhaLogin"
-                android:layout_marginTop="3dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/branco"
-                app:buttonTint="@color/branco"
-                android:text="@string/msg_login_remember_me"
-                />
-
-            <CheckBox
                 android:id="@+id/checkBoxConectado"
-                app:layout_constraintTop_toBottomOf="@+id/checkBoxRememberMe"
+                app:layout_constraintTop_toBottomOf="@+id/senhaLogin"
                 app:layout_constraintLeft_toLeftOf="@+id/senhaLogin"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

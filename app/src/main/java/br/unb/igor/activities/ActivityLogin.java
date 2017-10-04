@@ -65,13 +65,9 @@ public class ActivityLogin extends AppCompatActivity implements
 
     private static final String PREF_FILENAME = "IgorRPG:PrefsFile";
     private static final String PREF_KEY_EMAIL = "email";
-    private static final String PREF_KEY_PASSWORD = "pass";
-    private static final String PREF_KEY_REMEMBER_ME = "rememberme";
 
     private EditText editTextEmail;
     private EditText editTextSenha;
-    private CheckBox checkBoxConectado;
-    private CheckBox checkBoxRememberMe;
     private ImageView btnFacebook;
     private String DEFAULT_PROFILE_PHOTO_URL = "http://www.alass.org/wp-content/uploads/default.png";
     private TextView criarConta;
@@ -105,8 +101,6 @@ public class ActivityLogin extends AppCompatActivity implements
         editTextEmail = (EditText) findViewById(R.id.emailLogin);
         editTextSenha = (EditText) findViewById(R.id.senhaLogin);
         btnFacebook = (ImageView) findViewById(R.id.btnFacebook);
-        checkBoxConectado = (CheckBox) findViewById(R.id.checkBoxConectado);
-        checkBoxRememberMe = (CheckBox) findViewById(R.id.checkBoxRememberMe);
         criarConta = (TextView) findViewById(R.id.txtCriarConta);
         esqueciSenha = (TextView) findViewById(R.id.txtEsqueciSenha);
         btnEntrar = (Button) findViewById(R.id.btnEntrar);
@@ -121,41 +115,19 @@ public class ActivityLogin extends AppCompatActivity implements
         criarConta.setTypeface(firaSans);
         esqueciSenha.setTypeface(firaSans);
         btnEntrar.setTypeface(firaSansBold);
-        checkBoxConectado.setTypeface(firaSans);
         separador.setTypeface(firaSans);
 
         final SharedPreferences sharedPreferences = getSharedPreferences(PREF_FILENAME, MODE_PRIVATE);
 
-        boolean rememberMeEnabled = sharedPreferences.getBoolean(PREF_KEY_REMEMBER_ME, false);
-
-        if (rememberMeEnabled) {
-            String emailStringCache = sharedPreferences.getString(PREF_KEY_EMAIL, "");
-            String passStringCache = sharedPreferences.getString(PREF_KEY_PASSWORD, "");
-            editTextEmail.setText(emailStringCache);
-            editTextSenha.setText(passStringCache);
-            checkBoxRememberMe.setChecked(true);
-        }
-
-        checkBoxRememberMe.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putBoolean(PREF_KEY_REMEMBER_ME, b);
-                if (!b) {
-                    editor
-                        .putString(PREF_KEY_EMAIL, "")
-                        .putString(PREF_KEY_PASSWORD, "");
-                }
-                editor.apply();
-            }
-        });
+        String emailStringCache = sharedPreferences.getString(PREF_KEY_EMAIL, "");
+        editTextEmail.setText(emailStringCache);
 
         esqueciSenha.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            Intent forgotPasswordIntent = new Intent(ActivityLogin.this,ActivityForgotPassword.class);
-            startActivity(forgotPasswordIntent);
-            overridePendingTransition(R.anim.fade_in_320ms, R.anim.fade_none);
+                Intent forgotPasswordIntent = new Intent(ActivityLogin.this,ActivityForgotPassword.class);
+                startActivity(forgotPasswordIntent);
+                overridePendingTransition(R.anim.fade_in_320ms, R.anim.fade_none);
             }
         });
 
@@ -177,20 +149,16 @@ public class ActivityLogin extends AppCompatActivity implements
         btnEntrar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            if (isLoggedIn()) {
-                userDataRegistered(mAuth.getCurrentUser());
-                callMainActivity();
-            } else if (validate()) {
-                if (checkBoxRememberMe.isChecked()) {
+                if (isLoggedIn()) {
+                    userDataRegistered(mAuth.getCurrentUser());
+                    callMainActivity();
+                } else if (validate()) {
                     sharedPreferences
                         .edit()
                         .putString(PREF_KEY_EMAIL, editTextEmail.getText().toString())
-                        .putString(PREF_KEY_PASSWORD, editTextSenha.getText().toString())
                         .apply();
+                    loginWithPassword();
                 }
-                loginWithPassword();
-            }
-
             }
         });
 

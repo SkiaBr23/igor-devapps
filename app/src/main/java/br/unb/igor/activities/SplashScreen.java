@@ -26,19 +26,20 @@ public class SplashScreen extends Activity {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-            Animation anim = new TranslateAnimation(Animation.ABSOLUTE, Animation.ABSOLUTE, Animation.ABSOLUTE, -600);
-            anim.setDuration(SPLASH_SCREEN_TIMEOUT);
-            anim.setFillAfter(true);
-            logoAppSplashScreen.startAnimation(anim);
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                Intent mainIntent = new Intent(SplashScreen.this, ActivityLogin.class);
-                startActivity(mainIntent);
-                overridePendingTransition(R.anim.fade_in_320ms, R.anim.fade_none);
-                finish();
-                }
-            }, SPLASH_SCREEN_TIMEOUT);
+                int pixelsTranslate = logoAppSplashScreen.getTop();
+                Animation anim = new TranslateAnimation(Animation.ABSOLUTE, Animation.ABSOLUTE, Animation.ABSOLUTE, -pixelsTranslate);
+                anim.setDuration(SPLASH_SCREEN_TIMEOUT);
+                anim.setFillAfter(true);
+                logoAppSplashScreen.startAnimation(anim);
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                    Intent mainIntent = new Intent(SplashScreen.this, ActivityLogin.class);
+                    startActivity(mainIntent);
+                    overridePendingTransition(R.anim.fade_in_320ms, R.anim.fade_none);
+                    finish();
+                    }
+                }, SPLASH_SCREEN_TIMEOUT);
             }
         }, ANIMATION_LOGO);
     }
