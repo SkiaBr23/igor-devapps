@@ -21,7 +21,6 @@ public class Aventura implements Parcelable {
     public static final String KEY_TITLE = "tituloAventura";
     public static final String KEY_IMAGE = "resBackgroundId";
 
-
     String titulo;
     String key;
     String dataProximaSessao;
@@ -31,10 +30,10 @@ public class Aventura implements Parcelable {
     String sinopse;
     String mestreUserId;
     String livroReferencia;
-    List<String> jogadoresUserIds;
-    List<String> anotacoes;
-    List<FichaJogador> fichas;
-    HashMap<String,Sessao> sessoes;
+    List<String> jogadoresUserIds = new ArrayList<>();
+    List<String> anotacoes = new ArrayList<>();
+    List<FichaJogador> fichas = new ArrayList<>();
+    HashMap<String,Sessao> sessoes = new HashMap<>();
 
     public Aventura() {
         // Empty constructor for json deserialization =)
@@ -57,6 +56,7 @@ public class Aventura implements Parcelable {
         }
         return -1;
     }
+
     public String getKey() {
         return key;
     }
@@ -66,9 +66,6 @@ public class Aventura implements Parcelable {
     }
 
     public HashMap<String, Sessao> getSessoes() {
-        if (this.sessoes == null) {
-            this.sessoes = new HashMap<>();
-        }
         return this.sessoes;
     }
 
@@ -203,7 +200,7 @@ public class Aventura implements Parcelable {
         parcel.writeString(livroReferencia);
         parcel.writeStringList(jogadoresUserIds);
         parcel.writeStringList(anotacoes);
-//        List<FichaJogador> fichas;
+//        List<FichaJogador> fichas; // precisa implementar Parcel em FichaJogador
         parcel.writeMap(sessoes);
     }
 
@@ -221,11 +218,9 @@ public class Aventura implements Parcelable {
             a.sinopse = parcel.readString();
             a.mestreUserId = parcel.readString();
             a.livroReferencia = parcel.readString();
-            a.jogadoresUserIds = new ArrayList<>();
             parcel.readStringList(a.jogadoresUserIds);
-            a.anotacoes = new ArrayList<>();
             parcel.readStringList(a.anotacoes);
-
+            // ler FichaJogador
             parcel.readMap(a.sessoes, Sessao.class.getClassLoader());
             return a;
         }
