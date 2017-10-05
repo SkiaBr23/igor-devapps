@@ -103,17 +103,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/emailLogin"
                 />
 
-            <CheckBox
-                android:id="@+id/checkBoxConectado"
-                app:layout_constraintTop_toBottomOf="@+id/senhaLogin"
-                app:layout_constraintLeft_toLeftOf="@+id/senhaLogin"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/branco"
-                app:buttonTint="@color/branco"
-                android:text="@string/manterConectado"
-                />
-
             <Button
                 android:id="@+id/btnEntrar"
                 android:layout_width="124dp"
@@ -124,27 +113,27 @@
                 android:textColor="@color/bgnToolbar"
                 android:layout_marginTop="20dp"
                 app:layout_constraintRight_toRightOf="@+id/senhaLogin"
-                app:layout_constraintTop_toBottomOf="@+id/checkBoxConectado"
+                app:layout_constraintTop_toBottomOf="@+id/senhaLogin"
                 />
 
             <Button
                 android:id="@+id/txtCriarConta"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="28dp"
                 android:text="@string/criarConta"
                 android:textSize="14sp"
                 android:textColor="@color/btnEntrar"
                 android:background="@color/transp"
                 android:textAllCaps="false"
-                app:layout_constraintLeft_toLeftOf="@+id/checkBoxConectado"
+                app:layout_constraintLeft_toLeftOf="@+id/senhaLogin"
                 app:layout_constraintTop_toBottomOf="@+id/btnEntrar"/>
 
             <Button
                 android:id="@+id/txtEsqueciSenha"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="28dp"
                 android:text="@string/esqueciSenha"
                 android:textSize="14sp"
                 android:textColor="@color/branco"
