@@ -57,7 +57,7 @@
         <activity
             android:name=".activities.ActivityHome"
             android:theme="@style/AppFullScreen"
-            android:windowSoftInputMode="stateHidden">
+            android:windowSoftInputMode="stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.DEFAULT" />

@@ -48,4 +48,8 @@
     <string name="edit_adventure_tab_progress">ANDAMENTO</string>
     <string name="edit_adventure_tab_players">JOGADORES</string>
     <string name="msg_master_unknown_player">Usuário Desconhecido</string>
+    <string name="msg_no_next_session">Próxima sessão não marcada</string>
+    <string name="msg_next_session">Próxima sessão: %1$s</string>
+    <string name="msg_registering_account">Cadastrando....</string>
+    <string name="msg_failed_to_register_account">Cadastro falhou</string>
 </resources>

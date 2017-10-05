@@ -25,7 +25,6 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
     private AdventureListener mListener;
     private List<Aventura> aventuras;
     private boolean isInEditMode = false;
-    private static String PROXIMA_SESSAO = "próxima sessão ";
 
     public AventurasRecyclerAdapter (Context context, AdventureListener listener, List<Aventura> aventuras) {
         this.context = context;
@@ -61,7 +60,18 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
             holder.imgViewDeletar.setVisibility(isInEditMode ? View.VISIBLE : View.INVISIBLE);
             holder.txtViewTituloAventura.setText(tituloAventura);
 
-            holder.txtViewProximaSessao.setText(PROXIMA_SESSAO + aventura.getDataProximaSessao());
+            String nextSessionDescription = aventura.getDataProximaSessao();
+            if (nextSessionDescription.isEmpty()) {
+                holder.txtViewProximaSessao.setText(R.string.msg_no_next_session);
+            } else {
+                holder.txtViewProximaSessao.setText(
+                    String.format(
+                        context.getString(R.string.msg_next_session),
+                        aventura.getDataProximaSessao()
+                    )
+                );
+            }
+
             holder.seekBarSessoesAventura.setProgress(50);
 
             // Set Fira Sans (Regular) font

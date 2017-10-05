@@ -28,6 +28,7 @@ public class ActivitySignup extends AppCompatActivity {
     EditText _passwordText;
     Button _signupButton;
     Button _loginLink;
+
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
     private EditText _genderText;
@@ -114,7 +115,7 @@ public class ActivitySignup extends AppCompatActivity {
         final ProgressDialog progressDialog = new ProgressDialog(ActivitySignup.this,
                 R.style.Theme_AppCompat_Light_Dialog);
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Cadastrando....");
+        progressDialog.setMessage(getString(R.string.msg_registering_account));
         progressDialog.show();
 
         final String name = _nameText.getText().toString();
@@ -123,36 +124,25 @@ public class ActivitySignup extends AppCompatActivity {
         String gender = _genderText.getText().toString();
         String birthDate = _birthDateText.getText().toString();
 
-
         mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        Log.d(TAG, "createUserWithEmail:onComplete:" + task.isSuccessful());
+            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    Log.d(TAG, "createUserWithEmail:onComplete:" + task.isSuccessful());
 
-                        // If sign in fails, display a message to the user. If sign in succeeds
-                        // the auth state listener will be notified and logic to handle the
-                        // signed in user can be handled in the listener.
-                        if (!task.isSuccessful()) {
-                            Toast.makeText(ActivitySignup.this, "Cadastro falhou",
-                                    Toast.LENGTH_SHORT).show();
-                        } else {
-                            setDisplayName(mAuth.getCurrentUser(), name);
-                        }
-                        // ...
-                    }
-                });
-
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        // On complete call either onSignupSuccess or onSignupFailed
-                        // depending on success
+                    // If sign in fails, display a message to the user. If sign in succeeds
+                    // the auth state listener will be notified and logic to handle the
+                    // signed in user can be handled in the listener.
+                    if (!task.isSuccessful()) {
+                         onSignupFailed();
+                    } else {
+                        setDisplayName(mAuth.getCurrentUser(), name);
                         onSignupSuccess();
-                        // onSignupFailed();
-                        progressDialog.dismiss();
                     }
-                }, 3000);
+
+                    progressDialog.dismiss();
+                }
+            });
     }
 
 
@@ -164,22 +154,22 @@ public class ActivitySignup extends AppCompatActivity {
 
     private void setDisplayName(FirebaseUser user, String displayName) {
         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                .setDisplayName(displayName)
-                .build();
+            .setDisplayName(displayName)
+            .build();
         user.updateProfile(profileUpdates)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            Log.d(TAG, "User profile updated.");
-                        }
+            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        Log.d(TAG, "User profile updated.");
                     }
-                });
+                }
+            });
     }
 
     public void onSignupFailed() {
-        Toast.makeText(getBaseContext(), "Login falhou!", Toast.LENGTH_LONG).show();
-
+        Toast.makeText(ActivitySignup.this, R.string.msg_failed_to_register_account,
+            Toast.LENGTH_SHORT).show();
         _signupButton.setEnabled(true);
     }
 

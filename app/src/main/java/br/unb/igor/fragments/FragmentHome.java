@@ -35,7 +35,6 @@ public class FragmentHome extends Fragment {
     private TextView txtFloatingMessage;
     private ProgressBar progressBarLoading;
     private RecyclerView recyclerViewAventurasHome;
-    private ScrollView mScrollView;
     private AventurasRecyclerAdapter aventurasRecyclerAdapter;
     private RecyclerView.LayoutManager layoutManager;
     private List<Aventura> aventuras;
@@ -97,11 +96,7 @@ public class FragmentHome extends Fragment {
                         mFragmentCriarAventura = new FragmentCriarAventura();
                 }
 
-                fm
-                    .beginTransaction()
-                    .replace(R.id.content_frame, mFragmentCriarAventura)
-                    .addToBackStack(FragmentCriarAventura.TAG)
-                    .commit();
+                ((ActivityHome) getActivity()).pushFragment(mFragmentCriarAventura, FragmentCriarAventura.TAG);
             }
         });
 

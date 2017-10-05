@@ -48,7 +48,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import br.unb.igor.R;
@@ -57,6 +56,7 @@ import br.unb.igor.fragments.FragmentCriarSessao;
 import br.unb.igor.fragments.FragmentEditarAventura;
 import br.unb.igor.fragments.FragmentHome;
 import br.unb.igor.helpers.AdventureListener;
+import br.unb.igor.helpers.DB;
 import br.unb.igor.helpers.OnCompleteHandler;
 import br.unb.igor.helpers.AdventureEditListener;
 import br.unb.igor.helpers.SessionListener;
@@ -85,6 +85,7 @@ public class ActivityHome extends AppCompatActivity implements
     private DatabaseReference myRef;
     private List<Aventura> aventuras;
     private GoogleApiClient mGoogleApiClient;
+    private DB db;
 
     public enum Screen {
         Home,
@@ -215,12 +216,16 @@ public class ActivityHome extends AppCompatActivity implements
         mDrawerOptions.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Screen oldScreen = mCurrentScreen;
                 if (drawerScreens.length > i) {
                     mCurrentScreen = drawerScreens[i];
                 } else {
                     mCurrentScreen = Screen.Exit;
                 }
                 mDrawerLayout.closeDrawers();
+                if (oldScreen == mCurrentScreen) {
+                    return;
+                }
                 Fragment newFrag = getScreenFragment(mCurrentScreen);
                 if (newFrag != null) {
                     pushFragment(newFrag, getClassTag(newFrag.getClass()));
@@ -345,6 +350,8 @@ public class ActivityHome extends AppCompatActivity implements
                 updateThreeDotsMenu();
             }
         });
+
+        db = new DB(mAuth, mDatabase);
     }
 
     private void updateThreeDotsMenu() {
@@ -469,6 +476,10 @@ public class ActivityHome extends AppCompatActivity implements
     }
 
     public void pushFragment(Fragment f, String tag) {
+        if (f instanceof FragmentHome) {
+            showHomeFragment();
+            return;
+        }
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager
             .beginTransaction()
@@ -504,7 +515,6 @@ public class ActivityHome extends AppCompatActivity implements
 
     protected Fragment getScreenFragment(Screen screen) {
         Fragment fragment = null;
-        FragmentManager fm = getSupportFragmentManager();
         switch (screen) {
             case Home:
                 fragment = getFragmentByClass(FragmentHome.class);
@@ -561,8 +571,8 @@ public class ActivityHome extends AppCompatActivity implements
     @Override
     public void onCreateAdventure(String title) {
         String userId = mAuth.getCurrentUser().getUid();
-        Aventura aventura = new Aventura(title, "09/05", userId);
-        String key = createAdventureFirebase(aventura);
+        Aventura aventura = new Aventura(title, "", userId);
+        String key = db.createAdventure(aventura);
         aventura.setKey(key);
         aventuras.add(aventura);
         fragmentHome.getRecyclerAdapter().notifyItemInserted(aventuras.size() - 1);
@@ -591,7 +601,7 @@ public class ActivityHome extends AppCompatActivity implements
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Deseja remover esta aventura?").setPositiveButton("Sim", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                removeAdventureFirebase(aventuras.get(removeIndex));
+                db.removeAdventure(aventuras.get(removeIndex));
                 aventuras.remove(removeIndex);
                 fragmentHome.getRecyclerAdapter().notifyItemRemoved(removeIndex);
             }
@@ -601,28 +611,6 @@ public class ActivityHome extends AppCompatActivity implements
         });
         alerta = builder.create();
         alerta.show();
-    }
-
-
-    private String createAdventureFirebase(final Aventura aventura) {
-        final String userId = mAuth.getCurrentUser().getUid();
-        String key = mDatabase.child("adventures").push().getKey();
-        aventura.setKey(key);
-        aventura.setMestreUserId(userId);
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/adventures/" + key, aventura);
-        childUpdates.put("/users/" + userId + "/adventures/" + key, true);
-
-        mDatabase.updateChildren(childUpdates);
-        return key;
-    }
-
-    private void removeAdventureFirebase(final Aventura aventura) {
-        if(mAuth.getCurrentUser() != null) {
-            final String userId = mAuth.getCurrentUser().getUid();
-            mDatabase.child("adventures").child(aventura.getKey()).removeValue();
-            mDatabase.child("users").child(userId).child("adventures").child(aventura.getKey()).removeValue();
-        }
     }
 
     // [START signOut]
@@ -670,14 +658,14 @@ public class ActivityHome extends AppCompatActivity implements
     public void onAdicionarJogador(String keyAventura) {
         getScreenFragment(Screen.AddPlayer);
         Bundle bundle = new Bundle();
-        bundle.putString("keyAventura", keyAventura);
+        bundle.putString(Aventura.KEY_ID, keyAventura);
         fragmentAdicionarJogador.setArguments(bundle);
         pushFragment(fragmentAdicionarJogador, FragmentAdicionarJogador.TAG);
     }
 
     @Override
     public void onAdicionaJogadorPesquisado(int index) {
-        Toast.makeText(getApplicationContext(),"Index: " + index,Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Index: " + index,Toast.LENGTH_SHORT).show();
     }
 
     @Override
@@ -685,7 +673,7 @@ public class ActivityHome extends AppCompatActivity implements
         Aventura aventuraSelecionada = getAventuraViaKey(keyAventura);
         if (aventuraSelecionada != null) {
             Sessao sessaoSaida = new Sessao(keyAventura, tituloSessao, dataSessao);
-            String sessaoKey = createSessionFirebase(keyAventura, sessaoSaida);
+            String sessaoKey = db.createSession(keyAventura, sessaoSaida);
             aventuraSelecionada.getSessoes().put(sessaoKey,sessaoSaida);
             Bundle bundle = new Bundle();
             bundle.putString(Aventura.KEY_TITLE, aventuraSelecionada.getTitulo());
@@ -695,15 +683,6 @@ public class ActivityHome extends AppCompatActivity implements
             fragmentEditarAventura.setArguments(bundle);
             getSupportFragmentManager().popBackStack();
         }
-    }
-
-    public String createSessionFirebase(final String keyAventura, final Sessao sessao){
-        String key = mDatabase.child("adventures").child(keyAventura).child("sessions").push().getKey();
-        sessao.setKey(key);
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/adventures/" + keyAventura + "/sessoes/" + key, sessao);
-        mDatabase.updateChildren(childUpdates);
-        return key;
     }
 
     public Aventura getAventuraViaKey (String key) {
