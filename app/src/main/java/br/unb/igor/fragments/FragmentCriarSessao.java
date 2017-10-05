@@ -96,12 +96,11 @@ public class FragmentCriarSessao extends Fragment {
         btnConfirmarSessao.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if ((editTituloSessao.getText().toString().length() == 0) || btnDataSessao.getText().equals("00/00/00")) {
+                if ((editTituloSessao.getText().toString().isEmpty()) || btnDataSessao.getText().equals("00/00/00")) {
                     editTituloSessao.setError("Preencha com o título!");
                     editTituloSessao.setTextColor(Color.BLACK);
                     btnDataSessao.setError("Seleciona uma data!");
                 } else {
-                    View view2 = getActivity().getCurrentFocus();
                     //Fecha o keyboard, ao final da criação da aventura
                     if (view != null) {
                         InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -111,7 +110,7 @@ public class FragmentCriarSessao extends Fragment {
                     String dateSession = btnDataSessao.getText().toString();
                     editTituloSessao.setText("");
                     btnDataSessao.setText("00/00/00");
-                    mListener.onConfirmarSessao(keyAdventure,titleSession, dateSession);
+                    mListener.onConfirmarSessao(keyAdventure, titleSession, dateSession);
                 }
             }
         });

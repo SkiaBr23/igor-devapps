@@ -2,6 +2,7 @@ package br.unb.igor.fragments;
 
 
 import android.content.Context;
+import android.media.Image;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -26,6 +27,7 @@ import br.unb.igor.R;
 import br.unb.igor.activities.ActivityHome;
 import br.unb.igor.helpers.AdventureEditListener;
 import br.unb.igor.helpers.CircleTransform;
+import br.unb.igor.helpers.ImageAssets;
 import br.unb.igor.model.Aventura;
 import br.unb.igor.model.Sessao;
 import br.unb.igor.recycleradapters.JogadoresRecyclerAdapter;
@@ -41,6 +43,7 @@ public class FragmentEditarAventura extends Fragment {
 
     private String tituloAventura;
     private String keyAventura;
+    private ImageView imgBackground;
     private TextView txtTituloAventuraEdicao;
     private EditText txtDescricaoAventura;
     private ImageView abasJanelas;
@@ -92,14 +95,14 @@ public class FragmentEditarAventura extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View root = inflater.inflate(R.layout.editar_aventura, container, false);
-        tituloAventura = getArguments().getString("tituloAventura");
-        keyAventura = getArguments().getString("keyAventura");
+        tituloAventura = getArguments().getString(Aventura.KEY_TITLE);
+        keyAventura = getArguments().getString(Aventura.KEY_ID);
+        imgBackground = (ImageView)root.findViewById(R.id.bkgEditarAventura);
         txtTituloAventuraEdicao = (TextView)root.findViewById(R.id.txtTituloAventuraEdicao);
         txtDescricaoAventura = (EditText)root.findViewById(R.id.txtDescricaoAventura);
         abasJanelas = (ImageView)root.findViewById(R.id.abasJanelas);
@@ -114,11 +117,15 @@ public class FragmentEditarAventura extends Fragment {
         recyclerViewListaSessoes = (RecyclerView)root.findViewById(R.id.recyclerViewListaSessoes);
         recyclerViewListaJogadores = (RecyclerView)root.findViewById(R.id.recyclerViewListaJogadores);
 
+        int backgroundResource = getArguments().getInt(Aventura.KEY_IMAGE, -1);
+        imgBackground.setImageResource(ImageAssets.getBackgroundResource(backgroundResource));
+
         for (Aventura aventura : ((ActivityHome)getActivity()).getAdventures()) {
             if (aventura.getKey().equals(getArguments().getString("keyAventura"))) {
                 tituloAventura = aventura.getTitulo();
                 sessoes = aventura.getListaSessoes();
                 usersID = aventura.getJogadoresUserIds();
+                break;
             }
         }
 
@@ -139,9 +146,8 @@ public class FragmentEditarAventura extends Fragment {
             recyclerViewListaJogadores.setVisibility(View.GONE);
         }*/
 
-             mAuth = FirebaseAuth.getInstance();
+        mAuth = FirebaseAuth.getInstance();
 
-             mAuth = FirebaseAuth.getInstance();
         if (mAuth.getCurrentUser() != null) {
             FirebaseUser user = mAuth.getCurrentUser();
             if (user.getDisplayName() != null) {
@@ -154,7 +160,7 @@ public class FragmentEditarAventura extends Fragment {
             }
 
         } else {
-            txtNomeMestre.setText("Unknown User");
+            txtNomeMestre.setText(R.string.msg_master_unknown_player);
         }
 
         boxAndamentoAventura = (ConstraintLayout)root.findViewById(R.id.boxAndamentoAventura);
@@ -165,7 +171,7 @@ public class FragmentEditarAventura extends Fragment {
             public void onClick(View view) {
                 boxAndamentoAventura.setVisibility(View.GONE);
                 boxJogadoresAventura.setVisibility(View.VISIBLE);
-                abasJanelas.setBackground(getResources().getDrawable(R.drawable.aba_dois));
+                abasJanelas.setScaleX(-1.f);
                 btnAdicionarSessao.setVisibility(View.GONE);
                 btnAdicionarJogadores.setVisibility(View.VISIBLE);
             }
@@ -176,7 +182,7 @@ public class FragmentEditarAventura extends Fragment {
             public void onClick(View view) {
                 boxAndamentoAventura.setVisibility(View.VISIBLE);
                 boxJogadoresAventura.setVisibility(View.GONE);
-                abasJanelas.setBackground(getResources().getDrawable(R.drawable.aba_um));
+                abasJanelas.setScaleX(1.f);
                 btnAdicionarSessao.setVisibility(View.VISIBLE);
                 btnAdicionarJogadores.setVisibility(View.GONE);
             }

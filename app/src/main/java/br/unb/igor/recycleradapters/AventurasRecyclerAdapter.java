@@ -12,6 +12,7 @@ import java.util.List;
 
 import br.unb.igor.R;
 import br.unb.igor.helpers.AdventureListener;
+import br.unb.igor.helpers.ImageAssets;
 import br.unb.igor.model.Aventura;
 
 /**
@@ -53,7 +54,7 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
         if (position < aventuras.size()) {
             Aventura aventura = aventuras.get(holder.getAdapterPosition());
             String tituloAventura = aventuras.get(holder.getAdapterPosition()).getTitulo();
-            holder.linearLayoutBackground.setBackgroundResource(getBackgroundResource(aventura));
+            holder.linearLayoutBackground.setBackgroundResource(ImageAssets.getBackgroundResource(aventura.getImageResource()));
             if (tituloAventura.length() > 50) {
                 tituloAventura = tituloAventura.substring(0,45) + this.context.getResources().getString(R.string.strLonga);
             }
@@ -103,22 +104,6 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
         }
     }
 
-    public int getBackgroundResource(Aventura aventura){
-        switch(aventura.getImageResource()){
-            case 1:
-                return R.drawable.miniatura_coast;
-            case 2:
-                return R.drawable.miniatura_corvali;
-            case 3:
-                return R.drawable.miniatura_heartlands;
-            case 4:
-                return R.drawable.miniatura_krevast;
-            case 5:
-                return R.drawable.miniatura_sky;
-            default:
-                return R.drawable.miniatura_krevast;
-        }
-    }
     @Override
     public int getItemCount() {
         return this.aventuras.size();

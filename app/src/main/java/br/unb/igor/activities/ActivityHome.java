@@ -67,7 +67,7 @@ public class ActivityHome extends AppCompatActivity implements
         PopupMenu.OnMenuItemClickListener, AdventureEditListener, SessionListener {
 
     private static final String TAG = ActivityHome.class.getName();
-    private static final String BUNDLE_ADVENTURES = "Adventures";
+    private static final String BUNDLE_ADVENTURES = "Home";
 
     private FragmentHome fragmentHome;
     private FragmentEditarAventura fragmentEditarAventura;
@@ -83,12 +83,13 @@ public class ActivityHome extends AppCompatActivity implements
     private GoogleApiClient mGoogleApiClient;
 
     public enum Screen {
-        Adventures,
+        Home,
         Books,
         Account,
         Notifications,
         Settings,
-        Exit
+        Exit,
+        EditAdventure
     };
 
     @Override
@@ -97,27 +98,35 @@ public class ActivityHome extends AppCompatActivity implements
         outState.putParcelableArrayList(BUNDLE_ADVENTURES, (ArrayList<Aventura>)aventuras);
     }
 
-    private Screen mCurrentScreen = Screen.Adventures;
+    private Screen mCurrentScreen = Screen.Home;
+
+    private final Screen[] drawerScreens = {
+        Screen.Home,
+        Screen.Books,
+        Screen.Account,
+        Screen.Notifications,
+        Screen.Settings
+    };
 
     private class DrawerListAdapter extends BaseAdapter {
 
-        private final String[] options = {
-                getString(R.string.menu_adventure),
-                getString(R.string.menu_books),
-                getString(R.string.menu_account),
-                getString(R.string.menu_notifications),
-                getString(R.string.menu_settings),
-                getString(R.string.menu_exit)
+        private final String[] drawerOptions = {
+            getString(R.string.menu_adventure),
+            getString(R.string.menu_books),
+            getString(R.string.menu_account),
+            getString(R.string.menu_notifications),
+            getString(R.string.menu_settings),
+            getString(R.string.menu_exit)
         };
 
         @Override
         public int getCount() {
-            return options.length;
+            return drawerOptions.length;
         }
 
         @Override
         public Object getItem(int i) {
-            return options[i];
+            return drawerOptions[i];
         }
 
         @Override
@@ -138,7 +147,7 @@ public class ActivityHome extends AppCompatActivity implements
             // Set Fira Sans (Regular) font
             Typeface firaSans = Typeface.createFromAsset(getAssets(), "FiraSans-Regular.ttf");
 
-            textView.setText(options[i]);
+            textView.setText(drawerOptions[i]);
             textView.setTypeface(firaSans);
 
             if (i == 0) {
@@ -152,7 +161,7 @@ public class ActivityHome extends AppCompatActivity implements
             } else if (i == 4) {
                 imgIcon.setBackgroundResource(R.drawable.configuracoes_icone);
             } else if (i == 5) {
-                imgIcon.setImageDrawable(getResources().getDrawable(R.drawable.ic_close_menu));
+                imgIcon.setBackgroundResource(R.drawable.ic_close_menu);
             }
 
             int colorNotFocused = ResourcesCompat.getColor(getResources(), R.color.drawerNotFocused, null);
@@ -200,7 +209,7 @@ public class ActivityHome extends AppCompatActivity implements
         mDrawerOptions.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                mCurrentScreen = Screen.values()[i];
+                mCurrentScreen = drawerScreens[i];
                 mDrawerLayout.closeDrawers();
                 drawerAdapter.notifyDataSetChanged();
             }
@@ -228,7 +237,7 @@ public class ActivityHome extends AppCompatActivity implements
 
         final FragmentManager fragmentManager = getSupportFragmentManager();
 
-        fragmentHome = (FragmentHome)getScreenFragment(Screen.Adventures);
+        fragmentHome = (FragmentHome)getScreenFragment(Screen.Home);
 
         // If there is a saved instance, then don't replace the fragment
         // so the currently active fragment remains so
@@ -439,23 +448,27 @@ public class ActivityHome extends AppCompatActivity implements
 
     public void showHomeFragment() {
         FragmentManager fragmentManager = getSupportFragmentManager();
-
-        if (fragmentManager.findFragmentById(R.id.content_frame) instanceof FragmentHome) {
-            return;
+        int backStackCount = fragmentManager.getBackStackEntryCount();
+        while (backStackCount-- > 0) {
+            fragmentManager.popBackStack();
         }
+    }
 
+    public void pushFragment(Fragment f, String tag) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager
-                .beginTransaction()
-                .replace(R.id.content_frame, fragmentHome)
-                .addToBackStack(FragmentHome.TAG)
-                .commitAllowingStateLoss();
+            .beginTransaction()
+            .setCustomAnimations(R.animator.fade_opaque_320ms, R.animator.fade_out_320ms, R.animator.fade_opaque_320ms, R.animator.fade_out_320ms)
+            .replace(R.id.content_frame, f)
+            .addToBackStack(tag)
+            .commit();
     }
 
     protected Fragment getScreenFragment(Screen screen) {
         Fragment fragment = null;
         FragmentManager fm = getSupportFragmentManager();
         switch (screen) {
-            case Adventures:
+            case Home:
                 if (fragmentHome == null) {
                     fragment = fm.findFragmentByTag(FragmentHome.TAG);
                     if (fragment != null)
@@ -464,6 +477,16 @@ public class ActivityHome extends AppCompatActivity implements
                         fragmentHome = new FragmentHome();
                 }
                 fragment = fragmentHome;
+                break;
+            case EditAdventure:
+                if (fragmentEditarAventura == null) {
+                    fragment = fm.findFragmentByTag(FragmentEditarAventura.TAG);
+                    if (fragment != null)
+                        fragmentEditarAventura = (FragmentEditarAventura)fragment;
+                    else
+                        fragmentEditarAventura = new FragmentEditarAventura();
+                }
+                fragment = fragmentEditarAventura;
                 break;
             case Account:
             case Books:
@@ -515,16 +538,13 @@ public class ActivityHome extends AppCompatActivity implements
 
     @Override
     public void onSelectAdventure(Aventura aventura, int index) {
-        fragmentEditarAventura = new FragmentEditarAventura();
+        getScreenFragment(Screen.EditAdventure);
         Bundle bundle = new Bundle();
-        bundle.putString("tituloAventura", aventura.getTitulo());
-        bundle.putString("keyAventura", aventura.getKey());
+        bundle.putString(Aventura.KEY_TITLE, aventura.getTitulo());
+        bundle.putString(Aventura.KEY_ID, aventura.getKey());
+        bundle.putInt(Aventura.KEY_IMAGE, aventura.getImageResource());
         fragmentEditarAventura.setArguments(bundle);
-        getSupportFragmentManager()
-            .beginTransaction()
-            .replace(R.id.content_frame, fragmentEditarAventura)
-            .addToBackStack(FragmentEditarAventura.TAG)
-            .commit();
+        pushFragment(fragmentEditarAventura, FragmentEditarAventura.TAG);
     }
 
     @Override
@@ -602,7 +622,7 @@ public class ActivityHome extends AppCompatActivity implements
     public void onAdicionarSessao(String keyAventura) {
         FragmentCriarSessao fragmentCriarSessao = new FragmentCriarSessao();
         Bundle bundle = new Bundle();
-        bundle.putString("keyAventura", keyAventura);
+        bundle.putString(Aventura.KEY_ID, keyAventura);
         fragmentCriarSessao.setArguments(bundle);
         getSupportFragmentManager()
                 .beginTransaction()
@@ -639,18 +659,14 @@ public class ActivityHome extends AppCompatActivity implements
         Aventura aventuraSelecionada = getAventuraViaKey(keyAventura);
         if (aventuraSelecionada != null) {
             Sessao sessaoSaida = new Sessao(keyAventura, tituloSessao, dataSessao);
-
             String sessaoKey = createSessionFirebase(keyAventura, sessaoSaida);
             aventuraSelecionada.getSessoes().put(sessaoKey,sessaoSaida);
             Bundle bundle = new Bundle();
-            bundle.putString("keyAventura", aventuraSelecionada.getKey());
-            if (fragmentEditarAventura == null) {
-                Fragment f = getSupportFragmentManager().findFragmentByTag(FragmentEditarAventura.TAG);
-                if (f != null)
-                    fragmentEditarAventura = (FragmentEditarAventura)f;
-            }
-            if (fragmentEditarAventura != null)
-                fragmentEditarAventura.setArguments(bundle);
+            bundle.putString(Aventura.KEY_TITLE, aventuraSelecionada.getTitulo());
+            bundle.putString(Aventura.KEY_ID, aventuraSelecionada.getKey());
+            bundle.putInt(Aventura.KEY_IMAGE, aventuraSelecionada.getImageResource());
+            getScreenFragment(Screen.EditAdventure);
+            fragmentEditarAventura.setArguments(bundle);
             getSupportFragmentManager().popBackStack();
         }
     }

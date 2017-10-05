@@ -16,6 +16,12 @@ import java.util.Random;
  */
 
 public class Aventura implements Parcelable {
+
+    public static final String KEY_ID = "keyAventura";
+    public static final String KEY_TITLE = "tituloAventura";
+    public static final String KEY_IMAGE = "resBackgroundId";
+
+
     String titulo;
     String key;
     String dataProximaSessao;

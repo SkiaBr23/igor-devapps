@@ -45,4 +45,7 @@
     <string name="msg_login_not_possible">Não foi possível realizar o login</string>
     <string name="msg_login_remember_me">lembrar dados</string>
     <string name="msg_login_invalid_email">insira um e-mail válido</string>
+    <string name="edit_adventure_tab_progress">ANDAMENTO</string>
+    <string name="edit_adventure_tab_players">JOGADORES</string>
+    <string name="msg_master_unknown_player">Usuário Desconhecido</string>
 </resources>

@@ -8,6 +8,7 @@ import android.os.Parcelable;
  */
 
 public class Sessao implements Parcelable {
+
     String key;
     String titulo;
     String resumo;
