@@ -215,8 +215,16 @@ public class ActivityHome extends AppCompatActivity implements
         mDrawerOptions.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                mCurrentScreen = drawerScreens[i];
+                if (drawerScreens.length > i) {
+                    mCurrentScreen = drawerScreens[i];
+                } else {
+                    mCurrentScreen = Screen.Exit;
+                }
                 mDrawerLayout.closeDrawers();
+                Fragment newFrag = getScreenFragment(mCurrentScreen);
+                if (newFrag != null) {
+                    pushFragment(newFrag, getClassTag(newFrag.getClass()));
+                }
                 drawerAdapter.notifyDataSetChanged();
             }
         });
@@ -470,21 +478,28 @@ public class ActivityHome extends AppCompatActivity implements
             .commit();
     }
 
-    protected Fragment getFragmentByClass (Class c) {
+    protected String getClassTag(Class c) {
         try {
             Field fieldTag = c.getField("TAG");
             String tag = (String)fieldTag.get(null);
-            Fragment f = getSupportFragmentManager().findFragmentByTag(tag);
-            if (f == null) {
-                f = (Fragment)c.newInstance();
-            }
-            return f;
-        } catch (NoSuchFieldException e) {
+            return tag;
         } catch (IllegalAccessException e) {
-        } catch (InstantiationException e) {
-        } catch (ClassCastException e) {
+        } catch (NoSuchFieldException e) {
         }
         return null;
+    }
+
+    protected Fragment getFragmentByClass (Class c) {
+        String tag = getClassTag(c);
+        Fragment f = getSupportFragmentManager().findFragmentByTag(tag);
+        if (f == null) {
+            try {
+                f = (Fragment)c.newInstance();
+            } catch (InstantiationException e) {
+            } catch (IllegalAccessException e) {
+            }
+        }
+        return f;
     }
 
     protected Fragment getScreenFragment(Screen screen) {
