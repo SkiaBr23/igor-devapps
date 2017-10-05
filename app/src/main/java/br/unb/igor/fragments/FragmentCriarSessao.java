@@ -28,7 +28,7 @@ import br.unb.igor.helpers.SessionListener;
  */
 public class FragmentCriarSessao extends Fragment {
 
-    public static String TAG = FragmentHome.class.getName();
+    public static String TAG = FragmentCriarSessao.class.getName();
 
     private ImageView btnCloseSessao;
     private FloatingActionButton btnCloseCriarSessao;

@@ -27,7 +27,7 @@ import br.unb.igor.recycleradapters.JogadoresRecyclerAdapter;
 
 public class FragmentAdicionarJogador extends Fragment {
 
-    public static String TAG = FragmentHome.class.getName();
+    public static String TAG = FragmentAdicionarJogador.class.getName();
 
     private String keyAventura;
     private ImageButton imgBtnLimparPesquisa;

@@ -42,6 +42,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -71,6 +72,9 @@ public class ActivityHome extends AppCompatActivity implements
 
     private FragmentHome fragmentHome;
     private FragmentEditarAventura fragmentEditarAventura;
+    private FragmentCriarSessao fragmentCriarSessao;
+    private FragmentAdicionarJogador fragmentAdicionarJogador;
+
     private ImageView imgHamburguer;
     private ImageView imgOptionsMenu;
     private DrawerLayout mDrawerLayout;
@@ -89,7 +93,9 @@ public class ActivityHome extends AppCompatActivity implements
         Notifications,
         Settings,
         Exit,
-        EditAdventure
+        EditAdventure,
+        CreateSession,
+        AddPlayer
     };
 
     @Override
@@ -459,9 +465,26 @@ public class ActivityHome extends AppCompatActivity implements
         fragmentManager
             .beginTransaction()
             .setCustomAnimations(R.animator.fade_opaque_320ms, R.animator.fade_out_320ms, R.animator.fade_opaque_320ms, R.animator.fade_out_320ms)
-            .replace(R.id.content_frame, f)
+            .replace(R.id.content_frame, f, tag)
             .addToBackStack(tag)
             .commit();
+    }
+
+    protected Fragment getFragmentByClass (Class c) {
+        try {
+            Field fieldTag = c.getField("TAG");
+            String tag = (String)fieldTag.get(null);
+            Fragment f = getSupportFragmentManager().findFragmentByTag(tag);
+            if (f == null) {
+                f = (Fragment)c.newInstance();
+            }
+            return f;
+        } catch (NoSuchFieldException e) {
+        } catch (IllegalAccessException e) {
+        } catch (InstantiationException e) {
+        } catch (ClassCastException e) {
+        }
+        return null;
     }
 
     protected Fragment getScreenFragment(Screen screen) {
@@ -469,24 +492,20 @@ public class ActivityHome extends AppCompatActivity implements
         FragmentManager fm = getSupportFragmentManager();
         switch (screen) {
             case Home:
-                if (fragmentHome == null) {
-                    fragment = fm.findFragmentByTag(FragmentHome.TAG);
-                    if (fragment != null)
-                        fragmentHome = (FragmentHome)fragment;
-                    else
-                        fragmentHome = new FragmentHome();
-                }
-                fragment = fragmentHome;
+                fragment = getFragmentByClass(FragmentHome.class);
+                fragmentHome = (FragmentHome)fragment;
                 break;
             case EditAdventure:
-                if (fragmentEditarAventura == null) {
-                    fragment = fm.findFragmentByTag(FragmentEditarAventura.TAG);
-                    if (fragment != null)
-                        fragmentEditarAventura = (FragmentEditarAventura)fragment;
-                    else
-                        fragmentEditarAventura = new FragmentEditarAventura();
-                }
-                fragment = fragmentEditarAventura;
+                fragment = getFragmentByClass(FragmentEditarAventura.class);
+                fragmentEditarAventura = (FragmentEditarAventura)fragment;
+                break;
+            case CreateSession:
+                fragment = getFragmentByClass(FragmentCriarSessao.class);
+                fragmentCriarSessao = (FragmentCriarSessao) fragment;
+                break;
+            case AddPlayer:
+                fragment = getFragmentByClass(FragmentAdicionarJogador.class);
+                fragmentAdicionarJogador = (FragmentAdicionarJogador)fragment;
                 break;
             case Account:
             case Books:
@@ -620,15 +639,11 @@ public class ActivityHome extends AppCompatActivity implements
 
     @Override
     public void onAdicionarSessao(String keyAventura) {
-        FragmentCriarSessao fragmentCriarSessao = new FragmentCriarSessao();
+        getScreenFragment(Screen.CreateSession);
         Bundle bundle = new Bundle();
         bundle.putString(Aventura.KEY_ID, keyAventura);
         fragmentCriarSessao.setArguments(bundle);
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_frame, fragmentCriarSessao)
-                .addToBackStack(FragmentCriarSessao.TAG)
-                .commit();
+        pushFragment(fragmentCriarSessao, FragmentCriarSessao.TAG);
     }
 
     @Override
@@ -638,15 +653,11 @@ public class ActivityHome extends AppCompatActivity implements
 
     @Override
     public void onAdicionarJogador(String keyAventura) {
-        FragmentAdicionarJogador fragmentAdicionarJogador = new FragmentAdicionarJogador();
+        getScreenFragment(Screen.AddPlayer);
         Bundle bundle = new Bundle();
         bundle.putString("keyAventura", keyAventura);
         fragmentAdicionarJogador.setArguments(bundle);
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_frame, fragmentAdicionarJogador)
-                .addToBackStack(FragmentAdicionarJogador.TAG)
-                .commit();
+        pushFragment(fragmentAdicionarJogador, FragmentAdicionarJogador.TAG);
     }
 
     @Override

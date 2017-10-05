@@ -2,7 +2,6 @@ package br.unb.igor.fragments;
 
 
 import android.content.Context;
-import android.media.Image;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -39,7 +38,8 @@ import de.hdodenhof.circleimageview.CircleImageView;
  */
 public class FragmentEditarAventura extends Fragment {
 
-    public static String TAG = FragmentEditarAventura.class.getName();
+    public static final String TAG = FragmentEditarAventura.class.getName();
+    private static final String SAVE_STATE_IS_ON_TAB_PLAYERS = "bTabPlayers";
 
     private String tituloAventura;
     private String keyAventura;
@@ -69,6 +69,8 @@ public class FragmentEditarAventura extends Fragment {
     private RecyclerView.LayoutManager layoutManagerJogadores;
     private List<Sessao> sessoes;
     private List<String> usersID;
+
+    private boolean isOnTabPlayers = false;
 
     private static String tipoExibicao = "listaJogadoresAventura";
 
@@ -174,6 +176,7 @@ public class FragmentEditarAventura extends Fragment {
                 abasJanelas.setScaleX(-1.f);
                 btnAdicionarSessao.setVisibility(View.GONE);
                 btnAdicionarJogadores.setVisibility(View.VISIBLE);
+                isOnTabPlayers = true;
             }
         });
 
@@ -185,6 +188,7 @@ public class FragmentEditarAventura extends Fragment {
                 abasJanelas.setScaleX(1.f);
                 btnAdicionarSessao.setVisibility(View.VISIBLE);
                 btnAdicionarJogadores.setVisibility(View.GONE);
+                isOnTabPlayers = false;
             }
         });
 
@@ -217,6 +221,12 @@ public class FragmentEditarAventura extends Fragment {
         recyclerViewListaJogadores.setLayoutManager(layoutManagerJogadores);
         jogadoresRecyclerAdapter = new JogadoresRecyclerAdapter(getActivity(), mListener, getUsersID(), tipoExibicao);
         recyclerViewListaJogadores.setAdapter(jogadoresRecyclerAdapter);
+
+        setRetainInstance(true);
+
+        if (isOnTabPlayers) {
+            abaJogadores.performClick();
+        }
 
         return root;
     }

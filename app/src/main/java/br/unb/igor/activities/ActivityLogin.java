@@ -3,7 +3,6 @@ package br.unb.igor.activities;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,8 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -55,6 +52,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import br.unb.igor.R;
+import br.unb.igor.helpers.LocalStorage;
 import br.unb.igor.model.User;
 
 public class ActivityLogin extends AppCompatActivity implements
@@ -63,8 +61,7 @@ public class ActivityLogin extends AppCompatActivity implements
 
     public static final String TAG = ActivityLogin.class.getName();
 
-    private static final String PREF_FILENAME = "IgorRPG:PrefsFile";
-    private static final String PREF_KEY_EMAIL = "email";
+    private static final String LOCAL_STORAGE_KEY_EMAIL = "email";
 
     private EditText editTextEmail;
     private EditText editTextSenha;
@@ -117,9 +114,9 @@ public class ActivityLogin extends AppCompatActivity implements
         btnEntrar.setTypeface(firaSansBold);
         separador.setTypeface(firaSans);
 
-        final SharedPreferences sharedPreferences = getSharedPreferences(PREF_FILENAME, MODE_PRIVATE);
+        final SharedPreferences sharedPreferences = LocalStorage.get(this);
 
-        String emailStringCache = sharedPreferences.getString(PREF_KEY_EMAIL, "");
+        String emailStringCache = sharedPreferences.getString(LOCAL_STORAGE_KEY_EMAIL, "");
         editTextEmail.setText(emailStringCache);
 
         esqueciSenha.setOnClickListener(new View.OnClickListener() {
@@ -155,7 +152,7 @@ public class ActivityLogin extends AppCompatActivity implements
                 } else if (validate()) {
                     sharedPreferences
                         .edit()
-                        .putString(PREF_KEY_EMAIL, editTextEmail.getText().toString())
+                        .putString(LOCAL_STORAGE_KEY_EMAIL, editTextEmail.getText().toString())
                         .apply();
                     loginWithPassword();
                 }
