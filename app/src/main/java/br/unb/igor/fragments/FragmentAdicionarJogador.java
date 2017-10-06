@@ -17,12 +17,20 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import br.unb.igor.R;
 import br.unb.igor.helpers.AdventureEditListener;
 import br.unb.igor.model.Sessao;
+import br.unb.igor.model.User;
 import br.unb.igor.recycleradapters.JogadoresRecyclerAdapter;
 
 public class FragmentAdicionarJogador extends Fragment {
@@ -35,9 +43,11 @@ public class FragmentAdicionarJogador extends Fragment {
     private RecyclerView recyclerViewListaPesquisaJogadores;
     private List<String> usersID;
     private static String tipoExibicao = "pesquisaJogadores";
-
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
     private JogadoresRecyclerAdapter jogadoresPesquisadosRecyclerAdapter;
     private RecyclerView.LayoutManager layoutManagerJogadoresPesquisados;
+    private List<User> users;
 
     private AdventureEditListener mListener;
 
@@ -72,7 +82,6 @@ public class FragmentAdicionarJogador extends Fragment {
         recyclerViewListaPesquisaJogadores = (RecyclerView)root.findViewById(R.id.recyclerViewListaPesquisaJogadores);
         editTxtPesquisaJogadores = (EditText)root.findViewById(R.id.editTextPesquisaUsuario);
         imgBtnLimparPesquisa= (ImageButton)root.findViewById(R.id.imgBtnLimparTxtPesqUsuario);
-
         imgBtnLimparPesquisa.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -107,6 +116,29 @@ public class FragmentAdicionarJogador extends Fragment {
         });
 
         return root;
+    }
+
+    public void BuscarUsuarios(final String query) {
+        final String userId = mAuth.getCurrentUser().getUid();
+        mDatabase.child("users").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                users = new ArrayList<>();
+                for (DataSnapshot val : dataSnapshot.getChildren()) {
+                    if (val.child("email").getValue(String.class).toLowerCase().contains(query.toLowerCase()) && !val.child("userId").getValue(String.class).equals(userId)){
+                        users.add(val.getValue(User.class));
+                    }
+                }
+                for (User user : users) {
+                    System.out.println("Usuário: " + user.getFullName());
+                }
+                //new ProfilePicDownloader().execute(usersBuscados);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
     }
 
     public void clearKeyboard () {
