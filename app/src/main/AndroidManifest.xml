@@ -26,6 +26,7 @@
         <activity
             android:name=".activities.ActivityLogin"
             android:label="@string/title_activity_login"
+            android:screenOrientation="portrait"
             android:theme="@style/AppFullScreenWhiteAccent"
             android:windowSoftInputMode="stateUnchanged">
             <intent-filter>
@@ -37,6 +38,7 @@
         <activity
             android:name=".activities.ActivitySignup"
             android:label="@string/title_activity_signup"
+            android:screenOrientation="portrait"
             android:theme="@style/AppFullScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -47,6 +49,7 @@
         <activity
             android:name=".activities.ActivityForgotPassword"
             android:label="@string/title_activity_forgot_password"
+            android:screenOrientation="portrait"
             android:theme="@style/AppFullScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -57,6 +60,7 @@
         <activity
             android:name=".activities.ActivityHome"
             android:theme="@style/AppFullScreen"
+            android:screenOrientation="portrait"
             android:windowSoftInputMode="stateAlwaysHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
