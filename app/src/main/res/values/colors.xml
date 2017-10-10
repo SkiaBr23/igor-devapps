@@ -11,6 +11,7 @@
     <color name="btnEntrar">#00e2ba</color>
     <color name="fundoCriarConta">#ffe2e2e1</color>
     <color name="toolbarColor">#ff221133</color>
+    <color name="brancoSemOpacidade">#82ffffff</color>
     <!-- Cores das SeekBar -->
     <color name="corSeekBarUm">#ff435a</color>
     <color name="corSeekBarDois">#060408</color>

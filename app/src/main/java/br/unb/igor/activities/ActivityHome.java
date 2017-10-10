@@ -52,6 +52,7 @@ import java.util.Set;
 
 import br.unb.igor.R;
 import br.unb.igor.fragments.FragmentAdicionarJogador;
+import br.unb.igor.fragments.FragmentConvites;
 import br.unb.igor.fragments.FragmentCriarSessao;
 import br.unb.igor.fragments.FragmentEditarAventura;
 import br.unb.igor.fragments.FragmentHome;
@@ -74,6 +75,7 @@ public class ActivityHome extends AppCompatActivity implements
     private FragmentEditarAventura fragmentEditarAventura;
     private FragmentCriarSessao fragmentCriarSessao;
     private FragmentAdicionarJogador fragmentAdicionarJogador;
+    private FragmentConvites fragmentConvites;
 
     private ImageView imgHamburguer;
     private ImageView imgOptionsMenu;
@@ -91,7 +93,7 @@ public class ActivityHome extends AppCompatActivity implements
         Home,
         Books,
         Account,
-        Notifications,
+        Invites,
         Settings,
         Exit,
         EditAdventure,
@@ -111,7 +113,7 @@ public class ActivityHome extends AppCompatActivity implements
         Screen.Home,
         Screen.Books,
         Screen.Account,
-        Screen.Notifications,
+        Screen.Invites,
         Screen.Settings
     };
 
@@ -164,7 +166,7 @@ public class ActivityHome extends AppCompatActivity implements
             } else if (i == 2) {
                 imgIcon.setBackgroundResource(R.drawable.conta_icone);
             } else if (i == 3) {
-                imgIcon.setBackgroundResource(R.drawable.notificacoes_icone);
+                imgIcon.setBackgroundResource(R.drawable.ic_convite);
             } else if (i == 4) {
                 imgIcon.setBackgroundResource(R.drawable.configuracoes_icone);
             } else if (i == 5) {
@@ -534,7 +536,9 @@ public class ActivityHome extends AppCompatActivity implements
                 break;
             case Account:
             case Books:
-            case Notifications:
+            case Invites:
+                fragment = getFragmentByClass(FragmentConvites.class);
+                fragmentConvites = (FragmentConvites) fragment;
             case Settings:
             case Exit:
             default:

@@ -6,11 +6,13 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -38,6 +40,7 @@ public class FragmentHome extends Fragment {
     private AventurasRecyclerAdapter aventurasRecyclerAdapter;
     private RecyclerView.LayoutManager layoutManager;
     private List<Aventura> aventuras;
+    private CardView cardInfoConvites;
     private AdventureListener mListener;
     private boolean isInEditMode = false;
     private boolean isLoading = true;
@@ -71,6 +74,11 @@ public class FragmentHome extends Fragment {
         txtFloatingMessage.setText(R.string.msg_loading_adventures);
 
         progressBarLoading = root.findViewById(R.id.loadingSpinner);
+
+        cardInfoConvites = (CardView)root.findViewById(R.id.cardInformativoConvites);
+
+        //TODO: Esse gone aqui precisa ser removido quando chamar a função de verificar convites e houver convites!
+        cardInfoConvites.setVisibility(View.GONE);
 
         setIsLoading(isLoading);
 
