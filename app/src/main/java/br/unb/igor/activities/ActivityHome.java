@@ -53,6 +53,7 @@ import java.util.Set;
 import br.unb.igor.R;
 import br.unb.igor.fragments.FragmentAdicionarJogador;
 import br.unb.igor.fragments.FragmentConvites;
+import br.unb.igor.fragments.FragmentCriarAventura;
 import br.unb.igor.fragments.FragmentCriarSessao;
 import br.unb.igor.fragments.FragmentEditarAventura;
 import br.unb.igor.fragments.FragmentHome;
@@ -76,10 +77,12 @@ public class ActivityHome extends AppCompatActivity implements
     private FragmentCriarSessao fragmentCriarSessao;
     private FragmentAdicionarJogador fragmentAdicionarJogador;
     private FragmentConvites fragmentConvites;
+    private FragmentCriarAventura fragmentCreateAdventure;
 
     private ImageView imgHamburguer;
     private ImageView imgOptionsMenu;
     private DrawerLayout mDrawerLayout;
+    private DrawerListAdapter mDrawerAdapter;
     private ListView mDrawerOptions;
     private FirebaseAuth mAuth;
     private FirebaseDatabase database;
@@ -98,7 +101,8 @@ public class ActivityHome extends AppCompatActivity implements
         Exit,
         EditAdventure,
         CreateSession,
-        AddPlayer
+        AddPlayer,
+        CreateAdventure
     };
 
     @Override
@@ -209,30 +213,23 @@ public class ActivityHome extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
-        final DrawerListAdapter drawerAdapter = new DrawerListAdapter();
+        mDrawerAdapter = new DrawerListAdapter();
         mAuth = FirebaseAuth.getInstance();
 
         mDrawerLayout = findViewById(R.id.drawer);
         mDrawerOptions = findViewById(R.id.drawer_options);
-        mDrawerOptions.setAdapter(drawerAdapter);
+        mDrawerOptions.setAdapter(mDrawerAdapter);
         mDrawerOptions.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Screen oldScreen = mCurrentScreen;
+                Screen newScreen;
                 if (drawerScreens.length > i) {
-                    mCurrentScreen = drawerScreens[i];
+                    newScreen = drawerScreens[i];
                 } else {
-                    mCurrentScreen = Screen.Exit;
+                    newScreen = Screen.Exit;
                 }
                 mDrawerLayout.closeDrawers();
-                if (oldScreen == mCurrentScreen) {
-                    return;
-                }
-                Fragment newFrag = getScreenFragment(mCurrentScreen);
-                if (newFrag != null) {
-                    pushFragment(newFrag, getClassTag(newFrag.getClass()));
-                }
-                drawerAdapter.notifyDataSetChanged();
+                setScreen(newScreen);
             }
         });
 
@@ -250,7 +247,15 @@ public class ActivityHome extends AppCompatActivity implements
             public void onClick(View view) {
                 PopupMenu popup = new PopupMenu(ActivityHome.this, view);
                 MenuInflater inflater = popup.getMenuInflater();
-                inflater.inflate(R.menu.menu_main, popup.getMenu());
+                int menuResId = R.menu.menu_main;
+                switch (mCurrentScreen) {
+                    case EditAdventure:
+                        menuResId = R.menu.menu_edit;
+                        break;
+                    default:
+                        break;
+                }
+                inflater.inflate(menuResId, popup.getMenu());
                 popup.setOnMenuItemClickListener(ActivityHome.this);
                 popup.show();
             }
@@ -269,8 +274,6 @@ public class ActivityHome extends AppCompatActivity implements
                 .commit();
         }
 
-        // Busca de aventuras no FirebaseDatabase
-
         mAuth = FirebaseAuth.getInstance();
         if (mAuth.getCurrentUser() != null) {
             // TODO: Usuário não credenciado na Home! Tratar.
@@ -278,9 +281,6 @@ public class ActivityHome extends AppCompatActivity implements
 
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
-        /*
-            BUSCANDO INFORMACOES DE AVENTURAS DO USUARIO NO FIREBASE DB
-        */
 
         if (this.aventuras == null) {
             this.aventuras = new ArrayList<>();
@@ -358,7 +358,9 @@ public class ActivityHome extends AppCompatActivity implements
 
     private void updateThreeDotsMenu() {
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.content_frame);
-        if (currentFragment == null || currentFragment instanceof FragmentHome) {
+        if (currentFragment == null ||
+            currentFragment instanceof FragmentHome ||
+            currentFragment instanceof FragmentEditarAventura) {
             imgOptionsMenu.setVisibility(View.VISIBLE);
         } else {
             imgOptionsMenu.setVisibility(View.INVISIBLE);
@@ -445,7 +447,11 @@ public class ActivityHome extends AppCompatActivity implements
     public boolean onMenuItemClick(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_editar:
-                fragmentHome.setEditMode(true);
+                if (mCurrentScreen == Screen.Home) {
+                    fragmentHome.setEditMode(true);
+                } else if (mCurrentScreen == Screen.EditAdventure) {
+                    
+                }
                 break;
             case R.id.action_ordenar:
                 Collections.sort(aventuras, new Comparator<Aventura>() {
@@ -477,18 +483,34 @@ public class ActivityHome extends AppCompatActivity implements
         }
     }
 
-    public void pushFragment(Fragment f, String tag) {
+    public void pushFragment(Fragment f, String tag, Screen newScreen) {
+        boolean drawerChanged = mCurrentScreen != newScreen;
         if (f instanceof FragmentHome) {
             showHomeFragment();
+            mCurrentScreen = Screen.Home;
+        } else {
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager
+                    .beginTransaction()
+                    .setCustomAnimations(R.animator.fade_opaque_320ms, R.animator.fade_out_320ms, R.animator.fade_opaque_320ms, R.animator.fade_out_320ms)
+                    .replace(R.id.content_frame, f, tag)
+                    .addToBackStack(tag)
+                    .commit();
+            mCurrentScreen = newScreen;
+        }
+        if (drawerChanged) {
+            mDrawerAdapter.notifyDataSetChanged();
+        }
+    }
+
+    public void setScreen(Screen s) {
+        if (s == mCurrentScreen) {
             return;
         }
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager
-            .beginTransaction()
-            .setCustomAnimations(R.animator.fade_opaque_320ms, R.animator.fade_out_320ms, R.animator.fade_opaque_320ms, R.animator.fade_out_320ms)
-            .replace(R.id.content_frame, f, tag)
-            .addToBackStack(tag)
-            .commit();
+        Fragment newFrag = getScreenFragment(s);
+        if (newFrag != null) {
+            pushFragment(newFrag, getClassTag(newFrag.getClass()), s);
+        }
     }
 
     protected String getClassTag(Class c) {
@@ -534,11 +556,16 @@ public class ActivityHome extends AppCompatActivity implements
                 fragment = getFragmentByClass(FragmentAdicionarJogador.class);
                 fragmentAdicionarJogador = (FragmentAdicionarJogador)fragment;
                 break;
-            case Account:
-            case Books:
             case Invites:
                 fragment = getFragmentByClass(FragmentConvites.class);
                 fragmentConvites = (FragmentConvites) fragment;
+                break;
+            case CreateAdventure:
+                fragment = getFragmentByClass(FragmentCriarAventura.class);
+                fragmentCreateAdventure = (FragmentCriarAventura) fragment;
+                break;
+            case Account:
+            case Books:
             case Settings:
             case Exit:
             default:
@@ -592,7 +619,7 @@ public class ActivityHome extends AppCompatActivity implements
         bundle.putString(Aventura.KEY_ID, aventura.getKey());
         bundle.putInt(Aventura.KEY_IMAGE, aventura.getImageResource());
         fragmentEditarAventura.setArguments(bundle);
-        pushFragment(fragmentEditarAventura, FragmentEditarAventura.TAG);
+        pushFragment(fragmentEditarAventura, FragmentEditarAventura.TAG, Screen.EditAdventure);
     }
 
     @Override
@@ -650,7 +677,7 @@ public class ActivityHome extends AppCompatActivity implements
         Bundle bundle = new Bundle();
         bundle.putString(Aventura.KEY_ID, keyAventura);
         fragmentCriarSessao.setArguments(bundle);
-        pushFragment(fragmentCriarSessao, FragmentCriarSessao.TAG);
+        pushFragment(fragmentCriarSessao, FragmentCriarSessao.TAG, Screen.CreateSession);
     }
 
     @Override
@@ -664,7 +691,7 @@ public class ActivityHome extends AppCompatActivity implements
         Bundle bundle = new Bundle();
         bundle.putString(Aventura.KEY_ID, keyAventura);
         fragmentAdicionarJogador.setArguments(bundle);
-        pushFragment(fragmentAdicionarJogador, FragmentAdicionarJogador.TAG);
+        pushFragment(fragmentAdicionarJogador, FragmentAdicionarJogador.TAG, Screen.AddPlayer);
     }
 
     @Override

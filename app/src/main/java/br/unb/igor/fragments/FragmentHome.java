@@ -93,18 +93,7 @@ public class FragmentHome extends Fragment {
         btnCriarAventura.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                FragmentManager fm = getActivity().getSupportFragmentManager();
-
-                if (mFragmentCriarAventura == null) {
-                    Fragment f = fm.findFragmentByTag(FragmentCriarAventura.TAG);
-                    if (f != null)
-                        mFragmentCriarAventura = (FragmentCriarAventura)f;
-                    else
-                        mFragmentCriarAventura = new FragmentCriarAventura();
-                }
-
-                ((ActivityHome) getActivity()).pushFragment(mFragmentCriarAventura, FragmentCriarAventura.TAG);
+                ((ActivityHome)getActivity()).setScreen(ActivityHome.Screen.CreateAdventure);
             }
         });
 
