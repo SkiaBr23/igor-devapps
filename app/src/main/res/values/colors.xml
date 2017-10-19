@@ -10,6 +10,7 @@
     <color name="preto">#ff000000</color>
     <color name="btnEntrar">#00e2ba</color>
     <color name="fundoCriarConta">#ffe2e2e1</color>
+    <color name="fundoCriarContaTransparente">#c3e2e2e1</color>
     <color name="toolbarColor">#ff221133</color>
     <color name="brancoSemOpacidade">#82ffffff</color>
     <!-- Cores das SeekBar -->

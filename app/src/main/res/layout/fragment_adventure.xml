@@ -55,7 +55,8 @@
         android:layout_marginTop="50dp"
         android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        android:background="@drawable/aba_um" />
+        android:background="@drawable/aba_um"
+        android:alpha="0.764" />
 
     <android.support.constraint.Guideline
         android:id="@+id/guidelineTabCenter"
@@ -103,7 +104,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginBottom="30dp"
         android:visibility="visible"
-        android:background="@color/fundoCriarConta">
+        android:background="@color/fundoCriarContaTransparente" >
 
         <TextView
             android:id="@+id/txtDescricaoAventura"
@@ -169,7 +170,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_marginBottom="30dp"
         android:visibility="gone"
-        android:background="@color/fundoCriarConta">
+        android:background="@color/fundoCriarContaTransparente">
 
         <de.hdodenhof.circleimageview.CircleImageView
             xmlns:app="http://schemas.android.com/apk/res-auto"
