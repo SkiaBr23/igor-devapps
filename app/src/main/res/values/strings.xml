@@ -52,4 +52,8 @@
     <string name="msg_next_session">Próxima sessão: %1$s</string>
     <string name="msg_registering_account">Cadastrando....</string>
     <string name="msg_failed_to_register_account">Cadastro falhou</string>
+    <string name="edit_adventure_label_description">Descrição</string>
+    <string name="edit_adventure_title">Título da aventura</string>
+    <string name="fragment_adventure_msg_master">Mestre</string>
+    <string name="fragment_adventure_msg_name">Nome</string>
 </resources>

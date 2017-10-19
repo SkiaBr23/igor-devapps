@@ -33,27 +33,30 @@ import br.unb.igor.recycleradapters.JogadoresRecyclerAdapter;
 import br.unb.igor.recycleradapters.SessoesRecyclerAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static android.view.View.GONE;
+
 /**
  * A simple {@link Fragment} subclass.
  */
-public class FragmentEditarAventura extends Fragment {
+public class FragmentAdventure extends Fragment {
 
-    public static final String TAG = FragmentEditarAventura.class.getName();
+    public static final String TAG = FragmentAdventure.class.getName();
     private static final String SAVE_STATE_IS_ON_TAB_PLAYERS = "bTabPlayers";
 
     private String tituloAventura;
     private String keyAventura;
     private ImageView imgBackground;
     private TextView txtTituloAventuraEdicao;
-    private EditText txtDescricaoAventura;
+    private EditText txtTituloAventuraEdicaoEdit;
+    private TextView txtDescricaoAventura;
+    private EditText txtDescricaoAventuraEdit;
     private ImageView abasJanelas;
     private TextView abaAndamento;
     private TextView abaJogadores;
     private ConstraintLayout boxAndamentoAventura;
     private ConstraintLayout boxJogadoresAventura;
     private AdventureEditListener mListener;
-    private FloatingActionButton btnAdicionarSessao;
-    private FloatingActionButton btnAdicionarJogadores;
+    private FloatingActionButton btnFAB;
     private FirebaseAuth mAuth;
     private CircleImageView profileImageMestre;
     private TextView txtNomeMestre;
@@ -69,6 +72,8 @@ public class FragmentEditarAventura extends Fragment {
     private RecyclerView.LayoutManager layoutManagerJogadores;
     private List<Sessao> sessoes;
     private List<String> usersID;
+
+    private boolean isInEditMode = false;
 
     private boolean isOnTabPlayers = false;
 
@@ -93,7 +98,7 @@ public class FragmentEditarAventura extends Fragment {
     }
 
 
-    public FragmentEditarAventura() {
+    public FragmentAdventure() {
         // Required empty public constructor
     }
 
@@ -101,23 +106,24 @@ public class FragmentEditarAventura extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        final View root = inflater.inflate(R.layout.editar_aventura, container, false);
+        final View root = inflater.inflate(R.layout.fragment_adventure, container, false);
         tituloAventura = getArguments().getString(Aventura.KEY_TITLE);
         keyAventura = getArguments().getString(Aventura.KEY_ID);
-        imgBackground = (ImageView)root.findViewById(R.id.bkgEditarAventura);
-        txtTituloAventuraEdicao = (TextView)root.findViewById(R.id.txtTituloAventuraEdicao);
-        txtDescricaoAventura = (EditText)root.findViewById(R.id.txtDescricaoAventura);
-        abasJanelas = (ImageView)root.findViewById(R.id.abasJanelas);
-        abaAndamento = (TextView)root.findViewById(R.id.abaAndamento);
-        abaJogadores = (TextView)root.findViewById(R.id.abaJogadores);
-        btnAdicionarSessao = (FloatingActionButton)root.findViewById(R.id.btnAdicionarSessao);
-        btnAdicionarJogadores = (FloatingActionButton)root.findViewById(R.id.btnAdicionarJogador);
-        profileImageMestre = (CircleImageView)root.findViewById(R.id.profileImageMestre);
-        txtNomeMestre = (TextView)root.findViewById(R.id.txtNomeMestre);
-        txtIndicadorNenhumaSessao = (TextView)root.findViewById(R.id.txtIndicadorNenhumaSessao);
-        txtIndicadorNenhumJogador = (TextView)root.findViewById(R.id.txtIndicadorNenhumJogador);
-        recyclerViewListaSessoes = (RecyclerView)root.findViewById(R.id.recyclerViewListaSessoes);
-        recyclerViewListaJogadores = (RecyclerView)root.findViewById(R.id.recyclerViewListaJogadores);
+        imgBackground = root.findViewById(R.id.bkgEditarAventura);
+        txtTituloAventuraEdicao = root.findViewById(R.id.txtTituloAventuraEdicao);
+        txtTituloAventuraEdicaoEdit = root.findViewById(R.id.txtTituloAventuraEdicaoEdit);
+        txtDescricaoAventura = root.findViewById(R.id.txtDescricaoAventura);
+        txtDescricaoAventuraEdit = root.findViewById(R.id.txtDescricaoAventuraEdit);
+        abasJanelas = root.findViewById(R.id.abasJanelas);
+        abaAndamento = root.findViewById(R.id.abaAndamento);
+        abaJogadores = root.findViewById(R.id.abaJogadores);
+        btnFAB = root.findViewById(R.id.btnAdventureFAB);
+        profileImageMestre = root.findViewById(R.id.profileImageMestre);
+        txtNomeMestre = root.findViewById(R.id.txtNomeMestre);
+        txtIndicadorNenhumaSessao = root.findViewById(R.id.txtIndicadorNenhumaSessao);
+        txtIndicadorNenhumJogador = root.findViewById(R.id.txtIndicadorNenhumJogador);
+        recyclerViewListaSessoes = root.findViewById(R.id.recyclerViewListaSessoes);
+        recyclerViewListaJogadores = root.findViewById(R.id.recyclerViewListaJogadores);
 
         int backgroundResource = getArguments().getInt(Aventura.KEY_IMAGE, -1);
         imgBackground.setImageResource(ImageAssets.getBackgroundResource(backgroundResource));
@@ -132,13 +138,13 @@ public class FragmentEditarAventura extends Fragment {
         }
 
         //Ajustar aqui quando houver busca de jogadores na base do FireBase
-        txtIndicadorNenhumJogador.setVisibility(View.GONE);
+        txtIndicadorNenhumJogador.setVisibility(GONE);
 
         if (getSessoes().size() > 0) {
-            txtIndicadorNenhumaSessao.setVisibility(View.GONE);
+            txtIndicadorNenhumaSessao.setVisibility(GONE);
             recyclerViewListaSessoes.setVisibility(View.VISIBLE);
         } else {
-            recyclerViewListaSessoes.setVisibility(View.GONE);
+            recyclerViewListaSessoes.setVisibility(GONE);
         }
 
         /*if (getUsersID().size() > 0) {
@@ -165,17 +171,20 @@ public class FragmentEditarAventura extends Fragment {
             txtNomeMestre.setText(R.string.msg_master_unknown_player);
         }
 
-        boxAndamentoAventura = (ConstraintLayout)root.findViewById(R.id.boxAndamentoAventura);
-        boxJogadoresAventura = (ConstraintLayout)root.findViewById(R.id.boxJogadoresAventura);
+        boxAndamentoAventura = root.findViewById(R.id.boxAndamentoAventura);
+        boxJogadoresAventura = root.findViewById(R.id.boxJogadoresAventura);
 
         abaJogadores.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                boxAndamentoAventura.setVisibility(View.GONE);
+                boxAndamentoAventura.setVisibility(GONE);
                 boxJogadoresAventura.setVisibility(View.VISIBLE);
                 abasJanelas.setScaleX(-1.f);
-                btnAdicionarSessao.setVisibility(View.GONE);
-                btnAdicionarJogadores.setVisibility(View.VISIBLE);
+                if (isInEditMode) {
+                    btnFAB.setImageResource(R.drawable.botao_confirmar);
+                } else {
+                    btnFAB.setImageResource(R.drawable.botao_adicionar_jogadores);
+                }
                 isOnTabPlayers = true;
             }
         });
@@ -184,25 +193,27 @@ public class FragmentEditarAventura extends Fragment {
             @Override
             public void onClick(View view) {
                 boxAndamentoAventura.setVisibility(View.VISIBLE);
-                boxJogadoresAventura.setVisibility(View.GONE);
+                boxJogadoresAventura.setVisibility(GONE);
                 abasJanelas.setScaleX(1.f);
-                btnAdicionarSessao.setVisibility(View.VISIBLE);
-                btnAdicionarJogadores.setVisibility(View.GONE);
+                if (isInEditMode) {
+                    btnFAB.setImageResource(R.drawable.botao_confirmar);
+                } else {
+                    btnFAB.setImageResource(R.drawable.botao_adicionar_sessao);
+                }
                 isOnTabPlayers = false;
             }
         });
 
-        btnAdicionarSessao.setOnClickListener(new View.OnClickListener() {
+        btnFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mListener.onAdicionarSessao(keyAventura);
-            }
-        });
-
-        btnAdicionarJogadores.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mListener.onAdicionarJogador(keyAventura);
+                if (!isInEditMode) {
+                    if (isOnTabPlayers) {
+                        mListener.onAdicionarJogador(keyAventura);
+                    } else {
+                        mListener.onAdicionarSessao(keyAventura);
+                    }
+                }
             }
         });
 
@@ -210,6 +221,7 @@ public class FragmentEditarAventura extends Fragment {
         txtDescricaoAventura.setFocusable(false);
 
         txtTituloAventuraEdicao.setText(tituloAventura);
+        txtTituloAventuraEdicaoEdit.setText(tituloAventura);
 
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerViewListaSessoes.setLayoutManager(layoutManager);
@@ -228,6 +240,8 @@ public class FragmentEditarAventura extends Fragment {
             abaJogadores.performClick();
         }
 
+        setEditMode(isInEditMode);
+
         return root;
     }
 
@@ -245,6 +259,31 @@ public class FragmentEditarAventura extends Fragment {
         return this.usersID;
     }
 
+    public void setEditMode(boolean b) {
+        if (isInEditMode == b) {
+            return;
+        }
 
+        isInEditMode = b;
+
+        if (b) {
+            txtDescricaoAventura.setVisibility(View.INVISIBLE);
+            txtDescricaoAventuraEdit.setVisibility(View.VISIBLE);
+            txtTituloAventuraEdicao.setVisibility(View.INVISIBLE);
+            txtTituloAventuraEdicaoEdit.setVisibility(View.VISIBLE);
+            btnFAB.setImageResource(R.drawable.botao_confirmar);
+        } else {
+            txtDescricaoAventura.setVisibility(View.VISIBLE);
+            txtDescricaoAventuraEdit.setVisibility(View.GONE);
+            txtTituloAventuraEdicao.setVisibility(View.VISIBLE);
+            txtTituloAventuraEdicaoEdit.setVisibility(View.GONE);
+            btnFAB.setImageResource(isOnTabPlayers ? R.drawable.botao_adicionar_jogadores : R.drawable.botao_adicionar_sessao);
+        }
+
+    }
+
+    public boolean isInEditMode() {
+        return isInEditMode;
+    }
 
 }

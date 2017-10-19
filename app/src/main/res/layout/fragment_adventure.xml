@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="br.unb.igor.fragments.FragmentEditarAventura"
+    tools:context="br.unb.igor.fragments.FragmentAdventure"
     android:background="@color/baseAventuraEdicao">
 
     <ImageView
@@ -31,6 +31,19 @@
         android:textSize="18sp"
         android:layout_height="wrap_content"
         android:text="Título da aventura" />
+
+    <EditText
+        app:layout_constraintTop_toTopOf="@+id/txtTituloAventuraEdicao"
+        app:layout_constraintLeft_toLeftOf="@+id/txtTituloAventuraEdicao"
+        app:layout_constraintRight_toRightOf="@+id/txtTituloAventuraEdicao"
+        app:layout_constraintBottom_toBottomOf="@+id/txtTituloAventuraEdicao"
+        android:id="@+id/txtTituloAventuraEdicaoEdit"
+        android:layout_width="0dp"
+        android:textColor="@color/branco"
+        android:textSize="18sp"
+        android:layout_height="wrap_content"
+        android:hint="@string/edit_adventure_title"
+        android:visibility="gone" />
 
     <ImageView
         android:id="@+id/abasJanelas"
@@ -92,7 +105,7 @@
         android:visibility="visible"
         android:background="@color/fundoCriarConta">
 
-        <EditText
+        <TextView
             android:id="@+id/txtDescricaoAventura"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
@@ -104,8 +117,21 @@
             android:textStyle="bold"
             android:textSize="15sp"
             android:layout_marginTop="20dp"
-            android:inputType="none"
-            android:text="@string/textoDescricaoAventura"/>
+            android:text="@string/textoDescricaoAventura" />
+
+        <EditText
+            android:id="@+id/txtDescricaoAventuraEdit"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintLeft_toLeftOf="@+id/txtDescricaoAventura"
+            app:layout_constraintRight_toRightOf="@+id/txtDescricaoAventura"
+            app:layout_constraintTop_toTopOf="@+id/txtDescricaoAventura"
+            app:layout_constraintBottom_toBottomOf="@+id/txtDescricaoAventura"
+            android:hint="@string/edit_adventure_label_description"
+            android:textStyle="bold"
+            android:textSize="15sp"
+            android:text="@string/textoDescricaoAventura"
+            android:visibility="gone" />
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerViewListaSessoes"
@@ -162,7 +188,7 @@
             android:id="@+id/txtMestre"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mestre"
+            android:text="@string/fragment_adventure_msg_master"
             android:textColor="@color/preto"
             android:textSize="18sp"
             android:textStyle="bold"
@@ -176,7 +202,7 @@
             android:id="@+id/txtNomeMestre"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Nome"
+            android:text="@string/fragment_adventure_msg_name"
             android:textStyle="italic"
             android:textSize="18sp"
             app:layout_constraintBaseline_toBaselineOf="@+id/txtMestre"
@@ -231,7 +257,7 @@
     </android.support.constraint.ConstraintLayout>
 
     <android.support.design.widget.FloatingActionButton
-        android:id="@+id/btnAdicionarSessao"
+        android:id="@+id/btnAdventureFAB"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:layout_height="100dp"
@@ -241,18 +267,5 @@
         app:backgroundTint="@android:color/transparent"
         app:elevation="0dp"
         android:src="@drawable/botao_adicionar_sessao" />
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/btnAdicionarJogador"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_height="100dp"
-        android:layout_width="100dp"
-        android:layout_marginEnd="10dp"
-        app:borderWidth="0dp"
-        app:backgroundTint="@android:color/transparent"
-        app:elevation="0dp"
-        android:visibility="gone"
-        android:src="@drawable/botao_adicionar_jogadores" />
 
 </android.support.constraint.ConstraintLayout>

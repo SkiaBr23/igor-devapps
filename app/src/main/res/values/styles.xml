@@ -27,6 +27,8 @@
     <style name="AppFullScreen" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">true</item>
+        <item name="colorControlNormal">@color/branco</item>
+        <item name="colorControlActivated">@color/bgnColor</item>
         <item name="android:windowFullscreen">true</item>
         <item name="android:itemBackground">@color/drawerFocused</item>
         <item name="android:windowContentOverlay">@null</item>

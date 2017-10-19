@@ -55,7 +55,7 @@ import br.unb.igor.fragments.FragmentAdicionarJogador;
 import br.unb.igor.fragments.FragmentConvites;
 import br.unb.igor.fragments.FragmentCriarAventura;
 import br.unb.igor.fragments.FragmentCriarSessao;
-import br.unb.igor.fragments.FragmentEditarAventura;
+import br.unb.igor.fragments.FragmentAdventure;
 import br.unb.igor.fragments.FragmentHome;
 import br.unb.igor.helpers.AdventureListener;
 import br.unb.igor.helpers.DB;
@@ -73,7 +73,7 @@ public class ActivityHome extends AppCompatActivity implements
     private static final String BUNDLE_ADVENTURES = "Home";
 
     private FragmentHome fragmentHome;
-    private FragmentEditarAventura fragmentEditarAventura;
+    private FragmentAdventure fragmentAdventure;
     private FragmentCriarSessao fragmentCriarSessao;
     private FragmentAdicionarJogador fragmentAdicionarJogador;
     private FragmentConvites fragmentConvites;
@@ -99,6 +99,7 @@ public class ActivityHome extends AppCompatActivity implements
         Invites,
         Settings,
         Exit,
+        Adventure,
         EditAdventure,
         CreateSession,
         AddPlayer,
@@ -249,7 +250,7 @@ public class ActivityHome extends AppCompatActivity implements
                 MenuInflater inflater = popup.getMenuInflater();
                 int menuResId = R.menu.menu_main;
                 switch (mCurrentScreen) {
-                    case EditAdventure:
+                    case Adventure:
                         menuResId = R.menu.menu_edit;
                         break;
                     default:
@@ -360,7 +361,7 @@ public class ActivityHome extends AppCompatActivity implements
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.content_frame);
         if (currentFragment == null ||
             currentFragment instanceof FragmentHome ||
-            currentFragment instanceof FragmentEditarAventura) {
+            currentFragment instanceof FragmentAdventure) {
             imgOptionsMenu.setVisibility(View.VISIBLE);
         } else {
             imgOptionsMenu.setVisibility(View.INVISIBLE);
@@ -370,7 +371,6 @@ public class ActivityHome extends AppCompatActivity implements
     private void fetchInitialAdventures() {
         final String userId = mAuth.getCurrentUser().getUid();
         fragmentHome.setIsLoading(true);
-        System.out.println("ActivityHome#fetchInitialAdventures");
         mDatabase.child("users").child(userId).child("adventures").addListenerForSingleValueEvent(
             new ValueEventListener() {
                 @Override
@@ -449,8 +449,8 @@ public class ActivityHome extends AppCompatActivity implements
             case R.id.action_editar:
                 if (mCurrentScreen == Screen.Home) {
                     fragmentHome.setEditMode(true);
-                } else if (mCurrentScreen == Screen.EditAdventure) {
-                    
+                } else if (mCurrentScreen == Screen.Adventure) {
+                    fragmentAdventure.setEditMode(true);
                 }
                 break;
             case R.id.action_ordenar:
@@ -544,9 +544,9 @@ public class ActivityHome extends AppCompatActivity implements
                 fragment = getFragmentByClass(FragmentHome.class);
                 fragmentHome = (FragmentHome)fragment;
                 break;
-            case EditAdventure:
-                fragment = getFragmentByClass(FragmentEditarAventura.class);
-                fragmentEditarAventura = (FragmentEditarAventura)fragment;
+            case Adventure:
+                fragment = getFragmentByClass(FragmentAdventure.class);
+                fragmentAdventure = (FragmentAdventure)fragment;
                 break;
             case CreateSession:
                 fragment = getFragmentByClass(FragmentCriarSessao.class);
@@ -574,6 +574,23 @@ public class ActivityHome extends AppCompatActivity implements
         return fragment;
     }
 
+    protected Screen getFragmentScreen(Fragment f) {
+        if (f instanceof FragmentHome) {
+            return Screen.Home;
+        } else if (f instanceof FragmentAdventure) {
+            return Screen.Adventure;
+        } else if (f instanceof FragmentCriarSessao) {
+            return Screen.CreateSession;
+        } else if (f instanceof FragmentCriarAventura) {
+            return Screen.CreateAdventure;
+        } else if (f instanceof FragmentConvites) {
+            return Screen.Invites;
+        } else if (f instanceof FragmentAdicionarJogador) {
+            return Screen.AddPlayer;
+        }
+        return Screen.Exit;
+    }
+
     @Override
     public void onBackPressed() {
         if (mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
@@ -584,18 +601,18 @@ public class ActivityHome extends AppCompatActivity implements
             fragmentHome.setEditMode(false);
             return;
         }
+        if (fragmentAdventure != null && fragmentAdventure.isInEditMode()) {
+            fragmentAdventure.setEditMode(false);
+            return;
+        }
         super.onBackPressed();
-        View view = this.getCurrentFocus();
-        // Fecha o keyboard, durante a criação de aventura, caso o usuario clique sobre o icone de close
-        if (view != null) {
-            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            if (imm.isActive()) {
-                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-            } else {
-                FragmentManager fm = getSupportFragmentManager();
-                if (fm.getFragments().size() > 1)
-                    fm.popBackStack();
-            }
+        FragmentManager fm = getSupportFragmentManager();
+        int backStackSize = fm.getBackStackEntryCount();
+        if (backStackSize >= 1) {
+            Fragment next = fm.findFragmentByTag(fm.getBackStackEntryAt(backStackSize - 1).getName());
+            mCurrentScreen = getFragmentScreen(next);
+        } else {
+            mCurrentScreen = Screen.Home;
         }
     }
 
@@ -613,13 +630,16 @@ public class ActivityHome extends AppCompatActivity implements
 
     @Override
     public void onSelectAdventure(Aventura aventura, int index) {
-        getScreenFragment(Screen.EditAdventure);
+        if (fragmentHome.isInEditMode()) {
+            return;
+        }
+        getScreenFragment(Screen.Adventure);
         Bundle bundle = new Bundle();
         bundle.putString(Aventura.KEY_TITLE, aventura.getTitulo());
         bundle.putString(Aventura.KEY_ID, aventura.getKey());
         bundle.putInt(Aventura.KEY_IMAGE, aventura.getImageResource());
-        fragmentEditarAventura.setArguments(bundle);
-        pushFragment(fragmentEditarAventura, FragmentEditarAventura.TAG, Screen.EditAdventure);
+        fragmentAdventure.setArguments(bundle);
+        pushFragment(fragmentAdventure, FragmentAdventure.TAG, Screen.Adventure);
     }
 
     @Override
@@ -710,8 +730,8 @@ public class ActivityHome extends AppCompatActivity implements
             bundle.putString(Aventura.KEY_TITLE, aventuraSelecionada.getTitulo());
             bundle.putString(Aventura.KEY_ID, aventuraSelecionada.getKey());
             bundle.putInt(Aventura.KEY_IMAGE, aventuraSelecionada.getImageResource());
-            getScreenFragment(Screen.EditAdventure);
-            fragmentEditarAventura.setArguments(bundle);
+            getScreenFragment(Screen.Adventure);
+            fragmentAdventure.setArguments(bundle);
             getSupportFragmentManager().popBackStack();
         }
     }
