@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -26,9 +27,12 @@ import br.unb.igor.R;
 import br.unb.igor.activities.ActivityHome;
 import br.unb.igor.helpers.AdventureEditListener;
 import br.unb.igor.helpers.CircleTransform;
+import br.unb.igor.helpers.DB;
 import br.unb.igor.helpers.ImageAssets;
+import br.unb.igor.helpers.OnCompleteHandler;
 import br.unb.igor.model.Aventura;
 import br.unb.igor.model.Sessao;
+import br.unb.igor.model.User;
 import br.unb.igor.recycleradapters.JogadoresRecyclerAdapter;
 import br.unb.igor.recycleradapters.SessoesRecyclerAdapter;
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -46,6 +50,7 @@ public class FragmentAdventure extends Fragment {
     private String tituloAventura;
     private String keyAventura;
     private ImageView imgBackground;
+    private ScrollView txtDescricaoContainer;
     private TextView txtTituloAventuraEdicao;
     private EditText txtTituloAventuraEdicaoEdit;
     private TextView txtDescricaoAventura;
@@ -73,8 +78,9 @@ public class FragmentAdventure extends Fragment {
     private List<Sessao> sessoes;
     private List<String> usersID;
 
-    private boolean isInEditMode = false;
+    private Aventura aventura = null;
 
+    private boolean isInEditMode = false;
     private boolean isOnTabPlayers = false;
 
     private static String tipoExibicao = "listaJogadoresAventura";
@@ -110,6 +116,7 @@ public class FragmentAdventure extends Fragment {
         tituloAventura = getArguments().getString(Aventura.KEY_TITLE);
         keyAventura = getArguments().getString(Aventura.KEY_ID);
         imgBackground = root.findViewById(R.id.bkgEditarAventura);
+        txtDescricaoContainer = root.findViewById(R.id.adventureDescriptionScrollView);
         txtTituloAventuraEdicao = root.findViewById(R.id.txtTituloAventuraEdicao);
         txtTituloAventuraEdicaoEdit = root.findViewById(R.id.txtTituloAventuraEdicaoEdit);
         txtDescricaoAventura = root.findViewById(R.id.txtDescricaoAventura);
@@ -128,8 +135,11 @@ public class FragmentAdventure extends Fragment {
         int backgroundResource = getArguments().getInt(Aventura.KEY_IMAGE, -1);
         imgBackground.setImageResource(ImageAssets.getBackgroundResource(backgroundResource));
 
+        String adventureKey = getArguments().getString(Aventura.KEY_ID);
+
         for (Aventura aventura : ((ActivityHome)getActivity()).getAdventures()) {
-            if (aventura.getKey().equals(getArguments().getString("keyAventura"))) {
+            if (aventura.getKey().equals(adventureKey)) {
+                this.aventura = aventura;
                 tituloAventura = aventura.getTitulo();
                 sessoes = aventura.getListaSessoes();
                 usersID = aventura.getJogadoresUserIds();
@@ -156,20 +166,39 @@ public class FragmentAdventure extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
 
-        if (mAuth.getCurrentUser() != null) {
-            FirebaseUser user = mAuth.getCurrentUser();
-            if (user.getDisplayName() != null) {
-                txtNomeMestre.setText(user.getDisplayName());
-            } else {
-                txtNomeMestre.setText(user.getEmail());
+        DB.getLastInstance().getUserInfoById(aventura.getMestreUserId(), new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
+            @Override
+            public void onComplete(boolean cancelled, Object extra) {
+                if (cancelled || extra == null || !(extra instanceof User)) {
+                    txtNomeMestre.setText(R.string.msg_master_unknown_player);
+                } else {
+                    User user = (User)extra;
+                    txtNomeMestre.setText(user.getFullName());
+                    String photoUrl = user.getProfilePictureUrl();
+                    if (photoUrl != null && !photoUrl.isEmpty()) {
+                        Picasso
+                            .with(profileImageMestre.getContext())
+                            .load(photoUrl)
+                            .transform(new CircleTransform())
+                            .into(profileImageMestre);
+                    }
+                }
             }
-            if (user.getPhotoUrl() != null) {
-                Picasso.with(profileImageMestre.getContext()).load(user.getPhotoUrl()).transform(new CircleTransform()).into(profileImageMestre);
-            }
+        }));
 
-        } else {
-            txtNomeMestre.setText(R.string.msg_master_unknown_player);
-        }
+//        if (mAuth.getCurrentUser() != null) {
+//            FirebaseUser user = mAuth.getCurrentUser();
+//            if (user.getDisplayName() != null) {
+//                txtNomeMestre.setText(user.getDisplayName());
+//            } else {
+//                txtNomeMestre.setText(user.getEmail());
+//            }
+//            if (user.getPhotoUrl() != null) {
+//                Picasso.with(profileImageMestre.getContext()).load(user.getPhotoUrl()).transform(new CircleTransform()).into(profileImageMestre);
+//            }
+//        } else {
+//            txtNomeMestre.setText(R.string.msg_master_unknown_player);
+//        }
 
         boxAndamentoAventura = root.findViewById(R.id.boxAndamentoAventura);
         boxJogadoresAventura = root.findViewById(R.id.boxJogadoresAventura);
@@ -207,7 +236,16 @@ public class FragmentAdventure extends Fragment {
         btnFAB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (!isInEditMode) {
+                if (isInEditMode) {
+                    String title = txtTituloAventuraEdicaoEdit.getText().toString();
+                    String descr = txtDescricaoAventuraEdit.getText().toString();
+                    txtTituloAventuraEdicao.setText(title);
+                    txtDescricaoAventura.setText(descr);
+                    aventura.setTitulo(title);
+                    aventura.setSinopse(descr);
+                    DB.getLastInstance().upsertAdventure(aventura);
+                    setEditMode(false);
+                } else {
                     if (isOnTabPlayers) {
                         mListener.onAdicionarJogador(keyAventura);
                     } else {
@@ -221,7 +259,7 @@ public class FragmentAdventure extends Fragment {
         txtDescricaoAventura.setFocusable(false);
 
         txtTituloAventuraEdicao.setText(tituloAventura);
-        txtTituloAventuraEdicaoEdit.setText(tituloAventura);
+        txtDescricaoAventura.setText(aventura.getSinopse());
 
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerViewListaSessoes.setLayoutManager(layoutManager);
@@ -240,7 +278,7 @@ public class FragmentAdventure extends Fragment {
             abaJogadores.performClick();
         }
 
-        setEditMode(isInEditMode);
+        setEditMode(false);
 
         return root;
     }
@@ -263,27 +301,32 @@ public class FragmentAdventure extends Fragment {
         if (isInEditMode == b) {
             return;
         }
-
         isInEditMode = b;
-
         if (b) {
             txtDescricaoAventura.setVisibility(View.INVISIBLE);
             txtDescricaoAventuraEdit.setVisibility(View.VISIBLE);
             txtTituloAventuraEdicao.setVisibility(View.INVISIBLE);
             txtTituloAventuraEdicaoEdit.setVisibility(View.VISIBLE);
             btnFAB.setImageResource(R.drawable.botao_confirmar);
+            txtDescricaoContainer.setBackgroundResource(R.drawable.rectangle_outline);
+            txtDescricaoAventuraEdit.setText(txtDescricaoAventura.getText().toString());
+            txtTituloAventuraEdicaoEdit.setText(txtTituloAventuraEdicao.getText().toString());
         } else {
             txtDescricaoAventura.setVisibility(View.VISIBLE);
             txtDescricaoAventuraEdit.setVisibility(View.GONE);
             txtTituloAventuraEdicao.setVisibility(View.VISIBLE);
             txtTituloAventuraEdicaoEdit.setVisibility(View.GONE);
             btnFAB.setImageResource(isOnTabPlayers ? R.drawable.botao_adicionar_jogadores : R.drawable.botao_adicionar_sessao);
+            txtDescricaoContainer.setBackgroundResource(0);
         }
-
     }
 
     public boolean isInEditMode() {
         return isInEditMode;
+    }
+
+    public boolean isCurrentUserMaster() {
+        return aventura != null && aventura.getMestreUserId().equals(mAuth.getCurrentUser().getUid());
     }
 
 }

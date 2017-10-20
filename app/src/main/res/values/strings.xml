@@ -31,6 +31,7 @@
     <string name="txtDescricaoPersonagem">Mestre impiedoso que não se importa em matar personagens</string>
 
     <string name="textoDescricaoAventura">Após o misteriosos desaparecimento do príncipe conhecido como Senhor dos Espinhos, um grupo de embaixadores deve impedir que ast tensões entre os reinos cause uma guerra. O futuro do mundo será decidido na corte do Rei.</string>
+    <string name="adventure_label_no_description_yet">Essa aventura ainda não possui uma sinopse!</string>
     <string name="new_account_username_placeholder">Nome de usuário</string>
     <string name="new_account_email_placeholder">E-mail</string>
     <string name="new_account_placeholder_password">Senha</string>
@@ -52,7 +53,7 @@
     <string name="msg_next_session">Próxima sessão: %1$s</string>
     <string name="msg_registering_account">Cadastrando....</string>
     <string name="msg_failed_to_register_account">Cadastro falhou</string>
-    <string name="edit_adventure_label_description">Descrição</string>
+    <string name="adventure_label_description">Escreva uma sinopse...</string>
     <string name="edit_adventure_title">Título da aventura</string>
     <string name="fragment_adventure_msg_master">Mestre</string>
     <string name="fragment_adventure_msg_name">Nome</string>

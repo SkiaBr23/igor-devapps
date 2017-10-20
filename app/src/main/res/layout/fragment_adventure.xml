@@ -63,13 +63,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.5"/>
+        app:layout_constraintGuide_percent="0.5"
+        tools:layout_editor_absoluteY="0dp"
+        tools:layout_editor_absoluteX="192dp" />
 
     <Button
         android:id="@+id/abaAndamento"
         app:layout_constraintBottom_toBottomOf="@+id/abasJanelas"
         app:layout_constraintTop_toTopOf="@+id/abasJanelas"
-        app:layout_constraintRight_toRightOf="@+id/guidelineTabCenter"
         app:layout_constraintLeft_toLeftOf="@+id/abasJanelas"
         android:background="@color/transp"
         android:text="@string/edit_adventure_tab_progress"
@@ -77,7 +78,8 @@
         android:textColor="@color/preto"
         android:textStyle="bold"
         android:layout_height="0dp"
-        android:layout_width="0dp" />
+        android:layout_width="0dp"
+        app:layout_constraintRight_toLeftOf="@+id/guidelineTabCenter" />
 
     <Button
         android:id="@+id/abaJogadores"
@@ -102,46 +104,71 @@
         app:layout_constraintRight_toRightOf="@+id/abasJanelas"
         app:layout_constraintLeft_toLeftOf="@+id/abasJanelas"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="30dp"
+        android:layout_marginBottom="12dp"
         android:visibility="visible"
         android:background="@color/fundoCriarContaTransparente" >
 
-        <TextView
-            android:id="@+id/txtDescricaoAventura"
+        <ScrollView
+            android:id="@+id/adventureDescriptionScrollView"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="120dp"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            android:layout_marginStart="30dp"
-            android:layout_marginEnd="30dp"
-            android:textStyle="bold"
-            android:textSize="15sp"
-            android:layout_marginTop="20dp"
-            android:text="@string/textoDescricaoAventura" />
+            android:layout_marginStart="21dp"
+            android:layout_marginEnd="21dp"
+            android:layout_marginTop="15dp"
+            android:fillViewport="true">
 
-        <EditText
-            android:id="@+id/txtDescricaoAventuraEdit"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            app:layout_constraintLeft_toLeftOf="@+id/txtDescricaoAventura"
-            app:layout_constraintRight_toRightOf="@+id/txtDescricaoAventura"
-            app:layout_constraintTop_toTopOf="@+id/txtDescricaoAventura"
-            app:layout_constraintBottom_toBottomOf="@+id/txtDescricaoAventura"
-            android:hint="@string/edit_adventure_label_description"
-            android:textStyle="bold"
-            android:textSize="15sp"
-            android:text="@string/textoDescricaoAventura"
-            android:visibility="gone" />
+            <android.support.constraint.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layout_constraintTop_toBottomOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <TextView
+                    android:id="@+id/txtDescricaoAventura"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:textStyle="bold"
+                    android:textSize="15sp"
+                    android:gravity="center"
+                    android:textColor="@color/preto"
+                    android:hint="@string/adventure_label_no_description_yet" />
+
+                <EditText
+                    android:id="@+id/txtDescricaoAventuraEdit"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:hint="@string/adventure_label_description"
+                    android:gravity="center"
+                    android:textStyle="bold"
+                    android:textSize="15sp"
+                    android:visibility="gone"
+                    android:padding="8dp" />
+
+            </android.support.constraint.ConstraintLayout>
+
+        </ScrollView>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerViewListaSessoes"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:visibility="gone"
-            app:layout_constraintLeft_toLeftOf="@+id/txtDescricaoAventura"
-            app:layout_constraintRight_toRightOf="@+id/txtDescricaoAventura"
-            app:layout_constraintTop_toBottomOf="@+id/txtDescricaoAventura"
+            app:layout_constraintLeft_toLeftOf="@+id/adventureDescriptionScrollView"
+            app:layout_constraintRight_toRightOf="@+id/adventureDescriptionScrollView"
+            app:layout_constraintTop_toBottomOf="@+id/adventureDescriptionScrollView"
             app:layout_constraintBottom_toBottomOf="parent">
 
         </android.support.v7.widget.RecyclerView>
@@ -154,7 +181,7 @@
             android:text="Você não possui sessões registradas"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/txtDescricaoAventura"
+            app:layout_constraintTop_toBottomOf="@+id/adventureDescriptionScrollView"
             />
 
 
@@ -168,7 +195,7 @@
         app:layout_constraintRight_toRightOf="@+id/abasJanelas"
         app:layout_constraintLeft_toLeftOf="@+id/abasJanelas"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:layout_marginBottom="30dp"
+        android:layout_marginBottom="12dp"
         android:visibility="gone"
         android:background="@color/fundoCriarContaTransparente">
 
@@ -182,8 +209,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             android:layout_marginTop="10dp"
-            android:layout_marginStart="30dp"
-            />
+            android:layout_marginStart="30dp" />
         
         <TextView
             android:id="@+id/txtMestre"
@@ -210,8 +236,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toRightOf="@+id/txtMestre"
             android:layout_marginTop="10dp"
-            android:layout_marginStart="5dp"
-            />
+            android:layout_marginStart="5dp" />
 
         <TextView
             android:id="@+id/txtDescricaoPersonagem"

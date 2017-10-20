@@ -16,6 +16,10 @@ public class OnCompleteHandler {
         this.callback = callback;
     }
 
+    public OnCompleteHandler(OnCompleteCallback callback) {
+        this.callback = callback;
+    }
+
     public synchronized void setExtra(Object extra) {
         this.extra = extra;
     }

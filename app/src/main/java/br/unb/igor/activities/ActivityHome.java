@@ -1,6 +1,5 @@
 package br.unb.igor.activities;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -20,7 +19,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -361,7 +359,7 @@ public class ActivityHome extends AppCompatActivity implements
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.content_frame);
         if (currentFragment == null ||
             currentFragment instanceof FragmentHome ||
-            currentFragment instanceof FragmentAdventure) {
+            (currentFragment instanceof FragmentAdventure && fragmentAdventure.isCurrentUserMaster())) {
             imgOptionsMenu.setVisibility(View.VISIBLE);
         } else {
             imgOptionsMenu.setVisibility(View.INVISIBLE);
@@ -541,28 +539,52 @@ public class ActivityHome extends AppCompatActivity implements
         Fragment fragment = null;
         switch (screen) {
             case Home:
-                fragment = getFragmentByClass(FragmentHome.class);
-                fragmentHome = (FragmentHome)fragment;
+                if (fragmentHome != null) {
+                    fragment = fragmentHome;
+                } else {
+                    fragment = getFragmentByClass(FragmentHome.class);
+                    fragmentHome = (FragmentHome) fragment;
+                }
                 break;
             case Adventure:
-                fragment = getFragmentByClass(FragmentAdventure.class);
-                fragmentAdventure = (FragmentAdventure)fragment;
+                if (fragmentAdventure != null) {
+                    fragment = fragmentAdventure;
+                } else {
+                    fragment = getFragmentByClass(FragmentAdventure.class);
+                    fragmentAdventure = (FragmentAdventure)fragment;
+                }
                 break;
             case CreateSession:
-                fragment = getFragmentByClass(FragmentCriarSessao.class);
-                fragmentCriarSessao = (FragmentCriarSessao) fragment;
+                if (fragmentCriarSessao != null) {
+                    fragment = fragmentCriarSessao;
+                } else {
+                    fragment = getFragmentByClass(FragmentCriarSessao.class);
+                    fragmentCriarSessao = (FragmentCriarSessao) fragment;
+                }
                 break;
             case AddPlayer:
-                fragment = getFragmentByClass(FragmentAdicionarJogador.class);
-                fragmentAdicionarJogador = (FragmentAdicionarJogador)fragment;
+                if (fragmentAdicionarJogador != null) {
+                    fragment = fragmentAdicionarJogador;
+                } else {
+                    fragment = getFragmentByClass(FragmentAdicionarJogador.class);
+                    fragmentAdicionarJogador = (FragmentAdicionarJogador)fragment;
+                }
                 break;
             case Invites:
-                fragment = getFragmentByClass(FragmentConvites.class);
-                fragmentConvites = (FragmentConvites) fragment;
+                if (fragmentConvites != null) {
+                    fragment = fragmentConvites;
+                } else {
+                    fragment = getFragmentByClass(FragmentConvites.class);
+                    fragmentConvites = (FragmentConvites) fragment;
+                }
                 break;
             case CreateAdventure:
-                fragment = getFragmentByClass(FragmentCriarAventura.class);
-                fragmentCreateAdventure = (FragmentCriarAventura) fragment;
+                if (fragmentCreateAdventure != null) {
+                    fragment = fragmentCreateAdventure;
+                } else {
+                    fragment = getFragmentByClass(FragmentCriarAventura.class);
+                    fragmentCreateAdventure = (FragmentCriarAventura) fragment;
+                }
                 break;
             case Account:
             case Books:
