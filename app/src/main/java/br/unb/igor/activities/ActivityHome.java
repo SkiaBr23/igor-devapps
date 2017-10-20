@@ -117,7 +117,8 @@ public class ActivityHome extends AppCompatActivity implements
         Screen.Books,
         Screen.Account,
         Screen.Invites,
-        Screen.Settings
+        Screen.Settings,
+        Screen.Exit
     };
 
     private class DrawerListAdapter extends BaseAdapter {
@@ -222,12 +223,18 @@ public class ActivityHome extends AppCompatActivity implements
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Screen newScreen;
+                System.out.println("Olha: " + i);
+                mDrawerLayout.closeDrawers();
                 if (drawerScreens.length > i) {
                     newScreen = drawerScreens[i];
+                    System.out.println(newScreen.name());
+                    if (newScreen == Screen.Exit) {
+                        signOut();
+                        return;
+                    }
                 } else {
-                    newScreen = Screen.Exit;
+                    return;
                 }
-                mDrawerLayout.closeDrawers();
                 setScreen(newScreen);
             }
         });
@@ -698,6 +705,9 @@ public class ActivityHome extends AppCompatActivity implements
             }
 
             FirebaseAuth.getInstance().signOut();
+            Intent logout = new Intent(ActivityHome.this, ActivityLogin.class);
+            startActivity(logout);
+            finish();
         }
     }
     // [END signOut]

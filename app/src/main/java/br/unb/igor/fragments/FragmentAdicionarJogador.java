@@ -106,8 +106,8 @@ public class FragmentAdicionarJogador extends Fragment {
                 if (actionID == EditorInfo.IME_ACTION_SEARCH) {
                     //TODO: esse if precisa ser uma funcao que verifica se a string é um email valido
                     if (editTxtPesquisaJogadores.getText().toString().length() != 0) {
-                        //TODO: incluir chamada ao firebase aqui
-                        Toast.makeText(getActivity(),"Email: " + editTxtPesquisaJogadores.getText().toString(),Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(getActivity(),"Email: " + editTxtPesquisaJogadores.getText().toString(),Toast.LENGTH_SHORT).show();
+                        BuscarUsuarios(editTxtPesquisaJogadores.getText().toString());
                         clearKeyboard();
                     }
                 }

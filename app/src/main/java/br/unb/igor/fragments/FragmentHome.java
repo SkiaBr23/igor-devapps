@@ -78,7 +78,7 @@ public class FragmentHome extends Fragment {
         cardInfoConvites = (CardView)root.findViewById(R.id.cardInformativoConvites);
 
         //TODO: Esse gone aqui precisa ser removido quando chamar a função de verificar convites e houver convites!
-        cardInfoConvites.setVisibility(View.GONE);
+        cardInfoConvites.setVisibility(View.VISIBLE);
 
         setIsLoading(isLoading);
 
