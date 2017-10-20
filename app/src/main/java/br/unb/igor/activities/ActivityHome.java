@@ -223,11 +223,9 @@ public class ActivityHome extends AppCompatActivity implements
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Screen newScreen;
-                System.out.println("Olha: " + i);
                 mDrawerLayout.closeDrawers();
                 if (drawerScreens.length > i) {
                     newScreen = drawerScreens[i];
-                    System.out.println(newScreen.name());
                     if (newScreen == Screen.Exit) {
                         signOut();
                         return;
@@ -626,16 +624,17 @@ public class ActivityHome extends AppCompatActivity implements
             mDrawerLayout.closeDrawer(Gravity.LEFT);
             return;
         }
-        if (fragmentHome != null && fragmentHome.isInEditMode()) {
+        FragmentManager fm = getSupportFragmentManager();
+        Fragment currentFrag = fm.findFragmentById(R.id.content_frame);
+        if (fragmentHome != null && fragmentHome == currentFrag && fragmentHome.isInEditMode()) {
             fragmentHome.setEditMode(false);
             return;
         }
-        if (fragmentAdventure != null && fragmentAdventure.isInEditMode()) {
+        if (fragmentAdventure != null && fragmentAdventure == currentFrag && fragmentAdventure.isInEditMode()) {
             fragmentAdventure.setEditMode(false);
             return;
         }
         super.onBackPressed();
-        FragmentManager fm = getSupportFragmentManager();
         int backStackSize = fm.getBackStackEntryCount();
         if (backStackSize >= 1) {
             Fragment next = fm.findFragmentByTag(fm.getBackStackEntryAt(backStackSize - 1).getName());
@@ -643,6 +642,7 @@ public class ActivityHome extends AppCompatActivity implements
         } else {
             mCurrentScreen = Screen.Home;
         }
+        mDrawerAdapter.notifyDataSetChanged();
     }
 
     @Override
