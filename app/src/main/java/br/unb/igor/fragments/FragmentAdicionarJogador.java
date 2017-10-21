@@ -61,25 +61,27 @@ public class FragmentAdicionarJogador extends Fragment {
     private boolean isQueryingUsers;
 
     private Handler handler = new Handler();
-    private AnimationSet animationSetFirst = new AnimationSet(true);
-    private AnimationSet animationSetSecond = new AnimationSet(true);
+    private AnimationSet animationSetFirst = new AnimationSet(false);
+    private AnimationSet animationSetSecond = new AnimationSet(false);
     private Runnable onBeginSearch = new Runnable() {
         @Override
         public void run() {
             txtInfoLabel.setText(R.string.msg_searching_users);
-            txtInfoLabel.setPivotX(txtInfoLabel.getWidth() * 0.5f);
-            txtInfoLabel.setPivotY(txtInfoLabel.getHeight() * 0.5f);
             recyclerViewListaPesquisaJogadores.setVisibility(View.INVISIBLE);
             loadingSpinner.setVisibility(View.VISIBLE);
             loadingSpinner.setProgress(0);
+            txtInfoLabel.clearAnimation();
             txtInfoLabel.startAnimation(animationSetSecond);
+            loadingSpinner.clearAnimation();
             loadingSpinner.startAnimation(animationSetSecond);
         }
     };
 
     private void onSearchReturn() {
+        txtInfoLabel.clearAnimation();
         txtInfoLabel.startAnimation(animationSetFirst);
         txtInfoLabel.postDelayed(onSearchFinish, animationSetFirst.getDuration());
+        loadingSpinner.clearAnimation();
         loadingSpinner.startAnimation(animationSetFirst);
     };
 
@@ -88,13 +90,13 @@ public class FragmentAdicionarJogador extends Fragment {
         public void run() {
             if (users.isEmpty()) {
                 txtInfoLabel.setText(getString(R.string.msg_no_users_to_show));
-                txtInfoLabel.setPivotX(txtInfoLabel.getWidth() * 0.5f);
-                txtInfoLabel.setPivotY(txtInfoLabel.getHeight() * 0.5f);
+                txtInfoLabel.clearAnimation();
                 txtInfoLabel.startAnimation(animationSetSecond);
                 recyclerViewListaPesquisaJogadores.setVisibility(View.INVISIBLE);
             } else {
                 txtInfoLabel.setText("");
                 recyclerViewListaPesquisaJogadores.setVisibility(View.VISIBLE);
+                recyclerViewListaPesquisaJogadores.clearAnimation();
                 recyclerViewListaPesquisaJogadores.startAnimation(animationSetSecond);
             }
             loadingSpinner.setVisibility(View.INVISIBLE);
@@ -103,16 +105,15 @@ public class FragmentAdicionarJogador extends Fragment {
     };
 
     public FragmentAdicionarJogador() {
-        Animation scaleUp = new ScaleAnimation(.8f, 1.f, .8f, 1.f);
-        Animation scaleDown = new ScaleAnimation(1.f, .8f, 1.f, .8f);
+        Animation scaleUp = new ScaleAnimation(.72f, 1.f, .72f, 1.f,
+                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
         Animation fadeOut = new AlphaAnimation(1.f, 0.f);
         Animation fadeIn = new AlphaAnimation(0.f, 1.f);
-//        animationSetFirst.addAnimation(scaleDown);
         animationSetFirst.addAnimation(fadeOut);
-//        animationSetSecond.addAnimation(scaleUp);
+        animationSetSecond.addAnimation(scaleUp);
         animationSetSecond.addAnimation(fadeIn);
-        animationSetFirst.setDuration(400);
-        animationSetSecond.setDuration(400);
+        animationSetFirst.setDuration(300);
+        animationSetSecond.setDuration(300);
     }
 
     @Override
@@ -170,8 +171,8 @@ public class FragmentAdicionarJogador extends Fragment {
                     }
                     String query = editTxtPesquisaJogadores.getText().toString().toLowerCase();
                     if (!query.isEmpty()) {
-                        BuscarUsuarios(query);
                         clearKeyboard();
+                        BuscarUsuarios(query);
                     }
                 }
                 return false;
@@ -179,14 +180,9 @@ public class FragmentAdicionarJogador extends Fragment {
         });
 
         txtInfoLabel.setText(R.string.msg_no_users_to_show);
-        txtInfoLabel.setPivotX(txtInfoLabel.getWidth() * 0.5f);
-        txtInfoLabel.setPivotY(txtInfoLabel.getHeight() * 0.5f);
-        loadingSpinner.setPivotX(loadingSpinner.getWidth() * 0.5f);
-        loadingSpinner.setPivotY(loadingSpinner.getHeight() * 0.5f);
         editTxtPesquisaJogadores.setText("");
         users.clear();
         jogadoresPesquisadosRecyclerAdapter.notifyDataSetChanged();
-
         isQueryingUsers = false;
 
         return root;
@@ -200,6 +196,9 @@ public class FragmentAdicionarJogador extends Fragment {
         txtInfoLabel.startAnimation(animationSetFirst);
         loadingSpinner.startAnimation(animationSetFirst);
         recyclerViewListaPesquisaJogadores.startAnimation(animationSetFirst);
+        System.out.println("@@" + jogadoresPesquisadosRecyclerAdapter.getItemCount());
+        System.out.println(recyclerViewListaPesquisaJogadores.getMeasuredWidth() + " - " +
+                recyclerViewListaPesquisaJogadores.getMeasuredHeight());
         txtInfoLabel.postDelayed(onBeginSearch, animationSetFirst.getDuration());
         editTxtPesquisaJogadores.clearFocus();
         final String userId = mAuth.getCurrentUser().getUid();
@@ -232,7 +231,7 @@ public class FragmentAdicionarJogador extends Fragment {
                     }
                 });
             }
-        }, animationSetFirst.getDuration());
+        }, animationSetFirst.getDuration() + animationSetSecond.getDuration());
 
     }
 
