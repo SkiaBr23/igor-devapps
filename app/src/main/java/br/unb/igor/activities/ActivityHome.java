@@ -35,6 +35,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseException;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
@@ -364,7 +365,8 @@ public class ActivityHome extends AppCompatActivity implements
         Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.content_frame);
         if (currentFragment == null ||
             currentFragment instanceof FragmentHome ||
-            (currentFragment instanceof FragmentAdventure && fragmentAdventure.isCurrentUserMaster())) {
+                (currentFragment instanceof FragmentAdventure &&
+                ((FragmentAdventure)currentFragment).isCurrentUserMaster())) {
             imgOptionsMenu.setVisibility(View.VISIBLE);
         } else {
             imgOptionsMenu.setVisibility(View.INVISIBLE);
@@ -408,18 +410,24 @@ public class ActivityHome extends AppCompatActivity implements
             onCompleteHandler.advance();
             return;
         }
-        for (String key : idAventuras) {
+        for (final String key : idAventuras) {
             mDatabase.child("adventures").child(key).addListenerForSingleValueEvent(
                     new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot) {
-                            final Aventura aventura = dataSnapshot.getValue(Aventura.class);
+                            Aventura aventura = null;
+                            try {
+                                aventura = dataSnapshot.getValue(Aventura.class);
+                            } catch (DatabaseException ex) {
+                                // Sessoes em aventuras mudada de HashMap para ArrayList, então
+                                // o Firebase pode lançar exceções na hora de deserializar.
+                                // Ignore a aventura nesse caso
+                            }
                             // Check if adventure is not null and don't exist on current list
                             if (aventura != null) {
                                 // Add adventure to list
                                 final int index = aventura.getIndexOf(aventuras, aventura.getKey());
                                 final boolean exists = dataSnapshot.exists();
-                                onCompleteHandler.advance();
 
                                 if (index >= 0) {
                                     if (exists) {
@@ -434,6 +442,8 @@ public class ActivityHome extends AppCompatActivity implements
                                     fragmentHome.getRecyclerAdapter().notifyItemInserted(aventuras.size() - 1);
                                 }
                             }
+
+                            onCompleteHandler.advance();
                         }
 
                         @Override
@@ -648,7 +658,7 @@ public class ActivityHome extends AppCompatActivity implements
     @Override
     public void onCreateAdventure(String title) {
         String userId = mAuth.getCurrentUser().getUid();
-        Aventura aventura = new Aventura(title, "", userId);
+        Aventura aventura = new Aventura(title, userId);
         String key = db.createAdventure(aventura);
         aventura.setKey(key);
         aventuras.add(aventura);
@@ -756,15 +766,17 @@ public class ActivityHome extends AppCompatActivity implements
         Aventura aventuraSelecionada = getAventuraViaKey(keyAventura);
         if (aventuraSelecionada != null) {
             Sessao sessaoSaida = new Sessao(keyAventura, tituloSessao, dataSessao);
-            String sessaoKey = db.createSession(keyAventura, sessaoSaida);
-            aventuraSelecionada.getSessoes().put(sessaoKey,sessaoSaida);
+            aventuraSelecionada.addSessao(sessaoSaida);
+            db.upsertAdventure(aventuraSelecionada);
             Bundle bundle = new Bundle();
             bundle.putString(Aventura.KEY_TITLE, aventuraSelecionada.getTitulo());
             bundle.putString(Aventura.KEY_ID, aventuraSelecionada.getKey());
             bundle.putInt(Aventura.KEY_IMAGE, aventuraSelecionada.getImageResource());
             getScreenFragment(Screen.Adventure);
             fragmentAdventure.setArguments(bundle);
-            getSupportFragmentManager().popBackStack();
+            getScreenFragment(Screen.Home);
+            fragmentHome.notifyItemChangedVisible();
+            onBackPressed();
         }
     }
 

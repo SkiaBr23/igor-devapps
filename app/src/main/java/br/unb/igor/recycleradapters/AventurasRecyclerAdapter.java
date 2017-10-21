@@ -14,6 +14,7 @@ import br.unb.igor.R;
 import br.unb.igor.helpers.AdventureListener;
 import br.unb.igor.helpers.ImageAssets;
 import br.unb.igor.model.Aventura;
+import br.unb.igor.model.Sessao;
 
 /**
  * Created by maxim on 04/09/2017.
@@ -54,25 +55,24 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
             Aventura aventura = aventuras.get(holder.getAdapterPosition());
             String tituloAventura = aventuras.get(holder.getAdapterPosition()).getTitulo();
             holder.linearLayoutBackground.setBackgroundResource(ImageAssets.getBackgroundResource(aventura.getImageResource()));
-            if (tituloAventura.length() > 50) {
-                tituloAventura = tituloAventura.substring(0,45) + this.context.getResources().getString(R.string.strLonga);
+            if (tituloAventura.length() >= 50) {
+                tituloAventura = tituloAventura.substring(0, 47) + this.context.getResources().getString(R.string.strLonga);
             }
             holder.imgViewDeletar.setVisibility(isInEditMode ? View.VISIBLE : View.INVISIBLE);
             holder.txtViewTituloAventura.setText(tituloAventura);
+            holder.seekBarSessoesAventura.setProgress(aventura.getProgresso());
 
-            String nextSessionDescription = aventura.getDataProximaSessao();
-            if (nextSessionDescription.isEmpty()) {
-                holder.txtViewProximaSessao.setText(R.string.msg_no_next_session);
+            Sessao nextSession = aventura.getProximaSessao();
+
+            if (nextSession == null) {
+                holder.txtViewProximaSessao.setText(context.getString(R.string.msg_next_session_not_yet_scheduled));
             } else {
-                holder.txtViewProximaSessao.setText(
-                    String.format(
-                        context.getString(R.string.msg_next_session),
-                        aventura.getDataProximaSessao()
-                    )
-                );
+                holder.txtViewProximaSessao.setText(String.format(
+                    context.getString(R.string.msg_next_session),
+                    nextSession.getData(),
+                    nextSession.getTitulo()
+                ));
             }
-
-            holder.seekBarSessoesAventura.setProgress(50);
 
             // Set Fira Sans (Regular) font
             Typeface firaSans = Typeface.createFromAsset(this.context.getAssets(), "FiraSans-Regular.ttf");

@@ -60,7 +60,6 @@ public class ActivityLogin extends AppCompatActivity implements
         View.OnClickListener {
 
     public static final String TAG = ActivityLogin.class.getName();
-
     private static final String LOCAL_STORAGE_KEY_EMAIL = "email";
 
     private EditText editTextEmail;
@@ -95,14 +94,14 @@ public class ActivityLogin extends AppCompatActivity implements
         setContentView(R.layout.activity_login);
 
         //Input
-        editTextEmail = (EditText) findViewById(R.id.emailLogin);
-        editTextSenha = (EditText) findViewById(R.id.senhaLogin);
-        btnFacebook = (ImageView) findViewById(R.id.btnFacebook);
-        criarConta = (TextView) findViewById(R.id.txtCriarConta);
-        esqueciSenha = (TextView) findViewById(R.id.txtEsqueciSenha);
-        btnEntrar = (Button) findViewById(R.id.btnEntrar);
-        signInButton = (SignInButton) findViewById(R.id.sign_in_button);
-        separador = (TextView) findViewById(R.id.txtSeparador);
+        editTextEmail = findViewById(R.id.emailLogin);
+        editTextSenha = findViewById(R.id.senhaLogin);
+        btnFacebook = findViewById(R.id.btnFacebook);
+        criarConta = findViewById(R.id.txtCriarConta);
+        esqueciSenha = findViewById(R.id.txtEsqueciSenha);
+        btnEntrar = findViewById(R.id.btnEntrar);
+        signInButton = findViewById(R.id.sign_in_button);
+        separador = findViewById(R.id.txtSeparador);
 
         // Set Fira Sans (Regular) font
         Typeface firaSans = Typeface.createFromAsset(getAssets(), "FiraSans-Regular.ttf");

@@ -16,10 +16,6 @@ import br.unb.igor.helpers.AdventureListener;
 import br.unb.igor.model.Aventura;
 import br.unb.igor.model.Sessao;
 
-/**
- * Created by maxim on 04/09/2017.
- */
-
 public class SessoesRecyclerAdapter extends RecyclerView.Adapter<SessoesViewHolder> {
 
     private Context context;
@@ -43,7 +39,6 @@ public class SessoesRecyclerAdapter extends RecyclerView.Adapter<SessoesViewHold
         SessoesViewHolder sessoesViewHolder = new SessoesViewHolder(layoutView);
         return sessoesViewHolder;
     }
-
 
     @Override
     public void onBindViewHolder(final SessoesViewHolder holder, int position) {

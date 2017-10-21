@@ -5,15 +5,19 @@ import android.os.Parcelable;
 
 import com.google.firebase.database.Exclude;
 
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.TimeZone;
 
-/**
- * Created by maxim on 04/09/2017.
- */
+import br.unb.igor.helpers.Utils;
 
 public class Aventura implements Parcelable {
 
@@ -23,38 +27,27 @@ public class Aventura implements Parcelable {
 
     String titulo;
     String key;
-    String dataProximaSessao;
-    int progresso;
-    int RESOURCE_IMAGE;
-    int numeroSessoes;
+    int progresso = 0;
+    int RESOURCE_IMAGE = 0;
+    int numeroSessoes = 0;
     String sinopse;
     String mestreUserId;
     String livroReferencia;
     List<String> jogadoresUserIds = new ArrayList<>();
     List<String> anotacoes = new ArrayList<>();
     List<FichaJogador> fichas = new ArrayList<>();
-    HashMap<String,Sessao> sessoes = new HashMap<>();
+    List<Sessao> sessoes = new ArrayList<>();
 
     public Aventura() {
         // Empty constructor for json deserialization =)
     }
 
-    public Aventura(String tituloAventura, String proximaSessao, String mestreUserId) {
+    public Aventura(String tituloAventura, String mestreUserId) {
         Random gerador = new Random();
         this.titulo = tituloAventura;
         this.progresso = 0;
         this.RESOURCE_IMAGE = gerador.nextInt(6);
         this.mestreUserId = mestreUserId;
-        this.dataProximaSessao = proximaSessao;
-    }
-
-    public int getIndexOf(List<Aventura> aventuras, String key){
-        for(Aventura aventura : aventuras){
-            if(aventura.getKey().equals(key)){
-                return aventuras.indexOf(aventura);
-            }
-        }
-        return -1;
     }
 
     public String getKey() {
@@ -65,20 +58,12 @@ public class Aventura implements Parcelable {
         this.key = key;
     }
 
-    public HashMap<String, Sessao> getSessoes() {
+    public List<Sessao> getSessoes() {
         return this.sessoes;
     }
 
-    public void setSessoes(HashMap<String, Sessao> sessoes) {
+    public void setSessoes(List<Sessao> sessoes) {
         this.sessoes = sessoes;
-    }
-
-    public String getDataProximaSessao() {
-        return dataProximaSessao;
-    }
-
-    public void setDataProximaSessao(String dataProximaSessao) {
-        this.dataProximaSessao = dataProximaSessao;
     }
 
     public int getNumeroSessoes() {
@@ -162,11 +147,17 @@ public class Aventura implements Parcelable {
     }
 
     @Exclude
+    public Aventura fromMap(Map<String, Object> map) {
+        Aventura a = new Aventura();
+        a.titulo = (String)map.get("tituloAventura");
+        return a;
+    }
+
+    @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
         result.put("tituloAventura", titulo);
         result.put("progresso", progresso);
-
         result.put("RESOURCE_IMAGE", RESOURCE_IMAGE);
         result.put("numeroSessoes", numeroSessoes);
         result.put("sinopse", sinopse);
@@ -176,9 +167,7 @@ public class Aventura implements Parcelable {
         result.put("fichas", fichas);
         result.put("livroReferencia", livroReferencia);
         result.put("sessoes", sessoes);
-        result.put("dataProximaSessao",dataProximaSessao);
         result.put("jogadoresUserIds", jogadoresUserIds);
-
         return result;
     }
 
@@ -191,7 +180,6 @@ public class Aventura implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(titulo);
         parcel.writeString(key);
-        parcel.writeString(dataProximaSessao);
         parcel.writeInt(progresso);
         parcel.writeInt(RESOURCE_IMAGE);
         parcel.writeInt(numeroSessoes);
@@ -201,7 +189,7 @@ public class Aventura implements Parcelable {
         parcel.writeStringList(jogadoresUserIds);
         parcel.writeStringList(anotacoes);
 //        List<FichaJogador> fichas; // precisa implementar Parcel em FichaJogador
-        parcel.writeMap(sessoes);
+        parcel.writeList(sessoes);
     }
 
     public static final Parcelable.Creator<Aventura> CREATOR = new Parcelable.Creator<Aventura>() {
@@ -211,7 +199,6 @@ public class Aventura implements Parcelable {
             Aventura a = new Aventura();
             a.titulo = parcel.readString();
             a.key = parcel.readString();
-            a.dataProximaSessao = parcel.readString();
             a.progresso = parcel.readInt();
             a.RESOURCE_IMAGE = parcel.readInt();
             a.numeroSessoes = parcel.readInt();
@@ -221,7 +208,7 @@ public class Aventura implements Parcelable {
             parcel.readStringList(a.jogadoresUserIds);
             parcel.readStringList(a.anotacoes);
             // ler FichaJogador
-            parcel.readMap(a.sessoes, Sessao.class.getClassLoader());
+            parcel.readList(a.sessoes, Sessao.class.getClassLoader());
             return a;
         }
 
@@ -231,11 +218,50 @@ public class Aventura implements Parcelable {
         }
     };
 
+    @Exclude
     public List<Sessao> getListaSessoes() {
-        if(this.sessoes != null){
-            return new ArrayList<>(sessoes.values());
-        } else {
-            return new ArrayList<>(0);
+        return sessoes;
+    }
+
+    @Exclude
+    public int getIndexOf(List<Aventura> aventuras, String key){
+        for(Aventura aventura : aventuras){
+            if(aventura.getKey().equals(key)){
+                return aventuras.indexOf(aventura);
+            }
         }
+        return -1;
+    }
+
+    public void addSessao(Sessao s) {
+        sessoes.add(s);
+        Collections.sort(sessoes, Utils.ComparatorSessionByDateDesc);
+    }
+
+    @Exclude
+    public Sessao getProximaSessao() {
+        if (sessoes != null && !sessoes.isEmpty()) {
+            ArrayList<Sessao> copy = new ArrayList<>(sessoes);
+            Collections.sort(copy, Utils.ComparatorSessionByDateAsc);
+            Locale locale = Locale.getDefault();
+            TimeZone timeZone = TimeZone.getDefault();
+            Calendar now = Calendar.getInstance(timeZone, locale);
+            now.set(Calendar.HOUR, 0);
+            now.set(Calendar.MINUTE, 0);
+            now.set(Calendar.SECOND, 0);
+            now.set(Calendar.MILLISECOND, 0);
+            now.set(Calendar.AM_PM, 0);
+            Calendar sessionDate = Calendar.getInstance(timeZone, locale);
+            try {
+                for (Sessao sessao : copy) {
+                    sessionDate.setTime(Utils.DateFormatter_MMddyy.parse(sessao.getData()));
+                    if (sessionDate.after(now) || sessionDate.equals(now)) {
+                        return sessao;
+                    }
+                }
+            } catch (ParseException e) {
+            }
+        }
+        return null;
     }
 }

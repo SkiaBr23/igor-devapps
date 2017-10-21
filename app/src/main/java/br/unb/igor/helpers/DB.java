@@ -51,20 +51,11 @@ public class DB {
     }
 
     public void removeAdventure(final Aventura aventura) {
-        if(auth.getCurrentUser() != null) {
+        if (auth.getCurrentUser() != null) {
             final String userId = auth.getCurrentUser().getUid();
             db.child("adventures").child(aventura.getKey()).removeValue();
             db.child("users").child(userId).child("adventures").child(aventura.getKey()).removeValue();
         }
-    }
-
-    public String createSession(final String keyAventura, final Sessao sessao){
-        String key = db.child("adventures").child(keyAventura).child("sessions").push().getKey();
-        sessao.setKey(key);
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/adventures/" + keyAventura + "/sessoes/" + key, sessao);
-        db.updateChildren(childUpdates);
-        return key;
     }
 
     public void getUserInfoById(final String uid, final OnCompleteHandler callback) {

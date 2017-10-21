@@ -23,9 +23,6 @@ import java.util.Locale;
 import br.unb.igor.R;
 import br.unb.igor.helpers.SessionListener;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class FragmentCriarSessao extends Fragment {
 
     public static String TAG = FragmentCriarSessao.class.getName();
@@ -37,7 +34,7 @@ public class FragmentCriarSessao extends Fragment {
     private EditText editTituloSessao;
     private Calendar myCalendar;
     private Button btnDataSessao;
-    private  DatePickerDialog.OnDateSetListener date;
+    private DatePickerDialog.OnDateSetListener date;
 
     private SessionListener mListener;
 
@@ -69,11 +66,11 @@ public class FragmentCriarSessao extends Fragment {
         // Inflate the layout for this fragment
         final View root = inflater.inflate(R.layout.criar_sessao, container, false);
 
-        btnCloseCriarSessao = (FloatingActionButton)root.findViewById(R.id.btnCloseCriarSessao);
-        btnCloseSessao = (ImageView)root.findViewById(R.id.btnCloseSessao);
-        btnConfirmarSessao = (Button)root.findViewById(R.id.btnConfirmarSessao);
-        editTituloSessao = (EditText)root.findViewById(R.id.editTituloSessao);
-        btnDataSessao = (Button)root.findViewById(R.id.btnDataSessao);
+        btnCloseCriarSessao = root.findViewById(R.id.btnCloseCriarSessao);
+        btnCloseSessao = root.findViewById(R.id.btnCloseSessao);
+        btnConfirmarSessao = root.findViewById(R.id.btnConfirmarSessao);
+        editTituloSessao = root.findViewById(R.id.editTituloSessao);
+        btnDataSessao = root.findViewById(R.id.btnDataSessao);
 
 
         keyAdventure = getArguments().getString("keyAventura");
@@ -96,22 +93,30 @@ public class FragmentCriarSessao extends Fragment {
         btnConfirmarSessao.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if ((editTituloSessao.getText().toString().isEmpty()) || btnDataSessao.getText().equals("00/00/00")) {
+                String sessionTitle = editTituloSessao.getText().toString();
+                String sessionDate = btnDataSessao.getText().toString();
+                if (sessionTitle.isEmpty()) {
+                    editTituloSessao.requestFocus();
                     editTituloSessao.setError("Preencha com o título!");
-                    editTituloSessao.setTextColor(Color.BLACK);
-                    btnDataSessao.setError("Seleciona uma data!");
+                    return;
                 } else {
-                    //Fecha o keyboard, ao final da criação da aventura
-                    if (view != null) {
-                        InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                    }
-                    String titleSession = editTituloSessao.getText().toString();
-                    String dateSession = btnDataSessao.getText().toString();
-                    editTituloSessao.setText("");
-                    btnDataSessao.setText("00/00/00");
-                    mListener.onConfirmarSessao(keyAdventure, titleSession, dateSession);
+                    editTituloSessao.setError(null);
                 }
+                if (sessionDate.equals("00/00/00") || sessionDate.isEmpty()) {
+                    editTituloSessao.requestFocus();
+                    btnDataSessao.setError("Selecione uma data!");
+                    return;
+                } else {
+                    btnDataSessao.setError(null);
+                }
+                //Fecha o keyboard, ao final da criação da aventura
+                if (view != null) {
+                    InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
+                editTituloSessao.setText("");
+                btnDataSessao.setText("00/00/00");
+                mListener.onConfirmarSessao(keyAdventure, sessionTitle, sessionDate);
             }
         });
 
@@ -124,6 +129,7 @@ public class FragmentCriarSessao extends Fragment {
                 myCalendar.set(Calendar.YEAR, year);
                 myCalendar.set(Calendar.MONTH, monthOfYear);
                 myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                btnDataSessao.setError(null);
                 updateLabel();
             }
         };

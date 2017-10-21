@@ -29,6 +29,7 @@ import java.util.List;
 
 import br.unb.igor.R;
 import br.unb.igor.helpers.AdventureEditListener;
+import br.unb.igor.model.Aventura;
 import br.unb.igor.model.Sessao;
 import br.unb.igor.model.User;
 import br.unb.igor.recycleradapters.JogadoresRecyclerAdapter;
@@ -90,8 +91,8 @@ public class FragmentAdicionarJogador extends Fragment {
         });
 
         if (getArguments() != null) {
-            if (getArguments().get("keyAventura") != null) {
-                keyAventura = getArguments().getString("keyAventura");
+            if (getArguments().get(Aventura.KEY_ID) != null) {
+                keyAventura = getArguments().getString(Aventura.KEY_ID);
             }
         }
 

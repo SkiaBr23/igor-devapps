@@ -9,7 +9,6 @@ import android.os.Parcelable;
 
 public class Sessao implements Parcelable {
 
-    String key;
     String titulo;
     String resumo;
     String data;
@@ -25,14 +24,6 @@ public class Sessao implements Parcelable {
         this.titulo = titulo;
         this.resumo = "";
         this.finalizada = false;
-    }
-
-    public String getKey() {
-        return key;
-    }
-
-    public void setKey(String key) {
-        this.key = key;
     }
 
     public String getKeyAventura() {

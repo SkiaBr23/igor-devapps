@@ -1,7 +1,6 @@
 <resources>
     <string name="app_name">Igor</string>
     <string name="txtSeparadoLogin">OU</string>
-    <string name="manterConectado">   manter-me conectado</string>
     <string name="btnEntrar">ENTRAR</string>
     <string name="criarConta">criar conta</string>
     <string name="esqueciSenha">esqueci minha senha</string>
@@ -26,7 +25,7 @@
     <string name="menu_settings">Configurações</string>
     <string name="menu_exit">Sair</string>
     <string name="strLonga">&#8230;</string>
-    <string name="msg_loading_adventures">Carregando aventuras...</string>
+    <string name="msg_loading_adventures">Carregando aventuras…</string>
 
     <string name="txtDescricaoPersonagem">Mestre impiedoso que não se importa em matar personagens</string>
 
@@ -49,12 +48,12 @@
     <string name="edit_adventure_tab_progress">ANDAMENTO</string>
     <string name="edit_adventure_tab_players">JOGADORES</string>
     <string name="msg_master_unknown_player">Usuário Desconhecido</string>
-    <string name="msg_no_next_session">Próxima sessão não marcada</string>
-    <string name="msg_next_session">Próxima sessão: %1$s</string>
-    <string name="msg_registering_account">Cadastrando....</string>
+    <string name="msg_next_session">Próxima sessão: %1$s - %2$s</string>
+    <string name="msg_registering_account">Cadastrando…</string>
     <string name="msg_failed_to_register_account">Cadastro falhou</string>
-    <string name="adventure_label_description">Escreva uma sinopse...</string>
+    <string name="adventure_label_description">Escreva uma sinopse…</string>
     <string name="edit_adventure_title">Título da aventura</string>
     <string name="fragment_adventure_msg_master">Mestre</string>
     <string name="fragment_adventure_msg_name">Nome</string>
+    <string name="msg_next_session_not_yet_scheduled">A próxima sessão ainda não foi marcada</string>
 </resources>
