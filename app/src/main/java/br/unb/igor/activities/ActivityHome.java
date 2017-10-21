@@ -554,7 +554,7 @@ public class ActivityHome extends AppCompatActivity implements
         Fragment fragment = null;
         switch (screen) {
             case Home:
-                if (fragmentHome != null) {
+                if (fragmentHome != null && fragmentHome.getRetainInstance()) {
                     fragment = fragmentHome;
                 } else {
                     fragment = getFragmentByClass(FragmentHome.class);
@@ -562,7 +562,7 @@ public class ActivityHome extends AppCompatActivity implements
                 }
                 break;
             case Adventure:
-                if (fragmentAdventure != null) {
+                if (fragmentAdventure != null && fragmentAdventure.getRetainInstance()) {
                     fragment = fragmentAdventure;
                 } else {
                     fragment = getFragmentByClass(FragmentAdventure.class);
@@ -570,7 +570,7 @@ public class ActivityHome extends AppCompatActivity implements
                 }
                 break;
             case CreateSession:
-                if (fragmentCriarSessao != null) {
+                if (fragmentCriarSessao != null && fragmentCriarSessao.getRetainInstance()) {
                     fragment = fragmentCriarSessao;
                 } else {
                     fragment = getFragmentByClass(FragmentCriarSessao.class);
@@ -578,7 +578,7 @@ public class ActivityHome extends AppCompatActivity implements
                 }
                 break;
             case AddPlayer:
-                if (fragmentAdicionarJogador != null) {
+                if (fragmentAdicionarJogador != null && fragmentAdicionarJogador.getRetainInstance()) {
                     fragment = fragmentAdicionarJogador;
                 } else {
                     fragment = getFragmentByClass(FragmentAdicionarJogador.class);
@@ -586,7 +586,7 @@ public class ActivityHome extends AppCompatActivity implements
                 }
                 break;
             case Invites:
-                if (fragmentConvites != null) {
+                if (fragmentConvites != null && fragmentConvites.getRetainInstance()) {
                     fragment = fragmentConvites;
                 } else {
                     fragment = getFragmentByClass(FragmentConvites.class);
@@ -594,7 +594,7 @@ public class ActivityHome extends AppCompatActivity implements
                 }
                 break;
             case CreateAdventure:
-                if (fragmentCreateAdventure != null) {
+                if (fragmentCreateAdventure != null && fragmentCreateAdventure.getRetainInstance()) {
                     fragment = fragmentCreateAdventure;
                 } else {
                     fragment = getFragmentByClass(FragmentCriarAventura.class);

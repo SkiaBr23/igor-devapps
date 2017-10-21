@@ -76,14 +76,12 @@ public class FragmentAdventure extends Fragment {
     private JogadoresRecyclerAdapter jogadoresRecyclerAdapter;
     private RecyclerView.LayoutManager layoutManagerJogadores;
     private List<Sessao> sessoes;
-    private List<String> usersID;
+    private List<User> users = new ArrayList<>();
 
     private Aventura aventura = null;
 
     private boolean isInEditMode = false;
     private boolean isOnTabPlayers = false;
-
-    private static String tipoExibicao = "listaJogadoresAventura";
 
 
     @Override
@@ -142,7 +140,7 @@ public class FragmentAdventure extends Fragment {
                 this.aventura = aventura;
                 tituloAventura = aventura.getTitulo();
                 sessoes = aventura.getListaSessoes();
-                usersID = aventura.getJogadoresUserIds();
+                fetchUsers();
                 break;
             }
         }
@@ -269,7 +267,7 @@ public class FragmentAdventure extends Fragment {
 
         layoutManagerJogadores = new LinearLayoutManager(getActivity());
         recyclerViewListaJogadores.setLayoutManager(layoutManagerJogadores);
-        jogadoresRecyclerAdapter = new JogadoresRecyclerAdapter(getActivity(), mListener, getUsersID(), tipoExibicao);
+        jogadoresRecyclerAdapter = new JogadoresRecyclerAdapter(mListener, users);
         recyclerViewListaJogadores.setAdapter(jogadoresRecyclerAdapter);
 
         setRetainInstance(true);
@@ -288,13 +286,6 @@ public class FragmentAdventure extends Fragment {
             this.sessoes = new ArrayList<>();
         }
         return this.sessoes;
-    }
-
-    public List<String> getUsersID () {
-        if (this.usersID == null) {
-            this.usersID = new ArrayList<>();
-        }
-        return this.usersID;
     }
 
     public void setEditMode(boolean b) {
@@ -327,6 +318,24 @@ public class FragmentAdventure extends Fragment {
 
     public boolean isCurrentUserMaster() {
         return aventura != null && aventura.getMestreUserId().equals(mAuth.getCurrentUser().getUid());
+    }
+
+    public void fetchUsers() {
+        DB.getLastInstance().getUsersById(aventura.getJogadoresUserIds(),
+            new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
+                @Override
+                public void onComplete(boolean cancelled, Object extra) {
+                    if (extra != null) {
+                        List<User> users = (List)extra;
+                        FragmentAdventure.this.users.clear();
+                        for (User user : users) {
+                            System.out.println("@@@@@ " + user.getFullName());
+                            FragmentAdventure.this.users.add(user);
+                        }
+                        jogadoresRecyclerAdapter.notifyDataSetChanged();
+                    }
+                }
+            }));
     }
 
 }

@@ -14,7 +14,7 @@ import br.unb.igor.R;
  * Created by maxim on 04/09/2017.
  */
 
-public class AventurasViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+public class AventurasViewHolder extends RecyclerView.ViewHolder {
 
     public SeekBar seekBarSessoesAventura;
     public TextView txtViewTituloAventura;
@@ -24,16 +24,10 @@ public class AventurasViewHolder extends RecyclerView.ViewHolder implements View
 
     public AventurasViewHolder(View itemView) {
         super(itemView);
-        itemView.setOnClickListener(this);
-
-        seekBarSessoesAventura = (SeekBar)itemView.findViewById(R.id.seekBarSessoesAventura);
-        txtViewTituloAventura = (TextView)itemView.findViewById(R.id.txtViewTituloAventura);
-        txtViewProximaSessao = (TextView)itemView.findViewById(R.id.txtViewProximaSessao);
-        imgViewDeletar = (ImageView)itemView.findViewById(R.id.btnDeletar);
-        linearLayoutBackground = (LinearLayout)itemView.findViewById(R.id.linearLayoutBackground);
-    }
-
-    @Override
-    public void onClick(View view) {
+        seekBarSessoesAventura = itemView.findViewById(R.id.seekBarSessoesAventura);
+        txtViewTituloAventura = itemView.findViewById(R.id.txtViewTituloAventura);
+        txtViewProximaSessao = itemView.findViewById(R.id.txtViewProximaSessao);
+        imgViewDeletar = itemView.findViewById(R.id.btnDeletar);
+        linearLayoutBackground = itemView.findViewById(R.id.linearLayoutBackground);
     }
 }

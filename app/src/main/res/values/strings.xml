@@ -56,4 +56,8 @@
     <string name="fragment_adventure_msg_master">Mestre</string>
     <string name="fragment_adventure_msg_name">Nome</string>
     <string name="msg_next_session_not_yet_scheduled">A próxima sessão ainda não foi marcada</string>
+    <string name="msg_search_for_name_or_email">Pesquisar nome ou e-mail</string>
+    <string name="msg_you_have_new_notifications">Você possui novas notificações!</string>
+    <string name="msg_searching_users">Pesquisando usuários...</string>
+    <string name="msg_no_users_to_show">Nenhum usuário para mostrar</string>
 </resources>

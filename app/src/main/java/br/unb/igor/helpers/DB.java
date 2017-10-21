@@ -6,7 +6,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import br.unb.igor.model.Aventura;
@@ -71,6 +73,33 @@ public class DB {
                 callback.cancel();
             }
         });
+    }
+
+    public void getUsersById(final List<String> uids, final OnCompleteHandler callback) {
+        final List<User> users = new ArrayList<>();
+        final OnCompleteHandler handler = new OnCompleteHandler(uids.size(), new OnCompleteHandler.OnCompleteCallback() {
+            @Override
+            public void onComplete(boolean cancelled, Object extra) {
+                callback.setExtra(users);
+                callback.advance();
+            }
+        });
+        for (String uid : uids) {
+            db.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    final User user = dataSnapshot.getValue(User.class);
+                    synchronized (users) {
+                        users.add(user);
+                    }
+                    handler.advance();
+                }
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    handler.advance();
+                }
+            });
+        }
     }
 
     public void getUserByUsername(final String username) {

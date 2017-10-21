@@ -29,28 +29,30 @@
             android:background="@color/cinzaPesquisaUsuario"
             android:layout_height="60dp">
 
-            <EditText
+            <android.support.v7.widget.AppCompatEditText
                 android:id="@+id/editTextPesquisaUsuario"
                 android:layout_width="0dp"
                 android:layout_height="60dp"
-                android:hint="Pesquisar"
+                android:hint="@string/msg_search_for_name_or_email"
+                android:maxLines="1"
+                android:maxLength="28"
                 android:singleLine="true"
                 android:imeOptions="actionSearch"
                 android:textColor="@color/branco"
                 android:textColorHint="@color/branco"
+                android:textCursorDrawable="@null"
                 android:layout_marginStart="10dp"
+                app:backgroundTint="@color/branco"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintRight_toLeftOf="@+id/imgBtnLimparTxtPesqUsuario"
-                />
+                app:layout_constraintRight_toLeftOf="@+id/imgBtnLimparTxtPesqUsuario" />
 
             <ImageButton
                 android:id="@+id/imgBtnLimparTxtPesqUsuario"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginEnd="10dp"
-                android:layout_marginTop="0dp"
                 android:background="@drawable/ic_clear"
                 app:layout_constraintLeft_toRightOf="@+id/editTextPesquisaUsuario"
                 app:layout_constraintRight_toRightOf="parent"
@@ -59,17 +61,53 @@
 
         </android.support.constraint.ConstraintLayout>
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/recyclerViewListaPesquisaJogadores"
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/searchingLabelContainer"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/boxDadosPesquisaUsuario">
 
+            <TextView
+                android:id="@+id/floatingText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textColor="@color/branco"
+                android:text="@string/msg_no_users_to_show"
+                app:layout_constraintVertical_bias="0.25"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent" />
+
+            <ProgressBar
+                android:id="@+id/loadingSpinner"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:scaleX="0.6"
+                android:scaleY="0.6"
+                android:indeterminate="true"
+                android:visibility="gone"
+                app:layout_constraintTop_toBottomOf="@+id/floatingText"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toRightOf="parent" />
+
+        </android.support.constraint.ConstraintLayout>
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerViewListaPesquisaJogadores"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/boxDadosPesquisaUsuario">
         </android.support.v7.widget.RecyclerView>
 
     </android.support.constraint.ConstraintLayout>
