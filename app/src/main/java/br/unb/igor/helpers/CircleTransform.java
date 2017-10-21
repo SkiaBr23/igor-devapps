@@ -21,6 +21,11 @@ public class CircleTransform implements Transformation {
 
         Bitmap squaredBitmap = Bitmap.createBitmap(source, x, y, size, size);
         Bitmap bitmap = Bitmap.createBitmap(size, size, source.getConfig());
+
+        if (squaredBitmap != source) {
+            source.recycle();
+        }
+
         BitmapShader shader = new BitmapShader(squaredBitmap,
                 BitmapShader.TileMode.CLAMP, BitmapShader.TileMode.CLAMP);
 
