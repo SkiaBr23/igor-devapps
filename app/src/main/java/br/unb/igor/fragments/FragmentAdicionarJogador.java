@@ -31,9 +31,11 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import br.unb.igor.R;
-import br.unb.igor.helpers.AdventureEditListener;
+import br.unb.igor.activities.ActivityHome;
+import br.unb.igor.helpers.AdventureListener;
 import br.unb.igor.model.Aventura;
 import br.unb.igor.model.User;
 import br.unb.igor.recycleradapters.JogadoresRecyclerAdapter;
@@ -41,8 +43,6 @@ import br.unb.igor.recycleradapters.JogadoresRecyclerAdapter;
 public class FragmentAdicionarJogador extends Fragment {
 
     public static String TAG = FragmentAdicionarJogador.class.getName();
-
-    private String keyAventura;
 
     private ImageButton imgBtnLimparPesquisa;
     private EditText editTxtPesquisaJogadores;
@@ -56,7 +56,7 @@ public class FragmentAdicionarJogador extends Fragment {
     private RecyclerView.LayoutManager layoutManagerJogadoresPesquisados;
     private List<User> users = new ArrayList<>();
 
-    private AdventureEditListener mListener;
+    private AdventureListener mListener;
 
     private boolean isQueryingUsers;
 
@@ -119,8 +119,8 @@ public class FragmentAdicionarJogador extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof AdventureEditListener) {
-            mListener = (AdventureEditListener) context;
+        if (context instanceof AdventureListener) {
+            mListener = (AdventureListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -151,15 +151,19 @@ public class FragmentAdicionarJogador extends Fragment {
             }
         });
 
-        if (getArguments() != null) {
-            if (getArguments().get(Aventura.KEY_ID) != null) {
-                keyAventura = getArguments().getString(Aventura.KEY_ID);
-            }
+        Set<String> alreadyInvitedPlayers = null;
+        Set<String> alreadyJoinedPlayers = null;
+        Aventura currentAdventure = ((ActivityHome)getActivity()).getSelectedAdventure();
+
+        if (currentAdventure != null) {
+            alreadyInvitedPlayers = currentAdventure.getJogadoresConvidadosIdsSet();
+            alreadyJoinedPlayers = currentAdventure.getJogadoresUserIdsSet();
         }
 
         layoutManagerJogadoresPesquisados = new LinearLayoutManager(getActivity());
         recyclerViewListaPesquisaJogadores.setLayoutManager(layoutManagerJogadoresPesquisados);
-        jogadoresPesquisadosRecyclerAdapter = new JogadoresRecyclerAdapter(mListener, users);
+        jogadoresPesquisadosRecyclerAdapter = new JogadoresRecyclerAdapter(mListener, users,
+                alreadyInvitedPlayers, alreadyJoinedPlayers);
         recyclerViewListaPesquisaJogadores.setAdapter(jogadoresPesquisadosRecyclerAdapter);
 
         editTxtPesquisaJogadores.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -196,9 +200,6 @@ public class FragmentAdicionarJogador extends Fragment {
         txtInfoLabel.startAnimation(animationSetFirst);
         loadingSpinner.startAnimation(animationSetFirst);
         recyclerViewListaPesquisaJogadores.startAnimation(animationSetFirst);
-        System.out.println("@@" + jogadoresPesquisadosRecyclerAdapter.getItemCount());
-        System.out.println(recyclerViewListaPesquisaJogadores.getMeasuredWidth() + " - " +
-                recyclerViewListaPesquisaJogadores.getMeasuredHeight());
         txtInfoLabel.postDelayed(onBeginSearch, animationSetFirst.getDuration());
         editTxtPesquisaJogadores.clearFocus();
         final String userId = mAuth.getCurrentUser().getUid();

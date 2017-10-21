@@ -60,4 +60,15 @@
     <string name="msg_you_have_new_notifications">Você possui novas notificações!</string>
     <string name="msg_searching_users">Pesquisando usuários...</string>
     <string name="msg_no_users_to_show">Nenhum usuário para mostrar</string>
+    <string name="label_cancel">Cancelar</string>
+    <string name="label_yes">Sim</string>
+    <string name="msg_do_you_wish_to_delete_this_adventure">Deseja remover esta aventura?</string>
+    <string name="label_invite">CONVIDAR</string>
+    <string name="label_disinvite">DESCONVIDAR</string>
+    <string name="label_kick_out">EXPULSAR</string>
+    <string name="msg_google_login_failed">Falha ao entrar com a conta Google</string>
+    <string name="msg_password_invalid_length">entre 4 e 10 caracteres</string>
+    <string name="msg_password_too_weak">Senha muito fraca</string>
+    <string name="msg_successfully_registered">Cadastrado com sucesso</string>
+    <string name="msg_email_already_in_use">O e-mail fornecido já está em uso</string>
 </resources>

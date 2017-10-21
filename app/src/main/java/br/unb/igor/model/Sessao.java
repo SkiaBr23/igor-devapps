@@ -73,9 +73,11 @@ public class Sessao implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(titulo);
         parcel.writeString(resumo);
         parcel.writeString(data);
         parcel.writeInt((finalizada ? 1: 0));
+        parcel.writeString(keyAventura);
     }
 
     public final static Parcelable.Creator<Sessao> CREATOR = new Parcelable.Creator<Sessao>() {
@@ -83,9 +85,11 @@ public class Sessao implements Parcelable {
         @Override
         public Sessao createFromParcel(Parcel parcel) {
             Sessao s = new Sessao();
+            s.titulo = parcel.readString();
             s.resumo = parcel.readString();
             s.data = parcel.readString();
             s.finalizada = parcel.readInt() != 0;
+            s.keyAventura = parcel.readString();
             return s;
         }
 

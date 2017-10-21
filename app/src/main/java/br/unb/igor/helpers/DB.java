@@ -4,6 +4,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import br.unb.igor.model.Aventura;
+import br.unb.igor.model.Convite;
 import br.unb.igor.model.Sessao;
 import br.unb.igor.model.User;
 
@@ -27,37 +29,114 @@ public class DB {
         DB.singleton = this;
     }
 
+    public void deleteAllAdventures() {
+        db.child("adventures").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                GenericTypeIndicator<HashMap<String, Object>> genericTypeIndicator = new GenericTypeIndicator<HashMap<String, Object>>() {};
+                HashMap<String, Object> adventures = dataSnapshot.getValue(genericTypeIndicator);
+                if (adventures != null) {
+                    for (String id : adventures.keySet()) {
+                        String name = dataSnapshot.child(id).child("titulo").getValue(String.class);
+                        System.out.println("Deleting adventure " + name + " (" + id + ").");
+                    }
+                }
+                db.child("adventures").removeValue();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+        db.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                GenericTypeIndicator<HashMap<String, Object>> genericTypeIndicator = new GenericTypeIndicator<HashMap<String, Object>>() {};
+                HashMap<String, Object> users = dataSnapshot.getValue(genericTypeIndicator);
+                if (users != null) {
+                    for (String id : users.keySet()) {
+                        String name = dataSnapshot.child(id).child("fullName").getValue(String.class);
+                        String email = dataSnapshot.child(id).child("email").getValue(String.class);
+                        System.out.println("Clearing adventures of user " + name + " (" + email + "/" + id + ").");
+                        db.child("users").child(id).child("aventuras").removeValue();
+                        db.child("users").child(id).child("convites").removeValue();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+            }
+        });
+    }
+
     public static DB getLastInstance() {
         return DB.singleton;
     }
 
-    public String createAdventure(final Aventura aventura) {
-        final String userId = auth.getCurrentUser().getUid();
+    public void createAdventure(final Aventura aventura) {
         String key = db.child("adventures").push().getKey();
         aventura.setKey(key);
-        aventura.setMestreUserId(userId);
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/adventures/" + key, aventura);
-        childUpdates.put("/users/" + userId + "/adventures/" + key, true);
-        db.updateChildren(childUpdates);
-        return key;
+        db.child("adventures").child(key).setValue(aventura);
     }
 
     public void upsertAdventure(final Aventura aventura) {
         if (aventura.getKey().isEmpty()) {
             return;
         }
-        Map<String, Object> childUpdates = new HashMap<>();
-        childUpdates.put("/adventures/" + aventura.getKey(), aventura);
-        db.updateChildren(childUpdates);
+        db.child("adventures").child(aventura.getKey()).setValue(aventura);
     }
 
     public void removeAdventure(final Aventura aventura) {
-        if (auth.getCurrentUser() != null) {
-            final String userId = auth.getCurrentUser().getUid();
-            db.child("adventures").child(aventura.getKey()).removeValue();
-            db.child("users").child(userId).child("adventures").child(aventura.getKey()).removeValue();
+        db.child("adventures").child(aventura.getKey()).removeValue();
+    }
+
+    public void getAdventureById(String id, final OnCompleteHandler handler) {
+        db.child("adventures").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                Aventura adventure = dataSnapshot.getValue(Aventura.class);
+                handler.setExtra(adventure);
+                handler.advance();
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                handler.cancel();
+            }
+        });
+    }
+
+    public void upsertUser(final User user) {
+        if (user.getUserId().isEmpty()) {
+            return;
         }
+        db.child("users").child(user.getUserId()).setValue(user);
+    }
+
+    public void setUserInvitation(final User invitedUser, String whoInvitedId, final Aventura aventura, boolean isInvited) {
+        String uid = invitedUser.getUserId();
+        if (aventura.getKey().isEmpty() || uid.isEmpty()) {
+            // Invalid keys
+            return;
+        }
+        if (aventura.getJogadoresUserIdsSet().contains(uid)) {
+            // User has already joined the adventure
+            return;
+        }
+        boolean isAlreadyInvited = aventura.getJogadoresConvidadosIdsSet().contains(uid);
+        if (isAlreadyInvited == isInvited) {
+            // Invitation has already been sent or revoked
+            return;
+        }
+        Convite convite = new Convite(whoInvitedId, aventura.getKey());
+        invitedUser.setInvitation(convite, isInvited);
+        if (isInvited) {
+            aventura.addInvitedUser(uid);
+        } else {
+            aventura.removeInvitedUser(uid);
+        }
+        upsertAdventure(aventura);
+        upsertUser(invitedUser);
     }
 
     public void getUserInfoById(final String uid, final OnCompleteHandler callback) {
@@ -79,7 +158,7 @@ public class DB {
         final List<User> users = new ArrayList<>();
         final OnCompleteHandler handler = new OnCompleteHandler(uids.size(), new OnCompleteHandler.OnCompleteCallback() {
             @Override
-            public void onComplete(boolean cancelled, Object extra) {
+            public void onComplete(boolean cancelled, Object extra, int step) {
                 callback.setExtra(users);
                 callback.advance();
             }
@@ -100,10 +179,6 @@ public class DB {
                 }
             });
         }
-    }
-
-    public void getUserByUsername(final String username) {
-
     }
 
 }

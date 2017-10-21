@@ -17,7 +17,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ import java.util.List;
 
 import br.unb.igor.R;
 import br.unb.igor.activities.ActivityHome;
-import br.unb.igor.helpers.AdventureEditListener;
+import br.unb.igor.helpers.AdventureListener;
 import br.unb.igor.helpers.CircleTransform;
 import br.unb.igor.helpers.DB;
 import br.unb.igor.helpers.ImageAssets;
@@ -39,16 +38,11 @@ import de.hdodenhof.circleimageview.CircleImageView;
 
 import static android.view.View.GONE;
 
-/**
- * A simple {@link Fragment} subclass.
- */
 public class FragmentAdventure extends Fragment {
 
     public static final String TAG = FragmentAdventure.class.getName();
-    private static final String SAVE_STATE_IS_ON_TAB_PLAYERS = "bTabPlayers";
 
     private String tituloAventura;
-    private String keyAventura;
     private ImageView imgBackground;
     private ScrollView txtDescricaoContainer;
     private TextView txtTituloAventuraEdicao;
@@ -60,7 +54,7 @@ public class FragmentAdventure extends Fragment {
     private TextView abaJogadores;
     private ConstraintLayout boxAndamentoAventura;
     private ConstraintLayout boxJogadoresAventura;
-    private AdventureEditListener mListener;
+    private AdventureListener mListener;
     private FloatingActionButton btnFAB;
     private FirebaseAuth mAuth;
     private CircleImageView profileImageMestre;
@@ -77,6 +71,8 @@ public class FragmentAdventure extends Fragment {
     private RecyclerView.LayoutManager layoutManagerJogadores;
     private List<Sessao> sessoes;
     private List<User> users = new ArrayList<>();
+    private User master = null;
+    private boolean isMasterFetched = false;
 
     private Aventura aventura = null;
 
@@ -87,8 +83,8 @@ public class FragmentAdventure extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof AdventureEditListener) {
-            mListener = (AdventureEditListener) context;
+        if (context instanceof AdventureListener) {
+            mListener = (AdventureListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -101,18 +97,16 @@ public class FragmentAdventure extends Fragment {
         mListener = null;
     }
 
-
     public FragmentAdventure() {
-        // Required empty public constructor
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View root = inflater.inflate(R.layout.fragment_adventure, container, false);
-        tituloAventura = getArguments().getString(Aventura.KEY_TITLE);
-        keyAventura = getArguments().getString(Aventura.KEY_ID);
+
         imgBackground = root.findViewById(R.id.bkgEditarAventura);
         txtDescricaoContainer = root.findViewById(R.id.adventureDescriptionScrollView);
         txtTituloAventuraEdicao = root.findViewById(R.id.txtTituloAventuraEdicao);
@@ -130,23 +124,17 @@ public class FragmentAdventure extends Fragment {
         recyclerViewListaSessoes = root.findViewById(R.id.recyclerViewListaSessoes);
         recyclerViewListaJogadores = root.findViewById(R.id.recyclerViewListaJogadores);
 
-        int backgroundResource = getArguments().getInt(Aventura.KEY_IMAGE, -1);
-        imgBackground.setImageResource(ImageAssets.getBackgroundResource(backgroundResource));
+        aventura = ((ActivityHome)getActivity()).getSelectedAdventure();
+        int backgroundResource = 0;
 
-        String adventureKey = getArguments().getString(Aventura.KEY_ID);
-
-        for (Aventura aventura : ((ActivityHome)getActivity()).getAdventures()) {
-            if (aventura.getKey().equals(adventureKey)) {
-                this.aventura = aventura;
-                tituloAventura = aventura.getTitulo();
-                sessoes = aventura.getListaSessoes();
-                fetchUsers();
-                break;
-            }
+        if (aventura != null) {
+            tituloAventura = aventura.getTitulo();
+            sessoes = aventura.getListaSessoes();
+            backgroundResource = aventura.getImagemFundo();
+            fetchUsers();
         }
 
-        //Ajustar aqui quando houver busca de jogadores na base do FireBase
-        txtIndicadorNenhumJogador.setVisibility(GONE);
+        imgBackground.setImageResource(ImageAssets.getBackgroundResource(backgroundResource));
 
         if (getSessoes().size() > 0) {
             txtIndicadorNenhumaSessao.setVisibility(GONE);
@@ -155,49 +143,15 @@ public class FragmentAdventure extends Fragment {
             recyclerViewListaSessoes.setVisibility(GONE);
         }
 
-        /*if (getUsersID().size() > 0) {
-            txtIndicadorNenhumJogador.setVisibility(View.GONE);
-            recyclerViewListaJogadores.setVisibility(View.VISIBLE);
+        int playersCount = aventura.getJogadoresUserIds().size();
+
+        if (playersCount > 1) {
+            txtIndicadorNenhumJogador.setVisibility(View.VISIBLE);
         } else {
-            recyclerViewListaJogadores.setVisibility(View.GONE);
-        }*/
+            txtIndicadorNenhumJogador.setVisibility(View.GONE);
+        }
 
         mAuth = FirebaseAuth.getInstance();
-
-        DB.getLastInstance().getUserInfoById(aventura.getMestreUserId(), new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
-            @Override
-            public void onComplete(boolean cancelled, Object extra) {
-                if (cancelled || extra == null || !(extra instanceof User)) {
-                    txtNomeMestre.setText(R.string.msg_master_unknown_player);
-                } else {
-                    User user = (User)extra;
-                    txtNomeMestre.setText(user.getFullName());
-                    String photoUrl = user.getProfilePictureUrl();
-                    if (photoUrl != null && !photoUrl.isEmpty()) {
-                        Picasso
-                            .with(profileImageMestre.getContext())
-                            .load(photoUrl)
-                            .transform(new CircleTransform())
-                            .into(profileImageMestre);
-                    }
-                }
-            }
-        }));
-
-//        if (mAuth.getCurrentUser() != null) {
-//            FirebaseUser user = mAuth.getCurrentUser();
-//            if (user.getDisplayName() != null) {
-//                txtNomeMestre.setText(user.getDisplayName());
-//            } else {
-//                txtNomeMestre.setText(user.getEmail());
-//            }
-//            if (user.getPhotoUrl() != null) {
-//                Picasso.with(profileImageMestre.getContext()).load(user.getPhotoUrl()).transform(new CircleTransform()).into(profileImageMestre);
-//            }
-//        } else {
-//            txtNomeMestre.setText(R.string.msg_master_unknown_player);
-//        }
-
         boxAndamentoAventura = root.findViewById(R.id.boxAndamentoAventura);
         boxJogadoresAventura = root.findViewById(R.id.boxJogadoresAventura);
 
@@ -245,9 +199,9 @@ public class FragmentAdventure extends Fragment {
                     setEditMode(false);
                 } else {
                     if (isOnTabPlayers) {
-                        mListener.onAdicionarJogador(keyAventura);
+                        mListener.onClickInviteUsersFAB();
                     } else {
-                        mListener.onAdicionarSessao(keyAventura);
+                        mListener.onClickAddSessionFAB();
                     }
                 }
             }
@@ -265,12 +219,17 @@ public class FragmentAdventure extends Fragment {
         recyclerViewListaSessoes.setAdapter(sessoesRecyclerAdapter);
         sessoesRecyclerAdapter.notifyDataSetChanged();
 
+        if (aventura != null && isCurrentUserMaster()) {
+            jogadoresRecyclerAdapter = new JogadoresRecyclerAdapter(mListener, users,
+                    aventura.getJogadoresConvidadosIdsSet(),
+                    aventura.getJogadoresUserIdsSet());
+        } else {
+            jogadoresRecyclerAdapter = new JogadoresRecyclerAdapter(mListener, users);
+        }
+        loadMasterInfo();
         layoutManagerJogadores = new LinearLayoutManager(getActivity());
         recyclerViewListaJogadores.setLayoutManager(layoutManagerJogadores);
-        jogadoresRecyclerAdapter = new JogadoresRecyclerAdapter(mListener, users);
         recyclerViewListaJogadores.setAdapter(jogadoresRecyclerAdapter);
-
-        setRetainInstance(true);
 
         if (isOnTabPlayers) {
             abaJogadores.performClick();
@@ -321,21 +280,56 @@ public class FragmentAdventure extends Fragment {
     }
 
     public void fetchUsers() {
+        if (aventura.getJogadoresUserIds().size() == users.size()) {
+            return;
+        }
         DB.getLastInstance().getUsersById(aventura.getJogadoresUserIds(),
             new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
                 @Override
-                public void onComplete(boolean cancelled, Object extra) {
+                public void onComplete(boolean cancelled, Object extra, int step) {
                     if (extra != null) {
                         List<User> users = (List)extra;
                         FragmentAdventure.this.users.clear();
                         for (User user : users) {
-                            System.out.println("@@@@@ " + user.getFullName());
                             FragmentAdventure.this.users.add(user);
                         }
                         jogadoresRecyclerAdapter.notifyDataSetChanged();
                     }
                 }
             }));
+    }
+
+    public void loadMasterInfo() {
+        if (isMasterFetched) {
+            if (master == null) {
+                txtNomeMestre.setText(R.string.msg_master_unknown_player);
+            } else {
+                txtNomeMestre.setText(master.getFullName());
+                String photoUrl = master.getProfilePictureUrl();
+                if (photoUrl != null && !photoUrl.isEmpty()) {
+                    Picasso
+                        .with(profileImageMestre.getContext())
+                        .load(photoUrl)
+                        .transform(new CircleTransform())
+                        .into(profileImageMestre);
+                }
+            }
+        } else {
+            DB.getLastInstance().getUserInfoById(aventura.getMestreUserId(),
+                new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
+                    @Override
+                    public void onComplete(boolean cancelled, Object extra, int step) {
+                        isMasterFetched = true;
+                        if (cancelled || extra == null || !(extra instanceof User)) {
+                            master = null;
+                        } else {
+                            master = (User) extra;
+                        }
+                        loadMasterInfo();
+                    }
+                }
+            ));
+        }
     }
 
 }

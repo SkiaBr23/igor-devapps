@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -45,14 +46,13 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import br.unb.igor.R;
+import br.unb.igor.helpers.DB;
 import br.unb.igor.helpers.LocalStorage;
+import br.unb.igor.helpers.OnCompleteHandler;
 import br.unb.igor.model.User;
 
 public class ActivityLogin extends AppCompatActivity implements
@@ -60,7 +60,6 @@ public class ActivityLogin extends AppCompatActivity implements
         View.OnClickListener {
 
     public static final String TAG = ActivityLogin.class.getName();
-    private static final String LOCAL_STORAGE_KEY_EMAIL = "email";
 
     private EditText editTextEmail;
     private EditText editTextSenha;
@@ -81,10 +80,7 @@ public class ActivityLogin extends AppCompatActivity implements
     private CallbackManager mCallbackManager;
     private LoginButton fbLoginButton;
     private AccessTokenTracker accessTokenTracker;
-    private FirebaseDatabase database;
     private ProgressDialog mProgressDialog;
-    private DatabaseReference mDatabase;
-    private DatabaseReference myRef;
     private TextView separador;
 
     @Override
@@ -114,8 +110,7 @@ public class ActivityLogin extends AppCompatActivity implements
         separador.setTypeface(firaSans);
 
         final SharedPreferences sharedPreferences = LocalStorage.get(this);
-
-        String emailStringCache = sharedPreferences.getString(LOCAL_STORAGE_KEY_EMAIL, "");
+        String emailStringCache = sharedPreferences.getString(LocalStorage.KEY_EMAIL, "");
         editTextEmail.setText(emailStringCache);
 
         esqueciSenha.setOnClickListener(new View.OnClickListener() {
@@ -146,12 +141,11 @@ public class ActivityLogin extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 if (isLoggedIn()) {
-                    userDataRegistered(mAuth.getCurrentUser());
-                    callMainActivity();
+                    onLoginSuccess(mAuth.getCurrentUser());
                 } else if (validate()) {
                     sharedPreferences
                         .edit()
-                        .putString(LOCAL_STORAGE_KEY_EMAIL, editTextEmail.getText().toString())
+                        .putString(LocalStorage.KEY_EMAIL, editTextEmail.getText().toString())
                         .apply();
                     loginWithPassword();
                 }
@@ -217,7 +211,7 @@ public class ActivityLogin extends AppCompatActivity implements
 
         // FACEBOOK
         mCallbackManager = CallbackManager.Factory.create();
-        fbLoginButton = (LoginButton) findViewById(R.id.fb_login_button);
+        fbLoginButton = findViewById(R.id.fb_login_button);
         fbLoginButton.setReadPermissions("email", "public_profile");
         fbLoginButton.registerCallback(mCallbackManager, new FacebookCallback<LoginResult>() {
             @Override
@@ -299,7 +293,9 @@ public class ActivityLogin extends AppCompatActivity implements
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-
+        if (resultCode == RESULT_OK) {
+            Toast.makeText(this, R.string.msg_successfully_registered, Toast.LENGTH_SHORT).show();
+        }
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
@@ -314,6 +310,20 @@ public class ActivityLogin extends AppCompatActivity implements
             mCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
 
+        if (data != null) {
+            String email = data.getStringExtra(User.PARCEL_KEY_EMAIL);
+            if (email != null && !email.isEmpty()) {
+                editTextEmail.setText(data.getStringExtra(User.PARCEL_KEY_EMAIL));
+                editTextSenha.setText("");
+            }
+        }
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                signOut();
+            }
+        }, 200);
     }
 
 
@@ -433,13 +443,6 @@ public class ActivityLogin extends AppCompatActivity implements
         }
     }
 
-    public void callMainActivity(){
-        Intent mainIntent = new Intent(ActivityLogin.this, ActivityHome.class);
-        startActivity(mainIntent);
-        finish();
-        overridePendingTransition(R.anim.fade_in_320ms, R.anim.fade_out_320ms);
-    }
-
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -450,12 +453,8 @@ public class ActivityLogin extends AppCompatActivity implements
                 signIn();
                 break;
             case R.id.btnEntrar:
-
-                //registerUserFirebase(mAuth.getCurrentUser());
-                // Modo debug: retirar esta chamada para teste de login
                 if (isLoggedIn()) {
-                    userDataRegistered(mAuth.getCurrentUser());
-                    callMainActivity();
+                    onLoginSuccess(mAuth.getCurrentUser());
                 } else {
                     loginWithPassword();
                 }
@@ -467,23 +466,6 @@ public class ActivityLogin extends AppCompatActivity implements
             //    revokeAccess();
             //    break;
         }
-    }
-
-    private void registerUserFirebase(FirebaseUser firebaseUser){
-        String photoUrl;
-        if (firebaseUser.getPhotoUrl() == null){
-            setDefaultPhoto(firebaseUser);
-            photoUrl = DEFAULT_PROFILE_PHOTO_URL;
-        } else {
-            photoUrl = firebaseUser.getPhotoUrl().toString();
-        }
-        User newUser = new User(firebaseUser.getUid(),firebaseUser.getDisplayName(),firebaseUser.getEmail(),photoUrl);
-        database = FirebaseDatabase.getInstance();
-        myRef = database.getReference();
-        DatabaseReference usersRef = myRef.child("users");
-        usersRef.child(firebaseUser.getUid());
-        usersRef.child(firebaseUser.getUid()).setValue(newUser);
-        Log.d(TAG,"Gravado no db");
     }
 
     private void setDefaultPhoto(FirebaseUser user){
@@ -514,10 +496,10 @@ public class ActivityLogin extends AppCompatActivity implements
                     // signed in user can be handled in the listener.
                     if (!task.isSuccessful()) {
                         Log.w(TAG, "signInWithCredential", task.getException());
-                        Toast.makeText(ActivityLogin.this, "Authentication failed.",
+                        Toast.makeText(ActivityLogin.this, R.string.msg_google_login_failed,
                                 Toast.LENGTH_SHORT).show();
                     } else {
-                        userDataRegistered(mAuth.getCurrentUser());
+                        onLoginSuccess(task.getResult().getUser());
                     }
                     // ...
                 }
@@ -525,12 +507,9 @@ public class ActivityLogin extends AppCompatActivity implements
     }
 
     public void loginWithPassword() {
-        Log.d(TAG, "LoginWithPassword");
-
         if (!validate()) {
             return;
         }
-
         btnEntrar.setEnabled(false);
 
         final ProgressDialog progressDialog = new ProgressDialog(this,
@@ -553,7 +532,7 @@ public class ActivityLogin extends AppCompatActivity implements
                     // the auth state listener will be notified and logic to handle the
                     // signed in user can be handled in the listener.
                     if (task.isSuccessful()) {
-                        onLoginSuccess();
+                        onLoginSuccess(task.getResult().getUser());
                     } else {
                         onLoginFailed(task.getException());
                         Log.w(TAG, "signInWithEmail:failed", task.getException());
@@ -564,10 +543,37 @@ public class ActivityLogin extends AppCompatActivity implements
             });
     }
 
-    public void onLoginSuccess() {
+    public void onLoginSuccess(final FirebaseUser firebaseUser) {
         this.btnEntrar.setEnabled(true);
-        userDataRegistered(mAuth.getCurrentUser());
-        callMainActivity();
+        String photoUrl;
+        if (firebaseUser.getPhotoUrl() == null){
+            setDefaultPhoto(firebaseUser);
+            photoUrl = DEFAULT_PROFILE_PHOTO_URL;
+        } else {
+            photoUrl = firebaseUser.getPhotoUrl().toString();
+        }
+        final User newUser = new User(firebaseUser.getUid(), firebaseUser.getDisplayName(), firebaseUser.getEmail(), photoUrl);
+        final DB db = new DB(null, FirebaseDatabase.getInstance().getReference());
+        db.getUserInfoById(firebaseUser.getUid(), new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
+            @Override
+            public void onComplete(boolean cancelled, Object extra, int step) {
+                if (cancelled) {
+                    return;
+                }
+                User loggedUser;
+                if (extra == null) {
+                    db.upsertUser(newUser);
+                    loggedUser = newUser;
+                } else {
+                    loggedUser = (User)extra;
+                }
+                Intent intent = new Intent(ActivityLogin.this, ActivityHome.class);
+                intent.putExtra(User.PARCEL_KEY_USER, loggedUser);
+                startActivity(intent);
+                finish();
+                overridePendingTransition(R.anim.fade_in_320ms, R.anim.fade_out_320ms);
+            }
+        }));
     }
 
     public void onLoginFailed(Exception exception) {
@@ -601,7 +607,7 @@ public class ActivityLogin extends AppCompatActivity implements
                         loggedFacebook = false;
                     } else {
                         loggedFacebook = true;
-                        // mStatusTextView.setText(getString(R.string.signed_in_fmt, mAuth.getCurrentUser().getDisplayName()));
+                        onLoginSuccess(task.getResult().getUser());
                     }
                 }
             });
@@ -630,32 +636,12 @@ public class ActivityLogin extends AppCompatActivity implements
             return false;
         } else if (password.length() < 4 || password.length() > 10) {
             editTextSenha.requestFocus();
-            editTextSenha.setError("entre 4 e 10 caracteres");
+            editTextSenha.setError(getString(R.string.msg_password_invalid_length));
             return false;
         } else {
             editTextSenha.setError(null);
         }
 
         return true;
-    }
-
-
-    public void userDataRegistered(final FirebaseUser firebaseUser) {
-        database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference();
-        mDatabase.child("users").child(firebaseUser.getUid()).addListenerForSingleValueEvent(
-            new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    User user = dataSnapshot.getValue(User.class);
-                    if(user == null){
-                        registerUserFirebase(firebaseUser);
-                    }
-                }
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Log.w(TAG, "getUser:onCancelled", databaseError.toException());
-                }
-            });
     }
 }

@@ -4,6 +4,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -24,7 +26,6 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
@@ -59,17 +60,17 @@ import br.unb.igor.fragments.FragmentHome;
 import br.unb.igor.helpers.AdventureListener;
 import br.unb.igor.helpers.DB;
 import br.unb.igor.helpers.OnCompleteHandler;
-import br.unb.igor.helpers.AdventureEditListener;
-import br.unb.igor.helpers.SessionListener;
 import br.unb.igor.model.Aventura;
 import br.unb.igor.model.Sessao;
+import br.unb.igor.model.User;
 
 public class ActivityHome extends AppCompatActivity implements
         AdventureListener, GoogleApiClient.OnConnectionFailedListener,
-        PopupMenu.OnMenuItemClickListener, AdventureEditListener, SessionListener {
+        PopupMenu.OnMenuItemClickListener {
 
     private static final String TAG = ActivityHome.class.getName();
-    private static final String BUNDLE_ADVENTURES = "Home";
+    private static final String BUNDLE_ADVENTURES = "KEY_ADVENTURES";
+    private static final String BUNDLE_SELECTED_ADVENTURE = "KEY_SELECTED_ADVENTURE";
 
     private FragmentHome fragmentHome;
     private FragmentAdventure fragmentAdventure;
@@ -86,10 +87,12 @@ public class ActivityHome extends AppCompatActivity implements
     private FirebaseAuth mAuth;
     private FirebaseDatabase database;
     private DatabaseReference mDatabase;
-    private DatabaseReference myRef;
-    private List<Aventura> aventuras;
     private GoogleApiClient mGoogleApiClient;
     private DB db;
+
+    private Aventura selectedAdventure = null;
+    private User currentUser = null;
+    private ArrayList<Aventura> adventures;
 
     public enum Screen {
         Home,
@@ -99,16 +102,9 @@ public class ActivityHome extends AppCompatActivity implements
         Settings,
         Exit,
         Adventure,
-        EditAdventure,
         CreateSession,
         AddPlayer,
         CreateAdventure
-    };
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(BUNDLE_ADVENTURES, (ArrayList<Aventura>)aventuras);
     }
 
     private Screen mCurrentScreen = Screen.Home;
@@ -216,6 +212,7 @@ public class ActivityHome extends AppCompatActivity implements
 
         mDrawerAdapter = new DrawerListAdapter();
         mAuth = FirebaseAuth.getInstance();
+        currentUser = getIntent().getParcelableExtra(User.PARCEL_KEY_USER);
 
         mDrawerLayout = findViewById(R.id.drawer);
         mDrawerOptions = findViewById(R.id.drawer_options);
@@ -242,7 +239,7 @@ public class ActivityHome extends AppCompatActivity implements
         imgHamburguer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mDrawerLayout.openDrawer(Gravity.LEFT);
+                mDrawerLayout.openDrawer(Gravity.START);
             }
         });
 
@@ -280,22 +277,22 @@ public class ActivityHome extends AppCompatActivity implements
         }
 
         mAuth = FirebaseAuth.getInstance();
-        if (mAuth.getCurrentUser() != null) {
-            // TODO: Usuário não credenciado na Home! Tratar.
+
+        if (mAuth.getCurrentUser() == null || currentUser == null) {
+            signOut();
+            return;
         }
 
         database = FirebaseDatabase.getInstance();
         mDatabase = database.getReference();
+        db = new DB(mAuth, mDatabase);
 
-        if (this.aventuras == null) {
-            this.aventuras = new ArrayList<>();
+        if (this.adventures == null) {
             if (savedInstanceState == null) {
+                this.adventures = new ArrayList<>();
                 fetchInitialAdventures();
             } else {
-                List<Aventura> saved = savedInstanceState.getParcelableArrayList(BUNDLE_ADVENTURES);
-                for (Aventura a : saved) {
-                    aventuras.add(a);
-                }
+                this.adventures = savedInstanceState.getParcelableArrayList(BUNDLE_ADVENTURES);
                 fragmentHome.setIsLoading(false);
             }
         }
@@ -358,7 +355,13 @@ public class ActivityHome extends AppCompatActivity implements
             }
         });
 
-        db = new DB(mAuth, mDatabase);
+        Parcelable selectedAdventure = null;
+        if (savedInstanceState != null) {
+            selectedAdventure = savedInstanceState.getParcelable(BUNDLE_SELECTED_ADVENTURE);
+            if (selectedAdventure != null) {
+                this.selectedAdventure = (Aventura) selectedAdventure;
+            }
+        }
     }
 
     private void updateThreeDotsMenu() {
@@ -373,87 +376,41 @@ public class ActivityHome extends AppCompatActivity implements
         }
     }
 
-    private void fetchInitialAdventures() {
-        final String userId = mAuth.getCurrentUser().getUid();
-        fragmentHome.setIsLoading(true);
-        mDatabase.child("users").child(userId).child("adventures").addListenerForSingleValueEvent(
-            new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    GenericTypeIndicator<HashMap<String, Object>> genericTypeIndicator = new GenericTypeIndicator<HashMap<String, Object>>() {
-                    };
-                    HashMap<String, Object> idAventuras = dataSnapshot.getValue(genericTypeIndicator);
-                    // Check if adventure id list exists
-                    if (idAventuras != null) {
-                        // Query adventures on database
-                        fetchInitialAdventures(idAventuras.keySet());
-                    } else {
-                        fragmentHome.setIsLoading(false);
-                    }
-                }
-
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-                    Log.w(TAG, "getAdventuresIds:onCancelled", databaseError.toException());
-                }
-            });
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelable(BUNDLE_SELECTED_ADVENTURE, selectedAdventure);
+        outState.putParcelableArrayList(BUNDLE_ADVENTURES, adventures);
     }
 
-    private void fetchInitialAdventures(Set<String> idAventuras) {
-        final OnCompleteHandler onCompleteHandler = new OnCompleteHandler(1, new OnCompleteHandler.OnCompleteCallback() {
+    private void fetchInitialAdventures() {
+        fragmentHome.setIsLoading(true);
+        List<String> adventureKeys = currentUser.getAventuras();
+        final OnCompleteHandler handler = new OnCompleteHandler(adventureKeys.size(), new OnCompleteHandler.OnCompleteCallback() {
             @Override
-            public void onComplete(boolean cancelled, Object extra) {
+            public void onComplete(boolean cancelled, Object extra, int step) {
                 fragmentHome.setIsLoading(false);
             }
         });
-        if (idAventuras.isEmpty()) {
-            onCompleteHandler.advance();
-            return;
-        }
-        for (final String key : idAventuras) {
-            mDatabase.child("adventures").child(key).addListenerForSingleValueEvent(
-                    new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            Aventura aventura = null;
-                            try {
-                                aventura = dataSnapshot.getValue(Aventura.class);
-                            } catch (DatabaseException ex) {
-                                // Sessoes em aventuras mudada de HashMap para ArrayList, então
-                                // o Firebase pode lançar exceções na hora de deserializar.
-                                // Ignore a aventura nesse caso
-                            }
-                            // Check if adventure is not null and don't exist on current list
-                            if (aventura != null) {
-                                // Add adventure to list
-                                final int index = aventura.getIndexOf(aventuras, aventura.getKey());
-                                final boolean exists = dataSnapshot.exists();
-
-                                if (index >= 0) {
-                                    if (exists) {
-                                        aventuras.set(index, aventura);
-                                        fragmentHome.getRecyclerAdapter().notifyItemChanged(index);
-                                    } else {
-                                        aventuras.remove(index);
-                                        fragmentHome.getRecyclerAdapter().notifyItemRemoved(index);
-                                    }
-                                } else if (exists) {
-                                    aventuras.add(aventura);
-                                    fragmentHome.getRecyclerAdapter().notifyItemInserted(aventuras.size() - 1);
-                                }
-                            }
-
-                            onCompleteHandler.advance();
+        int index = 0;
+        for (String adventureKey : adventureKeys) {
+            final int adventureIndex = index++;
+            db.getAdventureById(adventureKey, new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
+                @Override
+                public void onComplete(boolean cancelled, Object extra, int step) {
+                    if (extra != null && extra instanceof Aventura) {
+                        if (adventures.size() <= adventureIndex) {
+                            adventures.add((Aventura) extra);
+                            fragmentHome.getRecyclerAdapter().notifyItemInserted(adventures.size() - 1);
+                        } else {
+                            adventures.add(adventureIndex, (Aventura) extra);
+                            fragmentHome.getRecyclerAdapter().notifyItemInserted(adventureIndex);
                         }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                            Log.w(TAG, "fechAdventures:onCancelled", databaseError.toException());
-                            onCompleteHandler.cancel();
-                        }
-                    });
+                    }
+                    handler.advance();
+                }
+            }));
         }
-
     }
 
     @Override
@@ -467,7 +424,7 @@ public class ActivityHome extends AppCompatActivity implements
                 }
                 break;
             case R.id.action_ordenar:
-                Collections.sort(aventuras, new Comparator<Aventura>() {
+                Collections.sort(adventures, new Comparator<Aventura>() {
                     @Override
                     public int compare(Aventura left, Aventura right) {
                         return left.getTitulo().compareToIgnoreCase(right.getTitulo());
@@ -481,11 +438,12 @@ public class ActivityHome extends AppCompatActivity implements
         return false;
     }
 
+    public Aventura getSelectedAdventure() {
+        return selectedAdventure;
+    }
+
     public List<Aventura> getAdventures() {
-        if (this.aventuras == null) {
-            this.aventuras = new ArrayList<>();
-        }
-        return aventuras;
+        return adventures;
     }
 
     public void showHomeFragment() {
@@ -494,13 +452,13 @@ public class ActivityHome extends AppCompatActivity implements
         while (backStackCount-- > 0) {
             fragmentManager.popBackStack();
         }
+        mCurrentScreen = Screen.Home;
     }
 
     public void pushFragment(Fragment f, String tag, Screen newScreen) {
         boolean drawerChanged = mCurrentScreen != newScreen;
         if (f instanceof FragmentHome) {
             showHomeFragment();
-            mCurrentScreen = Screen.Home;
         } else {
             FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager
@@ -657,13 +615,14 @@ public class ActivityHome extends AppCompatActivity implements
 
     @Override
     public void onCreateAdventure(String title) {
-        String userId = mAuth.getCurrentUser().getUid();
-        Aventura aventura = new Aventura(title, userId);
-        String key = db.createAdventure(aventura);
-        aventura.setKey(key);
-        aventuras.add(aventura);
-        fragmentHome.getRecyclerAdapter().notifyItemInserted(aventuras.size() - 1);
-        fragmentHome.scrollToIndex(aventuras.size() - 1);
+        Aventura aventura = new Aventura(title, currentUser.getUserId());
+        db.createAdventure(aventura);
+        currentUser.addAdventure(aventura);
+        adventures.add(aventura);
+        db.upsertUser(currentUser);
+        int index = currentUser.getAventuras().size() - 1;
+        fragmentHome.getRecyclerAdapter().notifyItemInserted(index);
+        fragmentHome.scrollToIndex(index);
         showHomeFragment();
     }
 
@@ -673,11 +632,7 @@ public class ActivityHome extends AppCompatActivity implements
             return;
         }
         getScreenFragment(Screen.Adventure);
-        Bundle bundle = new Bundle();
-        bundle.putString(Aventura.KEY_TITLE, aventura.getTitulo());
-        bundle.putString(Aventura.KEY_ID, aventura.getKey());
-        bundle.putInt(Aventura.KEY_IMAGE, aventura.getImageResource());
-        fragmentAdventure.setArguments(bundle);
+        selectedAdventure = aventura;
         pushFragment(fragmentAdventure, FragmentAdventure.TAG, Screen.Adventure);
     }
 
@@ -689,13 +644,16 @@ public class ActivityHome extends AppCompatActivity implements
         final AlertDialog alerta;
         final int removeIndex = index;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Deseja remover esta aventura?").setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+        builder.setMessage(R.string.msg_do_you_wish_to_delete_this_adventure).setPositiveButton(R.string.label_yes, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                db.removeAdventure(aventuras.get(removeIndex));
-                aventuras.remove(removeIndex);
+                Aventura adventure = adventures.get(removeIndex);
+                currentUser.getAventuras().remove(removeIndex);
+                adventures.remove(removeIndex);
+                db.removeAdventure(adventure);
+                db.upsertUser(currentUser);
                 fragmentHome.getRecyclerAdapter().notifyItemRemoved(removeIndex);
             }
-        }).setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+        }).setNegativeButton(R.string.label_cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
             }
         });
@@ -713,12 +671,11 @@ public class ActivityHome extends AppCompatActivity implements
             if (mAuth.getCurrentUser().getProviders().contains("facebook.com") && AccessToken.getCurrentAccessToken() != null) {
                 LoginManager.getInstance().logOut();
             }
-
-            FirebaseAuth.getInstance().signOut();
-            Intent logout = new Intent(ActivityHome.this, ActivityLogin.class);
-            startActivity(logout);
-            finish();
         }
+        FirebaseAuth.getInstance().signOut();
+        Intent logout = new Intent(ActivityHome.this, ActivityLogin.class);
+        startActivity(logout);
+        finish();
     }
     // [END signOut]
 
@@ -734,11 +691,8 @@ public class ActivityHome extends AppCompatActivity implements
     }
 
     @Override
-    public void onAdicionarSessao(String keyAventura) {
+    public void onClickAddSessionFAB() {
         getScreenFragment(Screen.CreateSession);
-        Bundle bundle = new Bundle();
-        bundle.putString(Aventura.KEY_ID, keyAventura);
-        fragmentCriarSessao.setArguments(bundle);
         pushFragment(fragmentCriarSessao, FragmentCriarSessao.TAG, Screen.CreateSession);
     }
 
@@ -748,45 +702,39 @@ public class ActivityHome extends AppCompatActivity implements
     }
 
     @Override
-    public void onAdicionarJogador(String keyAventura) {
+    public void onClickInviteUsersFAB() {
         getScreenFragment(Screen.AddPlayer);
-        Bundle bundle = new Bundle();
-        bundle.putString(Aventura.KEY_ID, keyAventura);
-        fragmentAdicionarJogador.setArguments(bundle);
         pushFragment(fragmentAdicionarJogador, FragmentAdicionarJogador.TAG, Screen.AddPlayer);
     }
 
     @Override
-    public void onAdicionaJogadorPesquisado(int index) {
-        Toast.makeText(getApplicationContext(), "Index: " + index,Toast.LENGTH_SHORT).show();
+    public void onViewUserInfo(User user) {
     }
 
     @Override
-    public void onConfirmarSessao(String keyAventura, String tituloSessao, String dataSessao) {
-        Aventura aventuraSelecionada = getAventuraViaKey(keyAventura);
-        if (aventuraSelecionada != null) {
-            Sessao sessaoSaida = new Sessao(keyAventura, tituloSessao, dataSessao);
-            aventuraSelecionada.addSessao(sessaoSaida);
-            db.upsertAdventure(aventuraSelecionada);
-            Bundle bundle = new Bundle();
-            bundle.putString(Aventura.KEY_TITLE, aventuraSelecionada.getTitulo());
-            bundle.putString(Aventura.KEY_ID, aventuraSelecionada.getKey());
-            bundle.putInt(Aventura.KEY_IMAGE, aventuraSelecionada.getImageResource());
-            getScreenFragment(Screen.Adventure);
-            fragmentAdventure.setArguments(bundle);
+    public void onConfirmarSessao(String tituloSessao, String dataSessao) {
+        if (selectedAdventure != null) {
+            Sessao sessaoSaida = new Sessao(selectedAdventure.getKey(), tituloSessao, dataSessao);
+            selectedAdventure.addSessao(sessaoSaida);
+            db.upsertAdventure(selectedAdventure);
             getScreenFragment(Screen.Home);
             fragmentHome.notifyItemChangedVisible();
             onBackPressed();
         }
     }
 
-    public Aventura getAventuraViaKey (String key) {
-        for (Aventura aventuraAux : this.aventuras) {
-            if (aventuraAux.getKey().equals(key)) {
-                return aventuraAux;
-            }
+    @Override
+    public void onUserInvitation(User user, boolean hasBeenInvited) {
+        if (selectedAdventure != null) {
+            db.setUserInvitation(user, mAuth.getCurrentUser().getUid(), selectedAdventure, hasBeenInvited);
         }
-        return null;
     }
 
+    @Override
+    public void onUserKickedOut(User user) {
+        if (selectedAdventure != null) {
+            selectedAdventure.kickUser(user.getUserId());
+            db.upsertAdventure(selectedAdventure);
+        }
+    }
 }

@@ -4,21 +4,23 @@ import br.unb.igor.R;
 
 public class ImageAssets {
 
+    public static int builtInBackgrounds[] = {
+            R.drawable.miniatura_coast,
+            R.drawable.miniatura_corvali,
+            R.drawable.miniatura_heartlands,
+            R.drawable.miniatura_krevast,
+            R.drawable.miniatura_sky
+    };
+
     public static int getBackgroundResource(int imageIndex){
-        switch(imageIndex){
-            case 1:
-                return R.drawable.miniatura_coast;
-            case 2:
-                return R.drawable.miniatura_corvali;
-            case 3:
-                return R.drawable.miniatura_heartlands;
-            case 4:
-                return R.drawable.miniatura_krevast;
-            case 5:
-                return R.drawable.miniatura_sky;
-            default:
-                return R.drawable.miniatura_krevast;
+        if (imageIndex < 0 || imageIndex >= builtInBackgrounds.length) {
+            imageIndex = 0;
         }
+        return builtInBackgrounds[imageIndex];
+    }
+
+    public static int getBuiltInBackgroundCount() {
+        return builtInBackgrounds.length;
     }
 
 }

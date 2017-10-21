@@ -4,25 +4,22 @@ import android.content.Context;
 import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.List;
 
 import br.unb.igor.R;
-import br.unb.igor.helpers.AdventureEditListener;
 import br.unb.igor.helpers.AdventureListener;
-import br.unb.igor.model.Aventura;
 import br.unb.igor.model.Sessao;
 
 public class SessoesRecyclerAdapter extends RecyclerView.Adapter<SessoesViewHolder> {
 
     private Context context;
-    private AdventureEditListener mListener;
+    private AdventureListener mListener;
     private List<Sessao> sessoes;
 
-    public SessoesRecyclerAdapter(Context context, AdventureEditListener listener, List<Sessao> sessoes) {
+    public SessoesRecyclerAdapter(Context context, AdventureListener listener, List<Sessao> sessoes) {
         this.context = context;
         this.mListener = listener;
         this.sessoes = sessoes;

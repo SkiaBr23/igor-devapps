@@ -13,7 +13,8 @@
     <color name="fundoCriarContaTransparente">#c3e2e2e1</color>
     <color name="toolbarColor">#ff221133</color>
     <color name="brancoSemOpacidade">#82ffffff</color>
-    <!-- Cores das SeekBar -->
+    <color name="btnInviteColor">#26e226</color>
+    <color name="btnDisinviteColor">#eb2c27</color>
     <color name="corSeekBarUm">#ff435a</color>
     <color name="corSeekBarDois">#060408</color>
     <color name="corSeekBarTres">#ff00e2ba</color>
@@ -25,13 +26,9 @@
     <color name="drawerFocused">#f6d282</color>
     <color name="fabHome">#f6d282</color>
     <color name="btnConfirmarAventura">#ff0b9c8d</color>
-
     <color name="opcaoMenu">#DA364F</color>
-
     <color name="transp">#00000000</color>
-
     <color name="baseAventuraEdicao">#1e2843</color>
-
     <color name="fundoCriarAventura">#ff146e6f</color>
     <color name="bgnHome">#140721</color>
 </resources>

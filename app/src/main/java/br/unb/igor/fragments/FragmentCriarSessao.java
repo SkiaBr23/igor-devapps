@@ -3,7 +3,6 @@ package br.unb.igor.fragments;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -21,7 +20,7 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import br.unb.igor.R;
-import br.unb.igor.helpers.SessionListener;
+import br.unb.igor.helpers.AdventureListener;
 
 public class FragmentCriarSessao extends Fragment {
 
@@ -30,13 +29,12 @@ public class FragmentCriarSessao extends Fragment {
     private ImageView btnCloseSessao;
     private FloatingActionButton btnCloseCriarSessao;
     private Button btnConfirmarSessao;
-    private String keyAdventure;
     private EditText editTituloSessao;
     private Calendar myCalendar;
     private Button btnDataSessao;
     private DatePickerDialog.OnDateSetListener date;
 
-    private SessionListener mListener;
+    private AdventureListener mListener;
 
     public FragmentCriarSessao() {
         // Required empty public constructor
@@ -45,8 +43,8 @@ public class FragmentCriarSessao extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof SessionListener) {
-            mListener = (SessionListener) context;
+        if (context instanceof AdventureListener) {
+            mListener = (AdventureListener) context;
         } else {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
@@ -71,9 +69,6 @@ public class FragmentCriarSessao extends Fragment {
         btnConfirmarSessao = root.findViewById(R.id.btnConfirmarSessao);
         editTituloSessao = root.findViewById(R.id.editTituloSessao);
         btnDataSessao = root.findViewById(R.id.btnDataSessao);
-
-
-        keyAdventure = getArguments().getString("keyAventura");
 
         btnCloseSessao.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -116,7 +111,7 @@ public class FragmentCriarSessao extends Fragment {
                 }
                 editTituloSessao.setText("");
                 btnDataSessao.setText("00/00/00");
-                mListener.onConfirmarSessao(keyAdventure, sessionTitle, sessionDate);
+                mListener.onConfirmarSessao(sessionTitle, sessionDate);
             }
         });
 

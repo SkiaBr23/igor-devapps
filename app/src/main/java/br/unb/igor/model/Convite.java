@@ -3,28 +3,20 @@ package br.unb.igor.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-/**
- * Created by @skiabr23 on 08/09/2017.
- */
-
 public class Convite implements Parcelable {
 
     String key;
-    String tituloAventura;
-    String mestreUserName;
-    String mestreUserId;
+    String invitedById;
     String keyAventura;
-    String jogadorUserId;
+    Boolean unseen;
 
     public Convite() {
     }
 
-    public Convite(String tituloAventura, String mestreUserName, String mestreUserId, String keyAventura, String jogadorUserId) {
-        this.tituloAventura = tituloAventura;
-        this.mestreUserName = mestreUserName;
-        this.mestreUserId = mestreUserId;
+    public Convite(String invitedById, String keyAventura) {
+        this.invitedById = invitedById;
         this.keyAventura = keyAventura;
-        this.jogadorUserId = jogadorUserId;
+        this.unseen = true;
     }
 
     public String getKey() {
@@ -43,36 +35,20 @@ public class Convite implements Parcelable {
         this.keyAventura = keyAventura;
     }
 
-    public String getTituloAventura() {
-        return tituloAventura;
+    public String getInvitedById() {
+        return invitedById;
     }
 
-    public void setTituloAventura(String tituloAventura) {
-        this.tituloAventura = tituloAventura;
+    public void setInvitedById(String invitedById) {
+        this.invitedById = invitedById;
     }
 
-    public String getMestreUserName() {
-        return mestreUserName;
+    public Boolean getUnseen() {
+        return unseen;
     }
 
-    public void setMestreUserName(String mestreUserName) {
-        this.mestreUserName = mestreUserName;
-    }
-
-    public String getMestreUserId() {
-        return mestreUserId;
-    }
-
-    public void setMestreUserId(String mestreUserId) {
-        this.mestreUserId = mestreUserId;
-    }
-
-    public String getJogadorUserId() {
-        return jogadorUserId;
-    }
-
-    public void setJogadorUserId(String jogadorUserId) {
-        this.jogadorUserId = jogadorUserId;
+    public void setUnseen(Boolean unseen) {
+        this.unseen = unseen;
     }
 
     @Override
@@ -84,10 +60,8 @@ public class Convite implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(keyAventura);
         parcel.writeString(key);
-        parcel.writeString(tituloAventura);
-        parcel.writeString(mestreUserId);
-        parcel.writeString(mestreUserName);
-        parcel.writeString(jogadorUserId);
+        parcel.writeString(invitedById);
+        parcel.writeInt(unseen ? 1 : 0);
     }
 
     public final static Creator<Convite> CREATOR = new Creator<Convite>() {
@@ -95,16 +69,10 @@ public class Convite implements Parcelable {
         @Override
         public Convite createFromParcel(Parcel parcel) {
             Convite s = new Convite();
-
-            s.key = parcel.readString();
-            s.jogadorUserId = parcel.readString();
-            s.mestreUserId = parcel.readString();
-            s.mestreUserName = parcel.readString();
-            s.tituloAventura = parcel.readString();
             s.keyAventura = parcel.readString();
             s.key = parcel.readString();
-
-
+            s.invitedById = parcel.readString();
+            s.unseen = parcel.readInt() == 1;
             return s;
         }
 

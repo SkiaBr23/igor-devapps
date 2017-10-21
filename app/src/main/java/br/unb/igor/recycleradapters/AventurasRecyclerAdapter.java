@@ -54,7 +54,7 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
         if (position < aventuras.size()) {
             Aventura aventura = aventuras.get(holder.getAdapterPosition());
             String tituloAventura = aventuras.get(holder.getAdapterPosition()).getTitulo();
-            holder.linearLayoutBackground.setBackgroundResource(ImageAssets.getBackgroundResource(aventura.getImageResource()));
+            holder.linearLayoutBackground.setBackgroundResource(ImageAssets.getBackgroundResource(aventura.getImagemFundo()));
             if (tituloAventura.length() >= 50) {
                 tituloAventura = tituloAventura.substring(0, 47) + this.context.getResources().getString(R.string.strLonga);
             }

@@ -2,6 +2,7 @@ package br.unb.igor.model;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.v4.util.ArraySet;
 
 import com.google.firebase.database.Exclude;
 
@@ -14,8 +15,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.TimeZone;
 
+import br.unb.igor.helpers.ImageAssets;
 import br.unb.igor.helpers.Utils;
 
 public class Aventura implements Parcelable {
@@ -23,30 +26,38 @@ public class Aventura implements Parcelable {
     public static final String KEY_ID = "keyAventura";
     public static final String KEY_TITLE = "tituloAventura";
     public static final String KEY_IMAGE = "resBackgroundId";
+    public static final Random PRNG = new Random();
 
     String titulo;
     String key;
     int progresso = 0;
-    int RESOURCE_IMAGE = 0;
-    int numeroSessoes = 0;
+    int imagemFundo = PRNG.nextInt(ImageAssets.getBuiltInBackgroundCount());
     String sinopse;
     String mestreUserId;
     String livroReferencia;
     List<String> jogadoresUserIds = new ArrayList<>();
+    List<String> jogadoresConvidadosIds = new ArrayList<>();
     List<String> anotacoes = new ArrayList<>();
     List<FichaJogador> fichas = new ArrayList<>();
     List<Sessao> sessoes = new ArrayList<>();
 
+    @Exclude
+    Set<String> jogadoresConvidadosIdsSet = new ArraySet<>();
+
     public Aventura() {
-        // Empty constructor for json deserialization =)
     }
 
     public Aventura(String tituloAventura, String mestreUserId) {
-        Random gerador = new Random();
         this.titulo = tituloAventura;
-        this.progresso = 0;
-        this.RESOURCE_IMAGE = gerador.nextInt(6);
         this.mestreUserId = mestreUserId;
+    }
+
+    public String getTitulo () {
+        return this.titulo;
+    }
+
+    public void setTitulo (String tituloAventura) {
+        this.titulo = tituloAventura;
     }
 
     public String getKey() {
@@ -57,20 +68,20 @@ public class Aventura implements Parcelable {
         this.key = key;
     }
 
-    public List<Sessao> getSessoes() {
-        return this.sessoes;
+    public int getProgresso () {
+        return this.progresso;
     }
 
-    public void setSessoes(List<Sessao> sessoes) {
-        this.sessoes = sessoes;
+    public void setProgresso (int progresso) {
+        this.progresso = progresso;
     }
 
-    public int getNumeroSessoes() {
-        return numeroSessoes;
+    public int getImagemFundo() {
+        return this.imagemFundo;
     }
 
-    public void setNumeroSessoes(int numeroSessoes) {
-        this.numeroSessoes = numeroSessoes;
+    public void setImagemFundo(int resource) {
+        this.imagemFundo = resource;
     }
 
     public String getSinopse() {
@@ -101,8 +112,17 @@ public class Aventura implements Parcelable {
         return jogadoresUserIds;
     }
 
-    public void setJogadoresUserIds(List<String> jogadoresUserIds) {
-        this.jogadoresUserIds = jogadoresUserIds;
+    public void setJogadoresUserIds(List<String> ids) {
+        this.jogadoresUserIds = ids;
+    }
+
+    public List<String> getJogadoresConvidadosIds() {
+        return jogadoresConvidadosIds;
+    }
+
+    public void setJogadoresConvidadosIds(List<String> ids) {
+        this.jogadoresConvidadosIds = ids;
+        jogadoresConvidadosIdsSet.addAll(ids);
     }
 
     public List<String> getAnotacoes() {
@@ -121,28 +141,12 @@ public class Aventura implements Parcelable {
         this.fichas = fichas;
     }
 
-    public String getTitulo () {
-        return this.titulo;
+    public List<Sessao> getSessoes() {
+        return this.sessoes;
     }
 
-    public int getProgresso () {
-        return this.progresso;
-    }
-
-    public void setTitulo (String tituloAventura) {
-        this.titulo = tituloAventura;
-    }
-
-    public void setProgresso (int progresso) {
-        this.progresso = progresso;
-    }
-
-    public int getImageResource() {
-        return this.RESOURCE_IMAGE;
-    }
-
-    public void setImageResource(int resource) {
-        this.RESOURCE_IMAGE = resource;
+    public void setSessoes(List<Sessao> sessoes) {
+        this.sessoes = sessoes;
     }
 
     @Exclude
@@ -157,16 +161,16 @@ public class Aventura implements Parcelable {
         HashMap<String, Object> result = new HashMap<>();
         result.put("tituloAventura", titulo);
         result.put("progresso", progresso);
-        result.put("RESOURCE_IMAGE", RESOURCE_IMAGE);
-        result.put("numeroSessoes", numeroSessoes);
+        result.put("imagemFundo", imagemFundo);
         result.put("sinopse", sinopse);
         result.put("key", key);
-        result.put("mestreUserId", mestreUserId);
+        result.put("invitedById", mestreUserId);
         result.put("anotacoes", anotacoes);
         result.put("fichas", fichas);
         result.put("livroReferencia", livroReferencia);
         result.put("sessoes", sessoes);
         result.put("jogadoresUserIds", jogadoresUserIds);
+        result.put("jogadoresConvidadosIds", jogadoresConvidadosIds);
         return result;
     }
 
@@ -180,12 +184,12 @@ public class Aventura implements Parcelable {
         parcel.writeString(titulo);
         parcel.writeString(key);
         parcel.writeInt(progresso);
-        parcel.writeInt(RESOURCE_IMAGE);
-        parcel.writeInt(numeroSessoes);
+        parcel.writeInt(imagemFundo);
         parcel.writeString(sinopse);
         parcel.writeString(mestreUserId);
         parcel.writeString(livroReferencia);
         parcel.writeStringList(jogadoresUserIds);
+        parcel.writeStringList(jogadoresConvidadosIds);
         parcel.writeStringList(anotacoes);
 //        List<FichaJogador> fichas; // precisa implementar Parcel em FichaJogador
         parcel.writeList(sessoes);
@@ -199,15 +203,16 @@ public class Aventura implements Parcelable {
             a.titulo = parcel.readString();
             a.key = parcel.readString();
             a.progresso = parcel.readInt();
-            a.RESOURCE_IMAGE = parcel.readInt();
-            a.numeroSessoes = parcel.readInt();
+            a.imagemFundo = parcel.readInt();
             a.sinopse = parcel.readString();
             a.mestreUserId = parcel.readString();
             a.livroReferencia = parcel.readString();
             parcel.readStringList(a.jogadoresUserIds);
             parcel.readStringList(a.anotacoes);
+            parcel.readStringList(a.jogadoresConvidadosIds);
             // ler FichaJogador
             parcel.readList(a.sessoes, Sessao.class.getClassLoader());
+            a.jogadoresConvidadosIdsSet.addAll(a.jogadoresConvidadosIds);
             return a;
         }
 
@@ -235,6 +240,39 @@ public class Aventura implements Parcelable {
     public void addSessao(Sessao s) {
         sessoes.add(s);
         Collections.sort(sessoes, Utils.ComparatorSessionByDateDesc);
+    }
+
+    public boolean isUserInvited(String key) {
+        return jogadoresConvidadosIdsSet.contains(key);
+    }
+
+    public void addInvitedUser(String key) {
+        if (!isUserInvited(key)) {
+            jogadoresConvidadosIds.add(key);
+            jogadoresConvidadosIdsSet.add(key);
+        }
+    }
+
+    public void removeInvitedUser(String key) {
+        if (isUserInvited(key)) {
+            jogadoresConvidadosIdsSet.remove(key);
+            jogadoresConvidadosIds.remove(key);
+        }
+    }
+
+    public void kickUser(String key) {
+        removeInvitedUser(key);
+        jogadoresUserIds.remove(key);
+    }
+
+    @Exclude
+    public Set<String> getJogadoresUserIdsSet() {
+        return new ArraySet<>(jogadoresUserIds);
+    }
+
+    @Exclude
+    public Set<String> getJogadoresConvidadosIdsSet() {
+        return jogadoresConvidadosIdsSet;
     }
 
     @Exclude

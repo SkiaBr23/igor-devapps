@@ -3,6 +3,7 @@ package br.unb.igor.fragments;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -33,7 +34,6 @@ public class FragmentHome extends Fragment {
     private FloatingActionButton btnModoEdicao;
     private FloatingActionButton btnConfirmarAlteracao;
 
-    private FragmentCriarAventura mFragmentCriarAventura;
     private TextView txtFloatingMessage;
     private ProgressBar progressBarLoading;
     private RecyclerView recyclerViewAventurasHome;
@@ -75,7 +75,7 @@ public class FragmentHome extends Fragment {
 
         progressBarLoading = root.findViewById(R.id.loadingSpinner);
 
-        cardInfoConvites = (CardView)root.findViewById(R.id.cardInformativoConvites);
+        cardInfoConvites = root.findViewById(R.id.cardInformativoConvites);
 
         //TODO: Esse gone aqui precisa ser removido quando chamar a função de verificar convites e houver convites!
         cardInfoConvites.setVisibility(View.VISIBLE);
@@ -104,9 +104,7 @@ public class FragmentHome extends Fragment {
             }
         });
 
-        recyclerViewAventurasHome = (RecyclerView)root.findViewById(R.id.recyclerViewAventurasHome);
-        // setHasFixedSize(true) bugs notifyItemInserted when fetching initial adventures
-        // recyclerViewAventurasHome.setHasFixedSize(true);
+        recyclerViewAventurasHome = root.findViewById(R.id.recyclerViewAventurasHome);
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerViewAventurasHome.setLayoutManager(layoutManager);
         aventurasRecyclerAdapter = new AventurasRecyclerAdapter(getActivity(), mListener, aventuras);
@@ -119,8 +117,13 @@ public class FragmentHome extends Fragment {
         return aventurasRecyclerAdapter;
     }
 
-    public void scrollToIndex(int index) {
-        recyclerViewAventurasHome.scrollToPosition(index);
+    public void scrollToIndex(final int index) {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                recyclerViewAventurasHome.scrollToPosition(index);
+            }
+        }, 300);
     }
 
     public void setEditMode(boolean b) {
