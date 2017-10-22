@@ -28,7 +28,7 @@ public class ConvitesRecyclerAdapter extends RecyclerView.Adapter<ConvitesViewHo
 
     @Override
     public ConvitesViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.convites_layout, null, false);
+        View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.convites_layout, parent, false);
         ConvitesViewHolder convitesViewHolder = new ConvitesViewHolder(layoutView);
         return convitesViewHolder;
     }

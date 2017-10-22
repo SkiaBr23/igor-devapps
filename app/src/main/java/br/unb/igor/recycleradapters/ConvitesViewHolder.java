@@ -16,9 +16,8 @@ public class ConvitesViewHolder extends RecyclerView.ViewHolder implements View.
     public ConvitesViewHolder(View itemView) {
         super(itemView);
         itemView.setOnClickListener(this);
-
-        txtNomeMestre = (TextView)itemView.findViewById(R.id.txtViewNomeMestreCard);
-        profileImageMestre = (CircleImageView) itemView.findViewById(R.id.profileImageCard);
+        txtNomeMestre = itemView.findViewById(R.id.txtViewNomeMestreCard);
+        profileImageMestre = itemView.findViewById(R.id.profileImageCard);
     }
 
     @Override

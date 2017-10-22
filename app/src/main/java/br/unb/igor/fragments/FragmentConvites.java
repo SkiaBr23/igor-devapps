@@ -1,7 +1,6 @@
 package br.unb.igor.fragments;
 
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -40,7 +39,7 @@ public class FragmentConvites extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        final View root = inflater.inflate(R.layout.convites, container, false);
+        final View root = inflater.inflate(R.layout.fragment_convites, container, false);
 
         recyclerViewListaConvites = root.findViewById(R.id.recyclerViewListaConvites);
         layoutManagerConvites = new LinearLayoutManager(getActivity());
