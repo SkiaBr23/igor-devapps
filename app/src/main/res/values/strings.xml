@@ -15,7 +15,7 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="loading">Carregando&#8230;</string>
+    <string name="label_loading">Carregando&#8230;</string>
     <string name="title_activity_signup">SignupActivity</string>
     <string name="forgot_password_text">Insira seu email cadastrado para redefinir sua senha:</string>
     <string name="menu_adventure">Aventuras</string>
@@ -54,7 +54,6 @@
     <string name="adventure_label_description">Escreva uma sinopse…</string>
     <string name="edit_adventure_title">Título da aventura</string>
     <string name="fragment_adventure_msg_master">Mestre</string>
-    <string name="fragment_adventure_msg_name">Nome</string>
     <string name="msg_next_session_not_yet_scheduled">A próxima sessão ainda não foi marcada</string>
     <string name="msg_search_for_name_or_email">Pesquisar nome ou e-mail</string>
     <string name="msg_you_have_new_notifications">Você possui novas notificações!</string>
@@ -71,4 +70,7 @@
     <string name="msg_password_too_weak">Senha muito fraca</string>
     <string name="msg_successfully_registered">Cadastrado com sucesso</string>
     <string name="msg_email_already_in_use">O e-mail fornecido já está em uso</string>
+    <string name="msg_no_players_to_show">Sem jogadores para mostrar</string>
+    <string name="msg_no_sessions_scheduled_yet">Nenhuma sessão marcada até o momento</string>
+    <string name="msg_you_havent_invited_players_yet">Você ainda não convidou jogadores</string>
 </resources>

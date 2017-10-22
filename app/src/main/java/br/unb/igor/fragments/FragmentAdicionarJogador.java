@@ -151,19 +151,23 @@ public class FragmentAdicionarJogador extends Fragment {
             }
         });
 
-        Set<String> alreadyInvitedPlayers = null;
-        Set<String> alreadyJoinedPlayers = null;
-        Aventura currentAdventure = ((ActivityHome)getActivity()).getSelectedAdventure();
-
-        if (currentAdventure != null) {
-            alreadyInvitedPlayers = currentAdventure.getJogadoresConvidadosIdsSet();
-            alreadyJoinedPlayers = currentAdventure.getJogadoresUserIdsSet();
-        }
-
         layoutManagerJogadoresPesquisados = new LinearLayoutManager(getActivity());
         recyclerViewListaPesquisaJogadores.setLayoutManager(layoutManagerJogadoresPesquisados);
-        jogadoresPesquisadosRecyclerAdapter = new JogadoresRecyclerAdapter(mListener, users,
-                alreadyInvitedPlayers, alreadyJoinedPlayers);
+
+        JogadoresRecyclerAdapter.DisplayInfo di = new JogadoresRecyclerAdapter.DisplayInfo();
+
+        Aventura currentAdventure = ((ActivityHome)getActivity()).getSelectedAdventure();
+        User currentUser = ((ActivityHome)getActivity()).getCurrentUser();
+
+        if (currentAdventure != null) {
+            di.alreadyJoinedIds = currentAdventure.getJogadoresUserIdsSet();
+            di.alreadyInvitedIds = currentAdventure.getJogadoresConvidadosIdsSet();
+            di.isMaster = currentUser != null && currentUser.getUserId().equals(currentAdventure.getMestreUserId());
+        }
+
+        di.users = users;
+
+        jogadoresPesquisadosRecyclerAdapter = new JogadoresRecyclerAdapter(mListener, di);
         recyclerViewListaPesquisaJogadores.setAdapter(jogadoresPesquisadosRecyclerAdapter);
 
         editTxtPesquisaJogadores.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -242,4 +246,27 @@ public class FragmentAdicionarJogador extends Fragment {
         in.hideSoftInputFromWindow(editTxtPesquisaJogadores.getWindowToken(),0);
     }
 
+    public void onAdventureChange(Aventura newAdventure) {
+        ActivityHome actHome = (ActivityHome)getActivity();
+        if (actHome == null) {
+            // this can happen if an adventure is changed while this
+            // fragment isn't being displayed
+            return;
+        }
+        Aventura currentAdventure = actHome.getSelectedAdventure();
+        if (currentAdventure != null) {
+            int index = 0;
+            for (User u : users) {
+                String uid = u.getUserId();
+                boolean joined = currentAdventure.getJogadoresUserIdsSet().contains(uid);
+                boolean invited = currentAdventure.getJogadoresConvidadosIdsSet().contains(uid);
+                boolean shouldBeJoined = newAdventure.getJogadoresUserIdsSet().contains(uid);
+                boolean shouldBeInvited = newAdventure.getJogadoresConvidadosIdsSet().contains(uid);
+                if (joined != shouldBeJoined || invited != shouldBeInvited) {
+                    jogadoresPesquisadosRecyclerAdapter.notifyItemChanged(index);
+                }
+                index++;
+            }
+        }
+    }
 }

@@ -4,7 +4,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
-import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
@@ -53,6 +52,7 @@ import br.unb.igor.fragments.FragmentCriarSessao;
 import br.unb.igor.fragments.FragmentAdventure;
 import br.unb.igor.fragments.FragmentHome;
 import br.unb.igor.helpers.AdventureListener;
+import br.unb.igor.helpers.ChildEventListenerAdapter;
 import br.unb.igor.helpers.DB;
 import br.unb.igor.helpers.OnCompleteHandler;
 import br.unb.igor.model.Aventura;
@@ -91,7 +91,27 @@ public class ActivityHome extends AppCompatActivity implements
     private User currentUser = null;
     private ArrayList<Aventura> adventures;
 
-    private ChildEventListener InviteChangeFeedListener = new ChildEventListener() {
+    private ChildEventListener AdventureChangeFeedListener = new ChildEventListenerAdapter() {
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+            if (selectedAdventure != null) {
+                String aid = dataSnapshot.getKey();
+                if (!aid.equals(selectedAdventure.getKey())) {
+                    return;
+                }
+                Aventura adventureChanged = dataSnapshot.getValue(Aventura.class);
+                if (adventureChanged != null) {
+                    getScreenFragment(Screen.Home);
+                    fragmentAdventure.onAdventureChange(adventureChanged, mCurrentScreen == Screen.Adventure);
+                    getScreenFragment(Screen.AddPlayer);
+                    fragmentAdicionarJogador.onAdventureChange(adventureChanged);
+                    selectedAdventure.assignInternal(adventureChanged);
+                }
+            }
+        }
+    };
+
+    private ChildEventListener InviteChangeFeedListener = new ChildEventListenerAdapter() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String previousKey) {
             Convite convite = dataSnapshot.getValue(Convite.class);
@@ -130,14 +150,6 @@ public class ActivityHome extends AppCompatActivity implements
                 getScreenFragment(Screen.Home);
                 fragmentHome.checkInvites();
             }
-        }
-
-        @Override
-        public void onChildMoved(DataSnapshot dataSnapshot, String previousKey) {
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
         }
     };
 
@@ -372,7 +384,9 @@ public class ActivityHome extends AppCompatActivity implements
             selectedAdventure = savedInstanceState.getParcelable(BUNDLE_SELECTED_ADVENTURE);
             currentUser = savedInstanceState.getParcelable(BUNDLE_CURRENT_USER);
             if (selectedAdventure != null) {
-                this.selectedAdventure = (Aventura) selectedAdventure;
+                setSelectedAdventure((Aventura) selectedAdventure);
+            } else {
+                setSelectedAdventure(null);
             }
             if (currentUser != null) {
                 this.currentUser = (User) currentUser;
@@ -395,21 +409,34 @@ public class ActivityHome extends AppCompatActivity implements
     @Override
     public void onResume() {
         super.onResume();
+        mCurrentScreen = getFragmentScreen(getSupportFragmentManager().findFragmentById(R.id.content_frame));
+        updateThreeDotsMenu();
+        mDrawerAdapter.notifyDataSetChanged();
+
         mDatabase
             .child("users")
             .child(currentUser.getUserId())
             .child("convites")
             .addChildEventListener(InviteChangeFeedListener);
+
+        mDatabase
+            .child("adventures")
+            .addChildEventListener(AdventureChangeFeedListener);
     }
 
     @Override
     public void onPause() {
         super.onPause();
+
         mDatabase
             .child("users")
             .child(currentUser.getUserId())
             .child("convites")
             .removeEventListener(InviteChangeFeedListener);
+
+        mDatabase
+            .child("adventures")
+            .removeEventListener(AdventureChangeFeedListener);
     }
 
     @Override
@@ -418,6 +445,17 @@ public class ActivityHome extends AppCompatActivity implements
         outState.putParcelable(BUNDLE_SELECTED_ADVENTURE, selectedAdventure);
         outState.putParcelableArrayList(BUNDLE_ADVENTURES, adventures);
         outState.putParcelable(BUNDLE_CURRENT_USER, currentUser);
+    }
+
+    public void setSelectedAdventure(Aventura aventura) {
+        if (aventura == null) {
+            selectedAdventure = null;
+            if (fragmentAdventure != null) {
+                fragmentAdventure.onAdventureChange(null, false);
+            }
+        } else {
+            selectedAdventure = aventura;
+        }
     }
 
     private void fetchInitialAdventures() {
@@ -500,6 +538,7 @@ public class ActivityHome extends AppCompatActivity implements
             fragmentManager.popBackStack();
         }
         mCurrentScreen = Screen.Home;
+        setSelectedAdventure(null);
     }
 
     public void markInvitationsAsSeen() {
@@ -688,7 +727,7 @@ public class ActivityHome extends AppCompatActivity implements
             return;
         }
         getScreenFragment(Screen.Adventure);
-        selectedAdventure = aventura;
+        setSelectedAdventure(aventura);
         pushFragment(fragmentAdventure, FragmentAdventure.TAG, Screen.Adventure);
     }
 

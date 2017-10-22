@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -20,23 +21,22 @@ import br.unb.igor.model.User;
 public class JogadoresRecyclerAdapter extends RecyclerView.Adapter<JogadoresViewHolder> {
 
     private AdventureListener mListener;
-    private List<User> users;
-    private Set<String> alreadyInvitedIds = new ArraySet<>();
-    private Set<String> alreadyJoinedIds = new ArraySet<>();
-    private boolean isMaster = false;
+    private DisplayInfo mode;
 
-    public JogadoresRecyclerAdapter(AdventureListener listener, List<User> users) {
-        this.mListener = listener;
-        this.users = users;
+    public static class DisplayInfo {
+        public boolean isMaster = false;
+        public List<User> users = new ArrayList<>();
+        public Set<String> alreadyInvitedIds = new ArraySet<>();
+        public Set<String> alreadyJoinedIds = new ArraySet<>();
     }
 
-    public JogadoresRecyclerAdapter(AdventureListener listener, List<User> users,
-                                    Set<String> invitedIds, Set<String> joinedIds) {
+    public JogadoresRecyclerAdapter(AdventureListener listener, DisplayInfo mode) {
         this.mListener = listener;
-        this.users = users;
-        this.alreadyInvitedIds = invitedIds;
-        this.alreadyJoinedIds = joinedIds;
-        isMaster = true;
+        this.mode = mode;
+    }
+
+    public DisplayInfo getDisplayInfo() {
+        return mode;
     }
 
     @Override
@@ -48,15 +48,15 @@ public class JogadoresRecyclerAdapter extends RecyclerView.Adapter<JogadoresView
 
     @Override
     public void onBindViewHolder(final JogadoresViewHolder holder, int position) {
-        if (users.size() <= position) {
+        if (position >= getItemCount()) {
             return;
         }
-        final User user = users.get(position);
+        final User user = mode.users.get(position);
         holder.txtNomeJogador.setTextColor(ColorStateList.valueOf(Color.WHITE));
         holder.txtNomeJogador.setText(user.getEmail());
         holder.txtNomePersonagem.setTextColor(ColorStateList.valueOf(Color.WHITE));
         holder.txtNomePersonagem.setText(user.getFullName());
-        if (isMaster) {
+        if (mode.isMaster) {
             updateInviteButton(holder, user);
         } else {
             holder.btnInvite.setVisibility(View.GONE);
@@ -71,12 +71,12 @@ public class JogadoresRecyclerAdapter extends RecyclerView.Adapter<JogadoresView
 
     @Override
     public int getItemCount() {
-        return users.size();
+        return mode != null && mode.users != null ? mode.users.size() : 0;
     }
 
     private void updateInviteButton(final JogadoresViewHolder holder, final User user) {
-        final boolean isInvited = alreadyInvitedIds.contains(user.getUserId());
-        final boolean hasJoined = alreadyJoinedIds.contains(user.getUserId());
+        final boolean isInvited = mode.alreadyInvitedIds.contains(user.getUserId());
+        final boolean hasJoined = mode.alreadyJoinedIds.contains(user.getUserId());
         Context ctx = holder.btnInvite.getContext();
         if (hasJoined) {
             holder.btnInvite.setBackgroundResource(0);

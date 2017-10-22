@@ -46,7 +46,6 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import br.unb.igor.R;
@@ -147,6 +146,7 @@ public class ActivityLogin extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 if (isLoggedIn()) {
+                    btnEntrar.setEnabled(false);
                     onLoginSuccess(mAuth.getCurrentUser());
                 } else if (validate()) {
                     sharedPreferences
@@ -425,7 +425,7 @@ public class ActivityLogin extends AppCompatActivity implements
     private void showProgressDialog() {
         if (mProgressDialog == null) {
             mProgressDialog = new ProgressDialog(this);
-            mProgressDialog.setMessage(getString(R.string.loading));
+            mProgressDialog.setMessage(getString(R.string.label_loading));
             mProgressDialog.setIndeterminate(true);
         }
 
@@ -461,6 +461,7 @@ public class ActivityLogin extends AppCompatActivity implements
                 break;
             case R.id.btnEntrar:
                 if (isLoggedIn()) {
+                    btnEntrar.setEnabled(false);
                     onLoginSuccess(mAuth.getCurrentUser());
                 } else {
                     loginWithPassword();
@@ -551,7 +552,6 @@ public class ActivityLogin extends AppCompatActivity implements
     }
 
     public void onLoginSuccess(final FirebaseUser firebaseUser) {
-        this.btnEntrar.setEnabled(true);
         String photoUrl;
         if (firebaseUser.getPhotoUrl() == null){
             setDefaultPhoto(firebaseUser);
@@ -565,6 +565,7 @@ public class ActivityLogin extends AppCompatActivity implements
             @Override
             public void onComplete(boolean cancelled, Object extra, int step) {
                 if (cancelled) {
+                    btnEntrar.setEnabled(true);
                     return;
                 }
                 User loggedUser;

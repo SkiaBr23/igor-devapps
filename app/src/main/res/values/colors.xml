@@ -10,10 +10,10 @@
     <color name="preto">#ff000000</color>
     <color name="btnEntrar">#00e2ba</color>
     <color name="fundoCriarConta">#ffe2e2e1</color>
-    <color name="fundoCriarContaTransparente">#c3e2e2e1</color>
+    <color name="fundoCriarContaTransparente">#afe2e2e1</color>
     <color name="toolbarColor">#ff221133</color>
     <color name="brancoSemOpacidade">#82ffffff</color>
-    <color name="btnInviteColor">#26e226</color>
+    <color name="btnInviteColor">#0f930f</color>
     <color name="btnDisinviteColor">#eb2c27</color>
     <color name="corSeekBarUm">#ff435a</color>
     <color name="corSeekBarDois">#060408</color>

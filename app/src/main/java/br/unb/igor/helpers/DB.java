@@ -1,5 +1,6 @@
 package br.unb.igor.helpers;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -156,6 +157,11 @@ public class DB {
 
     public void getUsersById(final List<String> uids, final OnCompleteHandler callback) {
         final List<User> users = new ArrayList<>();
+        if (uids.isEmpty()) {
+            callback.setExtra(users);
+            callback.advance();
+            return;
+        }
         final OnCompleteHandler handler = new OnCompleteHandler(uids.size(), new OnCompleteHandler.OnCompleteCallback() {
             @Override
             public void onComplete(boolean cancelled, Object extra, int step) {
@@ -163,13 +169,19 @@ public class DB {
                 callback.advance();
             }
         });
+        int index = 0;
         for (String uid : uids) {
+            final int userIndex = index++;
             db.child("users").child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     final User user = dataSnapshot.getValue(User.class);
                     synchronized (users) {
-                        users.add(user);
+                        if (userIndex >= users.size()) {
+                            users.add(user);
+                        } else {
+                            users.add(userIndex, user);
+                        }
                     }
                     handler.advance();
                 }

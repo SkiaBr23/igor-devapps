@@ -113,7 +113,8 @@ public class Aventura implements Parcelable {
     }
 
     public void setJogadoresUserIds(List<String> ids) {
-        this.jogadoresUserIds = ids;
+        jogadoresUserIds.clear();
+        jogadoresUserIds.addAll(ids);
     }
 
     public List<String> getJogadoresConvidadosIds() {
@@ -121,7 +122,9 @@ public class Aventura implements Parcelable {
     }
 
     public void setJogadoresConvidadosIds(List<String> ids) {
-        this.jogadoresConvidadosIds = ids;
+        jogadoresConvidadosIds.clear();
+        jogadoresConvidadosIds.addAll(ids);
+        jogadoresConvidadosIdsSet.clear();
         jogadoresConvidadosIdsSet.addAll(ids);
     }
 
@@ -300,5 +303,20 @@ public class Aventura implements Parcelable {
             }
         }
         return null;
+    }
+
+    public void assignInternal(Aventura other) {
+        this.titulo = other.titulo;
+        this.key = other.key;
+        this.progresso = other.progresso;
+        this.imagemFundo = other.imagemFundo;
+        this.sinopse = other.sinopse;
+        this.mestreUserId = other.mestreUserId;
+        this.livroReferencia = other.livroReferencia;
+        setJogadoresUserIds(other.jogadoresUserIds);
+        setJogadoresConvidadosIds(other.jogadoresConvidadosIds);
+        this.anotacoes = other.anotacoes;
+        this.fichas = other.fichas;
+        this.sessoes = other.sessoes;
     }
 }

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.ArraySet;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
@@ -21,6 +23,7 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import br.unb.igor.R;
 import br.unb.igor.activities.ActivityHome;
@@ -42,7 +45,6 @@ public class FragmentAdventure extends Fragment {
 
     public static final String TAG = FragmentAdventure.class.getName();
 
-    private String tituloAventura;
     private ImageView imgBackground;
     private ScrollView txtDescricaoContainer;
     private TextView txtTituloAventuraEdicao;
@@ -60,7 +62,8 @@ public class FragmentAdventure extends Fragment {
     private CircleImageView profileImageMestre;
     private TextView txtNomeMestre;
     private TextView txtIndicadorNenhumaSessao;
-    private TextView txtIndicadorNenhumJogador;
+    private TextView txtInfoLabel;
+    private ProgressBar loadingSpinner;
 
     private RecyclerView recyclerViewListaSessoes;
     private RecyclerView recyclerViewListaJogadores;
@@ -69,10 +72,18 @@ public class FragmentAdventure extends Fragment {
 
     private JogadoresRecyclerAdapter jogadoresRecyclerAdapter;
     private RecyclerView.LayoutManager layoutManagerJogadores;
-    private List<Sessao> sessoes;
+    private List<Sessao> sessoes = new ArrayList<>();
     private List<User> users = new ArrayList<>();
     private User master = null;
-    private boolean isMasterFetched = false;
+
+    private enum FetchState {
+        NotFetched,
+        Fetching,
+        Fetched
+    }
+
+    private FetchState usersFetchState = FetchState.NotFetched;
+    private FetchState masterUserFetchState = FetchState.NotFetched;
 
     private Aventura aventura = null;
 
@@ -104,8 +115,9 @@ public class FragmentAdventure extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
         final View root = inflater.inflate(R.layout.fragment_adventure, container, false);
+
+        aventura = ((ActivityHome)getActivity()).getSelectedAdventure();
 
         imgBackground = root.findViewById(R.id.bkgEditarAventura);
         txtDescricaoContainer = root.findViewById(R.id.adventureDescriptionScrollView);
@@ -120,36 +132,10 @@ public class FragmentAdventure extends Fragment {
         profileImageMestre = root.findViewById(R.id.profileImageMestre);
         txtNomeMestre = root.findViewById(R.id.txtNomeMestre);
         txtIndicadorNenhumaSessao = root.findViewById(R.id.txtIndicadorNenhumaSessao);
-        txtIndicadorNenhumJogador = root.findViewById(R.id.txtIndicadorNenhumJogador);
+        txtInfoLabel = root.findViewById(R.id.txtInfoLabel);
+        loadingSpinner = root.findViewById(R.id.loadingSpinner);
         recyclerViewListaSessoes = root.findViewById(R.id.recyclerViewListaSessoes);
         recyclerViewListaJogadores = root.findViewById(R.id.recyclerViewListaJogadores);
-
-        aventura = ((ActivityHome)getActivity()).getSelectedAdventure();
-        int backgroundResource = 0;
-
-        if (aventura != null) {
-            tituloAventura = aventura.getTitulo();
-            sessoes = aventura.getListaSessoes();
-            backgroundResource = aventura.getImagemFundo();
-            fetchUsers();
-        }
-
-        imgBackground.setImageResource(ImageAssets.getBackgroundResource(backgroundResource));
-
-        if (getSessoes().size() > 0) {
-            txtIndicadorNenhumaSessao.setVisibility(GONE);
-            recyclerViewListaSessoes.setVisibility(View.VISIBLE);
-        } else {
-            recyclerViewListaSessoes.setVisibility(GONE);
-        }
-
-        int playersCount = aventura.getJogadoresUserIds().size();
-
-        if (playersCount > 1) {
-            txtIndicadorNenhumJogador.setVisibility(View.VISIBLE);
-        } else {
-            txtIndicadorNenhumJogador.setVisibility(View.GONE);
-        }
 
         mAuth = FirebaseAuth.getInstance();
         boxAndamentoAventura = root.findViewById(R.id.boxAndamentoAventura);
@@ -210,23 +196,28 @@ public class FragmentAdventure extends Fragment {
         txtDescricaoAventura.setClickable(false);
         txtDescricaoAventura.setFocusable(false);
 
-        txtTituloAventuraEdicao.setText(tituloAventura);
-        txtDescricaoAventura.setText(aventura.getSinopse());
-
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerViewListaSessoes.setLayoutManager(layoutManager);
-        sessoesRecyclerAdapter = new SessoesRecyclerAdapter(getActivity(), mListener, getSessoes());
+        sessoesRecyclerAdapter = new SessoesRecyclerAdapter(getActivity(), mListener, sessoes);
         recyclerViewListaSessoes.setAdapter(sessoesRecyclerAdapter);
-        sessoesRecyclerAdapter.notifyDataSetChanged();
 
-        if (aventura != null && isCurrentUserMaster()) {
-            jogadoresRecyclerAdapter = new JogadoresRecyclerAdapter(mListener, users,
-                    aventura.getJogadoresConvidadosIdsSet(),
-                    aventura.getJogadoresUserIdsSet());
-        } else {
-            jogadoresRecyclerAdapter = new JogadoresRecyclerAdapter(mListener, users);
+        JogadoresRecyclerAdapter.DisplayInfo di = new JogadoresRecyclerAdapter.DisplayInfo();
+
+        di.isMaster = isCurrentUserMaster();
+
+        if (aventura != null) {
+            di.alreadyJoinedIds = aventura.getJogadoresUserIdsSet();
+            di.alreadyInvitedIds = aventura.getJogadoresConvidadosIdsSet();
+            di.users = users;
         }
-        loadMasterInfo();
+
+        if (!di.isMaster) {
+            btnFAB.setVisibility(View.GONE);
+            btnFAB.setEnabled(false);
+        }
+
+        jogadoresRecyclerAdapter = new JogadoresRecyclerAdapter(mListener, di);
+
         layoutManagerJogadores = new LinearLayoutManager(getActivity());
         recyclerViewListaJogadores.setLayoutManager(layoutManagerJogadores);
         recyclerViewListaJogadores.setAdapter(jogadoresRecyclerAdapter);
@@ -236,15 +227,10 @@ public class FragmentAdventure extends Fragment {
         }
 
         setEditMode(false);
+        loadMasterInfo();
+        updateAdventureInfo();
 
         return root;
-    }
-
-    public List<Sessao> getSessoes () {
-        if (this.sessoes == null) {
-            this.sessoes = new ArrayList<>();
-        }
-        return this.sessoes;
     }
 
     public void setEditMode(boolean b) {
@@ -276,31 +262,56 @@ public class FragmentAdventure extends Fragment {
     }
 
     public boolean isCurrentUserMaster() {
-        return aventura != null && aventura.getMestreUserId().equals(mAuth.getCurrentUser().getUid());
+        User user = ((ActivityHome)getActivity()).getCurrentUser();
+        return aventura != null && user != null && aventura.getMestreUserId().equals(user.getUserId());
     }
 
     public void fetchUsers() {
-        if (aventura.getJogadoresUserIds().size() == users.size()) {
+        if (usersFetchState == FetchState.Fetched) {
+            boolean isMaster = isCurrentUserMaster();
+            if (users.isEmpty()) {
+                if (isMaster) {
+                    txtInfoLabel.setText(R.string.msg_you_havent_invited_players_yet);
+                } else {
+                    txtInfoLabel.setText(R.string.msg_no_players_to_show);
+                }
+            } else {
+                txtInfoLabel.setVisibility(View.GONE);
+                recyclerViewListaJogadores.setVisibility(View.VISIBLE);
+            }
+            loadingSpinner.setVisibility(View.GONE);
             return;
         }
-        DB.getLastInstance().getUsersById(aventura.getJogadoresUserIds(),
+        recyclerViewListaJogadores.setVisibility(View.GONE);
+        txtInfoLabel.setVisibility(View.VISIBLE);
+        txtInfoLabel.setText(R.string.label_loading);
+        loadingSpinner.setVisibility(View.VISIBLE);
+        if (usersFetchState == FetchState.Fetching) {
+            return;
+        }
+        usersFetchState = FetchState.Fetching;
+        List<String> players = aventura.getJogadoresUserIds();
+        List<String> invited = aventura.getJogadoresConvidadosIds();
+        List<String> concat = new ArrayList<>(players);
+        concat.addAll(invited);
+        DB.getLastInstance().getUsersById(concat,
             new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
                 @Override
                 public void onComplete(boolean cancelled, Object extra, int step) {
                     if (extra != null) {
-                        List<User> users = (List)extra;
-                        FragmentAdventure.this.users.clear();
-                        for (User user : users) {
-                            FragmentAdventure.this.users.add(user);
-                        }
+                        List<User> fetchedUsers = (List)extra;
+                        users.clear();
+                        users.addAll(fetchedUsers);
                         jogadoresRecyclerAdapter.notifyDataSetChanged();
+                        usersFetchState = FetchState.Fetched;
+                        fetchUsers();
                     }
                 }
             }));
     }
 
     public void loadMasterInfo() {
-        if (isMasterFetched) {
+        if (masterUserFetchState == FetchState.Fetched) {
             if (master == null) {
                 txtNomeMestre.setText(R.string.msg_master_unknown_player);
             } else {
@@ -314,12 +325,13 @@ public class FragmentAdventure extends Fragment {
                         .into(profileImageMestre);
                 }
             }
-        } else {
+        } else if (masterUserFetchState == FetchState.NotFetched && aventura != null) {
+            masterUserFetchState = FetchState.Fetching;
             DB.getLastInstance().getUserInfoById(aventura.getMestreUserId(),
                 new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
                     @Override
                     public void onComplete(boolean cancelled, Object extra, int step) {
-                        isMasterFetched = true;
+                        masterUserFetchState = FetchState.Fetched;
                         if (cancelled || extra == null || !(extra instanceof User)) {
                             master = null;
                         } else {
@@ -332,4 +344,101 @@ public class FragmentAdventure extends Fragment {
         }
     }
 
+    public void updateAdventureInfo() {
+        int backgroundResource = 0;
+        if (aventura != null) {
+            txtTituloAventuraEdicao.setText(aventura.getTitulo());
+            txtDescricaoAventura.setText(aventura.getSinopse());
+            backgroundResource = aventura.getImagemFundo();
+
+            sessoes.clear();
+            sessoes.addAll(aventura.getListaSessoes());
+
+            if (sessoes.size() > 0) {
+                txtIndicadorNenhumaSessao.setVisibility(View.GONE);
+                recyclerViewListaSessoes.setVisibility(View.VISIBLE);
+            } else {
+                txtIndicadorNenhumaSessao.setVisibility(View.VISIBLE);
+                recyclerViewListaSessoes.setVisibility(View.GONE);
+            }
+
+            sessoesRecyclerAdapter.notifyDataSetChanged();
+            fetchUsers();
+        }
+
+        imgBackground.setImageResource(ImageAssets.getBackgroundResource(backgroundResource));
+    }
+
+    public void onAdventureChange(Aventura newAdventure, boolean isThisFragmentVisible) {
+        Aventura old = aventura;
+        aventura = newAdventure;
+        if (old != null && newAdventure != null) {
+            if (!old.getMestreUserId().equals(newAdventure.getMestreUserId())) {
+                masterUserFetchState = FetchState.NotFetched;
+                loadMasterInfo();
+            }
+            Set<String> joinedPlayers = newAdventure.getJogadoresUserIdsSet();
+            Set<String> invitedPlayers = newAdventure.getJogadoresConvidadosIdsSet();
+            Set<String> oldJoinedPlayers = old.getJogadoresUserIdsSet();
+            Set<String> oldInvitedPlayers = old.getJogadoresConvidadosIdsSet();
+            Set<String> oldUIDs = new ArraySet<>(users.size());
+            JogadoresRecyclerAdapter.DisplayInfo di = jogadoresRecyclerAdapter.getDisplayInfo();
+            di.alreadyInvitedIds = invitedPlayers;
+            di.alreadyJoinedIds = joinedPlayers;
+            boolean isMaster = isCurrentUserMaster();
+            for (int userIndex = users.size() - 1; userIndex >= 0; userIndex--) {
+                User u = users.get(userIndex);
+                String uid = u.getUserId();
+                oldUIDs.add(uid);
+                boolean hasJoined = oldJoinedPlayers.contains(uid);
+                boolean isInvited = oldInvitedPlayers.contains(uid);
+                boolean shouldBeJoined = joinedPlayers.contains(uid);
+                boolean shouldBeInvited = invitedPlayers.contains(uid);
+                if ((hasJoined != shouldBeJoined) || (isInvited != shouldBeInvited)) {
+                    if (!shouldBeInvited && !shouldBeJoined) {
+                        if (isThisFragmentVisible && isMaster) {
+                            jogadoresRecyclerAdapter.notifyItemChanged(userIndex);
+                        } else {
+                            users.remove(userIndex);
+                            jogadoresRecyclerAdapter.notifyItemRemoved(userIndex);
+                        }
+                    } else {
+                        jogadoresRecyclerAdapter.notifyItemChanged(userIndex);
+                    }
+                } else if (!shouldBeInvited && !shouldBeJoined && !isThisFragmentVisible) {
+                    users.remove(userIndex);
+                    jogadoresRecyclerAdapter.notifyItemRemoved(userIndex);
+                }
+            }
+            List<String> newUIDs = new ArrayList<>();
+            for (String uid : newAdventure.getJogadoresUserIds()) {
+                if (!oldUIDs.contains(uid)) {
+                    newUIDs.add(uid);
+                }
+            }
+            for (String uid : newAdventure.getJogadoresConvidadosIds()) {
+                if (!oldUIDs.contains(uid)) {
+                    newUIDs.add(uid);
+                }
+            }
+            DB.getLastInstance().getUsersById(newUIDs, new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
+                @Override
+                public void onComplete(boolean cancelled, Object extra, int step) {
+                    if (extra != null && extra instanceof List) {
+                        if (usersFetchState != FetchState.Fetched) {
+                            return;
+                        }
+                        List<User> newUsers = (List<User>) extra;
+                        int positionStart = users.size() + 1;
+                        users.addAll(newUsers);
+                        jogadoresRecyclerAdapter.notifyItemRangeInserted(positionStart, newUsers.size());
+                    }
+                }
+            }));
+            di.alreadyInvitedIds = oldInvitedPlayers;
+            di.alreadyJoinedIds = oldJoinedPlayers;
+        }
+        updateAdventureInfo();
+        aventura = old;
+    }
 }
