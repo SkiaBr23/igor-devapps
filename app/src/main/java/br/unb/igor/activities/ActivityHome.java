@@ -34,7 +34,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -206,7 +205,7 @@ public class ActivityHome extends AppCompatActivity implements
         @Override
         public View getView(int i, View view, ViewGroup container) {
             if (view == null) {
-                view = getLayoutInflater().inflate(R.layout.drawer_list_item, container, false);
+                view = getLayoutInflater().inflate(R.layout.list_item_drawer_option, container, false);
             }
 
             TextView textView = view.findViewById(R.id.text);

@@ -43,7 +43,7 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
 
     @Override
     public AventurasViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.aventuras_home_layout, null);
+        View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_adventure, null);
         AventurasViewHolder aventurasViewHolder = new AventurasViewHolder(layoutView);
         return aventurasViewHolder;
     }

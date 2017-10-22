@@ -31,7 +31,6 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import br.unb.igor.R;
 import br.unb.igor.activities.ActivityHome;
@@ -137,7 +136,7 @@ public class FragmentAdicionarJogador extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        final View root = inflater.inflate(R.layout.adicionar_jogador, container, false);
+        final View root = inflater.inflate(R.layout.fragment_adicionar_jogador, container, false);
 
         recyclerViewListaPesquisaJogadores = root.findViewById(R.id.recyclerViewListaPesquisaJogadores);
         editTxtPesquisaJogadores = root.findViewById(R.id.editTextPesquisaUsuario);

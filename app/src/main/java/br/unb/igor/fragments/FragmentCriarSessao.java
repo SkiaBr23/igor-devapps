@@ -62,7 +62,7 @@ public class FragmentCriarSessao extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        final View root = inflater.inflate(R.layout.criar_sessao, container, false);
+        final View root = inflater.inflate(R.layout.fragment_create_session, container, false);
 
         btnCloseCriarSessao = root.findViewById(R.id.btnCloseCriarSessao);
         btnCloseSessao = root.findViewById(R.id.btnCloseSessao);

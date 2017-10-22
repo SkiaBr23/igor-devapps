@@ -32,7 +32,7 @@ public class SessoesRecyclerAdapter extends RecyclerView.Adapter<SessoesViewHold
 
     @Override
     public SessoesViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.lista_sessoes_layout, null);
+        View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_session, null);
         SessoesViewHolder sessoesViewHolder = new SessoesViewHolder(layoutView);
         return sessoesViewHolder;
     }

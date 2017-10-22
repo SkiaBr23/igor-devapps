@@ -57,7 +57,7 @@ public class FragmentCriarAventura extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        final View root = inflater.inflate(R.layout.criar_aventura, container, false);
+        final View root = inflater.inflate(R.layout.fragment_create_adventure, container, false);
 
         imgFecharAventura = (ImageView)root.findViewById(R.id.btnCloseAventura);
         editTituloAventura = (EditText)root.findViewById(R.id.editTituloAventura);
