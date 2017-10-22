@@ -1,8 +1,14 @@
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <corners
-        android:radius="2dp" />
-    <stroke
-        android:width="2dp"
-        android:color="@color/btnInviteColor" />
-</shape>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_pressed="true">
+        <shape android:shape="rectangle">
+            <corners android:radius="2dp" />
+            <stroke android:width="4dp" android:color="@color/btnInviteColor" />
+        </shape>
+    </item>
+    <item>
+        <shape android:shape="rectangle">
+            <corners android:radius="2dp" />
+            <stroke android:width="2dp" android:color="@color/btnInviteColor" />
+        </shape>
+    </item>
+</selector>

@@ -2,7 +2,6 @@ package br.unb.igor.recycleradapters;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
-import android.content.res.Resources;
 import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArraySet;
