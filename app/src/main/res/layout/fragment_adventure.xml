@@ -17,7 +17,6 @@
         android:scaleType="centerCrop"
         android:src="@drawable/igor_login_backgrownd"/>
 
-
     <TextView
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -94,7 +93,6 @@
         android:textStyle="bold"
         android:layout_width="0dp"
         android:layout_height="0dp" />
-    
     
     <android.support.constraint.ConstraintLayout
         android:id="@+id/boxAndamentoAventura"
@@ -241,10 +239,28 @@
                 android:textStyle="italic"
                 android:textSize="18sp"
                 android:layout_marginStart="8dp"
-                app:layout_constraintBaseline_toBaselineOf="@+id/txtMestre"
                 app:layout_constraintTop_toTopOf="@+id/txtMestre"
                 app:layout_constraintBottom_toBottomOf="@+id/txtMestre"
                 app:layout_constraintLeft_toRightOf="@+id/txtMestre" />
+
+            <TextView
+                android:id="@+id/boxYouIndicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_you"
+                android:textStyle="bold"
+                android:textColor="@color/branco"
+                android:textSize="12sp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:paddingLeft="6dp"
+                android:paddingRight="6dp"
+                android:layout_marginStart="12dp"
+                android:background="@drawable/rectangle_filled_rounded_blue"
+                android:visibility="gone"
+                app:layout_constraintTop_toTopOf="@+id/txtMestre"
+                app:layout_constraintBottom_toBottomOf="@+id/txtMestre"
+                app:layout_constraintLeft_toRightOf="@+id/txtNomeMestre" />
 
             <TextView
                 android:id="@+id/txtDescricaoPersonagem"

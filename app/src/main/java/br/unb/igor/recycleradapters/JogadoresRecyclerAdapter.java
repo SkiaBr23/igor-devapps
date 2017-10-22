@@ -25,6 +25,7 @@ public class JogadoresRecyclerAdapter extends RecyclerView.Adapter<JogadoresView
 
     public static class DisplayInfo {
         public boolean isMaster = false;
+        public String currentUserId = null;
         public List<User> users = new ArrayList<>();
         public Set<String> alreadyInvitedIds = new ArraySet<>();
         public Set<String> alreadyJoinedIds = new ArraySet<>();
@@ -56,6 +57,9 @@ public class JogadoresRecyclerAdapter extends RecyclerView.Adapter<JogadoresView
         holder.txtNomeJogador.setText(user.getEmail());
         holder.txtNomePersonagem.setTextColor(ColorStateList.valueOf(Color.WHITE));
         holder.txtNomePersonagem.setText(user.getFullName());
+        if (mode.currentUserId != null && mode.currentUserId.equals(user.getUserId())) {
+            holder.txtYouIndicator.setVisibility(View.VISIBLE);
+        }
         if (mode.isMaster) {
             updateInviteButton(holder, user);
         } else {

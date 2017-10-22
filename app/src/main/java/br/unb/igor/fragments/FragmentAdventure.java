@@ -19,6 +19,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -204,6 +205,7 @@ public class FragmentAdventure extends Fragment {
         JogadoresRecyclerAdapter.DisplayInfo di = new JogadoresRecyclerAdapter.DisplayInfo();
 
         di.isMaster = isCurrentUserMaster();
+        di.currentUserId = getCurrentUserId();
 
         if (aventura != null) {
             di.alreadyJoinedIds = aventura.getJogadoresUserIdsSet();
@@ -211,7 +213,9 @@ public class FragmentAdventure extends Fragment {
             di.users = users;
         }
 
-        if (!di.isMaster) {
+        if (di.isMaster) {
+            root.findViewById(R.id.boxYouIndicator).setVisibility(View.VISIBLE);
+        } else {
             btnFAB.setVisibility(View.GONE);
             btnFAB.setEnabled(false);
         }
@@ -231,6 +235,11 @@ public class FragmentAdventure extends Fragment {
         updateAdventureInfo();
 
         return root;
+    }
+
+    private String getCurrentUserId() {
+        FirebaseUser user = mAuth != null ? mAuth.getCurrentUser() : null;
+        return user != null ? user.getUid() : null;
     }
 
     public void setEditMode(boolean b) {

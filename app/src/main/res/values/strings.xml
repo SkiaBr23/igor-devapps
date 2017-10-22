@@ -73,4 +73,5 @@
     <string name="msg_no_players_to_show">Sem jogadores para mostrar</string>
     <string name="msg_no_sessions_scheduled_yet">Nenhuma sessão marcada até o momento</string>
     <string name="msg_you_havent_invited_players_yet">Você ainda não convidou jogadores</string>
+    <string name="label_you">VOCÊ</string>
 </resources>

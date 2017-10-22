@@ -165,6 +165,7 @@ public class FragmentAdicionarJogador extends Fragment {
             di.isMaster = currentUser != null && currentUser.getUserId().equals(currentAdventure.getMestreUserId());
         }
 
+        di.currentUserId = currentUser.getUserId();
         di.users = users;
 
         jogadoresPesquisadosRecyclerAdapter = new JogadoresRecyclerAdapter(mListener, di);
