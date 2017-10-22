@@ -1,5 +1,6 @@
 package br.unb.igor.fragments;
 
+import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -23,7 +24,11 @@ import java.util.List;
 import br.unb.igor.R;
 import br.unb.igor.activities.ActivityHome;
 import br.unb.igor.helpers.AdventureListener;
+import br.unb.igor.helpers.DB;
+import br.unb.igor.helpers.Utils;
 import br.unb.igor.model.Aventura;
+import br.unb.igor.model.Convite;
+import br.unb.igor.model.User;
 import br.unb.igor.recycleradapters.AventurasRecyclerAdapter;
 
 public class FragmentHome extends Fragment {
@@ -44,6 +49,8 @@ public class FragmentHome extends Fragment {
     private AdventureListener mListener;
     private boolean isInEditMode = false;
     private boolean isLoading = true;
+    private boolean collapseNotificationsOnCreate = true;
+    private boolean isNotificationsExpanded = false;
 
     @Override
     public void onAttach(Context context) {
@@ -77,10 +84,14 @@ public class FragmentHome extends Fragment {
 
         cardInfoConvites = root.findViewById(R.id.cardInformativoConvites);
 
-        //TODO: Esse gone aqui precisa ser removido quando chamar a função de verificar convites e houver convites!
-        cardInfoConvites.setVisibility(View.VISIBLE);
+        if (collapseNotificationsOnCreate) {
+            collapseNotificationsOnCreate = false;
+            isNotificationsExpanded = false;
+            Utils.collapseView(cardInfoConvites, 0);
+        }
 
         setIsLoading(isLoading);
+        checkInvites();
 
         btnModoEdicao = root.findViewById(R.id.btnModoEdicao);
         btnCriarAventura = root.findViewById(R.id.btnCriarAventura);
@@ -169,4 +180,25 @@ public class FragmentHome extends Fragment {
         aventurasRecyclerAdapter.notifyItemRangeChanged(from, to - from + 1);
     }
 
+    public void checkInvites() {
+        User user = ((ActivityHome)getActivity()).getCurrentUser();
+        boolean hasUnseenInvites = false;
+        for (Convite c : user.getConvites()) {
+            if (c.getUnseen()) {
+                hasUnseenInvites = true;
+                break;
+            }
+        }
+        if (hasUnseenInvites) {
+            if (!isNotificationsExpanded) {
+                Utils.expandView(cardInfoConvites, 1000);
+                isNotificationsExpanded = true;
+            }
+        } else {
+            if (isNotificationsExpanded) {
+                Utils.collapseView(cardInfoConvites, 1000);
+                isNotificationsExpanded = false;
+            }
+        }
+    }
 }

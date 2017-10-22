@@ -118,26 +118,6 @@ public class User implements Parcelable {
         this.additionalProperties.put(name, value);
     }
 
-    @Exclude
-    public void setInvitation(Convite convite, boolean isInvited) {
-        String aid = convite.getKeyAventura();
-        if (isInvited) {
-            for (Convite c : convites) {
-                if (c.getKeyAventura().equals(aid)) {
-                    return;
-                }
-            }
-            convites.add(convite);
-        } else {
-            for (int i = convites.size() - 1; i >= 0; i--) {
-                if (convites.get(i).getKeyAventura().equals(aid)) {
-                    convites.remove(i);
-                    return;
-                }
-            }
-        }
-    }
-
     @Override
     public int describeContents() {
         return 0;
@@ -189,6 +169,26 @@ public class User implements Parcelable {
         String aid = aventura.getKey();
         if (!aventuras.contains(aid)) {
             aventuras.add(aid);
+        }
+    }
+
+    @Exclude
+    public void setInvitation(Convite convite, boolean isInvited) {
+        String aid = convite.getKeyAventura();
+        if (isInvited) {
+            for (Convite c : convites) {
+                if (c.getKeyAventura().equals(aid)) {
+                    return;
+                }
+            }
+            convites.add(convite);
+        } else {
+            for (int i = convites.size() - 1; i >= 0; i--) {
+                if (convites.get(i).getKeyAventura().equals(aid)) {
+                    convites.remove(i);
+                    return;
+                }
+            }
         }
     }
 }
