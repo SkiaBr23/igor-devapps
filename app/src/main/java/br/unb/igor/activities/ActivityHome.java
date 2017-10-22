@@ -468,6 +468,12 @@ public class ActivityHome extends AppCompatActivity implements
                     }
                 });
                 fragmentHome.notifyItemChangedVisible();
+                List<String> reorderedIds = new ArrayList<>();
+                for (Aventura a : adventures) {
+                    reorderedIds.add(a.getKey());
+                }
+                currentUser.setAventuras(reorderedIds);
+                db.upsertUser(currentUser);
                 break;
             default:
                 break;

@@ -113,6 +113,12 @@ public class ActivityLogin extends AppCompatActivity implements
         String emailStringCache = sharedPreferences.getString(LocalStorage.KEY_EMAIL, "");
         editTextEmail.setText(emailStringCache);
 
+        if (emailStringCache.isEmpty()) {
+            editTextEmail.requestFocus();
+        } else {
+            editTextSenha.requestFocus();
+        }
+
         esqueciSenha.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -315,6 +321,7 @@ public class ActivityLogin extends AppCompatActivity implements
             if (email != null && !email.isEmpty()) {
                 editTextEmail.setText(data.getStringExtra(User.PARCEL_KEY_EMAIL));
                 editTextSenha.setText("");
+                editTextSenha.requestFocus();
             }
         }
 
