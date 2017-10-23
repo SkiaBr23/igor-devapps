@@ -2,9 +2,7 @@ package br.unb.igor.recycleradapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import br.unb.igor.R;
@@ -25,7 +23,7 @@ public class SessoesViewHolder extends RecyclerView.ViewHolder implements View.O
 
         txtDataSessao = (TextView)itemView.findViewById(R.id.txtDataSessao);
         txtTituloSessao = (TextView)itemView.findViewById(R.id.txtTituloSessao);
-        linearLayoutBackground = (LinearLayout)itemView.findViewById(R.id.linearLayoutBackground);
+        linearLayoutBackground = (LinearLayout)itemView.findViewById(R.id.layoutBackground);
     }
 
     @Override

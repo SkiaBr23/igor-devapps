@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 
 import java.util.List;
 
@@ -22,15 +24,16 @@ import br.unb.igor.model.Sessao;
 
 public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasViewHolder> {
 
-    private Context context;
     private AdventureListener mListener;
     private List<Aventura> aventuras;
+    private String userId;
     private boolean isInEditMode = false;
+    private static Animation wobble = null;
 
-    public AventurasRecyclerAdapter (Context context, AdventureListener listener, List<Aventura> aventuras) {
-        this.context = context;
+    public AventurasRecyclerAdapter (AdventureListener listener, List<Aventura> aventuras, String currentUserId) {
         this.mListener = listener;
         this.aventuras = aventuras;
+        this.userId = currentUserId;
         setHasStableIds(true);
     }
 
@@ -43,7 +46,7 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
 
     @Override
     public AventurasViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_adventure, null);
+        View layoutView = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_adventure, parent, false);
         AventurasViewHolder aventurasViewHolder = new AventurasViewHolder(layoutView);
         return aventurasViewHolder;
     }
@@ -51,66 +54,75 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
 
     @Override
     public void onBindViewHolder(final AventurasViewHolder holder, int position) {
-        if (position < aventuras.size()) {
-            Aventura aventura = aventuras.get(holder.getAdapterPosition());
-            String tituloAventura = aventuras.get(holder.getAdapterPosition()).getTitulo();
-            holder.linearLayoutBackground.setBackgroundResource(ImageAssets.getBackgroundResource(aventura.getImagemFundo()));
-            if (tituloAventura.length() >= 50) {
-                tituloAventura = tituloAventura.substring(0, 47) + this.context.getResources().getString(R.string.strLonga);
+        if (position >= aventuras.size()) {
+            return;
+        }
+        Context ctx = holder.constraintLayoutBackground.getContext();
+        Aventura aventura = aventuras.get(holder.getAdapterPosition());
+        holder.constraintLayoutBackground.setBackgroundResource(ImageAssets.getBackgroundResource(aventura.getImagemFundo()));
+
+        holder.txtViewTituloAventura.setText(aventura.getTitulo());
+        holder.seekBarSessoesAventura.setProgress(aventura.getProgresso());
+
+        Sessao nextSession = aventura.getProximaSessao();
+
+        if (nextSession == null) {
+            holder.txtViewProximaSessao.setText(ctx.getString(R.string.msg_next_session_not_yet_scheduled));
+        } else {
+            holder.txtViewProximaSessao.setText(String.format(
+                ctx.getString(R.string.msg_next_session),
+                nextSession.getData(),
+                nextSession.getTitulo()
+            ));
+        }
+
+        // Set Fira Sans (Regular) font
+        Typeface firaSans = Typeface.createFromAsset(ctx.getAssets(), "FiraSans-Regular.ttf");
+        holder.txtViewTituloAventura.setTypeface(firaSans);
+        holder.txtViewProximaSessao.setTypeface(firaSans);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int index = holder.getAdapterPosition();
+                mListener.onSelectAdventure(aventuras.get(index), index);
             }
-            holder.imgViewDeletar.setVisibility(isInEditMode ? View.VISIBLE : View.INVISIBLE);
-            holder.txtViewTituloAventura.setText(tituloAventura);
-            holder.seekBarSessoesAventura.setProgress(aventura.getProgresso());
+        });
 
-            Sessao nextSession = aventura.getProximaSessao();
-
-            if (nextSession == null) {
-                holder.txtViewProximaSessao.setText(context.getString(R.string.msg_next_session_not_yet_scheduled));
-            } else {
-                holder.txtViewProximaSessao.setText(String.format(
-                    context.getString(R.string.msg_next_session),
-                    nextSession.getData(),
-                    nextSession.getTitulo()
-                ));
+        holder.seekBarSessoesAventura.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return true;
             }
-
-            // Set Fira Sans (Regular) font
-            Typeface firaSans = Typeface.createFromAsset(this.context.getAssets(), "FiraSans-Regular.ttf");
-            holder.txtViewTituloAventura.setTypeface(firaSans);
-            holder.txtViewProximaSessao.setTypeface(firaSans);
-
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    int index = holder.getAdapterPosition();
-                    mListener.onSelectAdventure(aventuras.get(index), index);
-                }
-            });
+        });
 
 
-            holder.seekBarSessoesAventura.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    return true;
-                }
-            });
-            /*holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    int index = holder.getAdapterPosition();
-                    mListener.onRemoveAdventure(aventuras.get(index), index);
-                    return false;
-                }
-            });*/
-            holder.imgViewDeletar.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (isInEditMode) {
-                        int index = holder.getAdapterPosition();
-                        mListener.onRemoveAdventure(aventuras.get(index), index);
+        boolean isMaster = userId != null && userId.equals(aventura.getMestreUserId());
+
+        holder.overlayBlack.setVisibility(View.GONE);
+
+        if (isInEditMode) {
+            if (isMaster) {
+                holder.containerDelete.setVisibility(View.VISIBLE);
+                holder.containerDelete.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if (isInEditMode) {
+                            int index = holder.getAdapterPosition();
+                            mListener.onRemoveAdventure(aventuras.get(index), index);
+                        }
                     }
+                });
+                if (wobble == null) {
+                    wobble = AnimationUtils.loadAnimation(ctx, R.anim.wobble_infinite);
                 }
-            });
+                holder.imgTrashBin.startAnimation(wobble);
+            } else {
+                holder.overlayBlack.setVisibility(View.VISIBLE);
+            }
+        } else {
+            holder.containerDelete.setVisibility(View.GONE);
+            holder.imgTrashBin.clearAnimation();
         }
     }
 

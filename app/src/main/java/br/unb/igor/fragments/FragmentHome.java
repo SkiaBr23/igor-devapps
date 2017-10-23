@@ -1,22 +1,19 @@
 package br.unb.igor.fragments;
 
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 import android.widget.ProgressBar;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -24,7 +21,6 @@ import java.util.List;
 import br.unb.igor.R;
 import br.unb.igor.activities.ActivityHome;
 import br.unb.igor.helpers.AdventureListener;
-import br.unb.igor.helpers.DB;
 import br.unb.igor.helpers.Utils;
 import br.unb.igor.model.Aventura;
 import br.unb.igor.model.Convite;
@@ -35,9 +31,7 @@ public class FragmentHome extends Fragment {
 
     public static String TAG = FragmentHome.class.getName();
 
-    private FloatingActionButton btnCriarAventura;
-    private FloatingActionButton btnModoEdicao;
-    private FloatingActionButton btnConfirmarAlteracao;
+    private FloatingActionButton fabActionHome;
 
     private TextView txtFloatingMessage;
     private ProgressBar progressBarLoading;
@@ -47,10 +41,13 @@ public class FragmentHome extends Fragment {
     private List<Aventura> aventuras;
     private CardView cardInfoConvites;
     private AdventureListener mListener;
+
     private boolean isInEditMode = false;
     private boolean isLoading = true;
     private boolean collapseNotificationsOnCreate = true;
     private boolean isNotificationsExpanded = false;
+
+    private User currentUser = null;
 
     @Override
     public void onAttach(Context context) {
@@ -75,6 +72,8 @@ public class FragmentHome extends Fragment {
         final View root = inflater.inflate(R.layout.fragment_home, container, false);
 
         aventuras = ((ActivityHome)getActivity()).getAdventures();
+        currentUser = ((ActivityHome)getActivity()).getCurrentUser();
+
         setRetainInstance(true);
 
         txtFloatingMessage = root.findViewById(R.id.floatingText);
@@ -93,32 +92,27 @@ public class FragmentHome extends Fragment {
         setIsLoading(isLoading);
         checkInvites();
 
-        btnModoEdicao = root.findViewById(R.id.btnModoEdicao);
-        btnCriarAventura = root.findViewById(R.id.btnCriarAventura);
-        btnConfirmarAlteracao = root.findViewById(R.id.btnConfirmarAlteracao);
+        fabActionHome = root.findViewById(R.id.fabHomeAction);
 
         // Set Fira Sans (Regular) font
         Typeface firaSans = Typeface.createFromAsset(this.getActivity().getAssets(), "FiraSans-Regular.ttf");
         txtFloatingMessage.setTypeface(firaSans);
 
-        btnCriarAventura.setOnClickListener(new View.OnClickListener() {
+        fabActionHome.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                ((ActivityHome)getActivity()).setScreen(ActivityHome.Screen.CreateAdventure);
-            }
-        });
-
-        btnConfirmarAlteracao.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                setEditMode(false);
+                if (isInEditMode()) {
+                    setEditMode(false);
+                } else {
+                    ((ActivityHome) getActivity()).setScreen(ActivityHome.Screen.CreateAdventure);
+                }
             }
         });
 
         recyclerViewAventurasHome = root.findViewById(R.id.recyclerViewAventurasHome);
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerViewAventurasHome.setLayoutManager(layoutManager);
-        aventurasRecyclerAdapter = new AventurasRecyclerAdapter(getActivity(), mListener, aventuras);
+        aventurasRecyclerAdapter = new AventurasRecyclerAdapter(mListener, aventuras, currentUser.getUserId());
         recyclerViewAventurasHome.setAdapter(aventurasRecyclerAdapter);
 
         return root;
@@ -142,15 +136,15 @@ public class FragmentHome extends Fragment {
             isInEditMode = b;
             aventurasRecyclerAdapter.setEditMode(b);
 
+            int drawable;
+
             if (b) {
-                //btnModoEdicao.setVisibility(View.VISIBLE);
-                btnCriarAventura.setVisibility(View.GONE);
-                btnConfirmarAlteracao.setVisibility(View.VISIBLE);
+                drawable = R.drawable.botao_confirmar;
             } else {
-                //btnModoEdicao.setVisibility(View.GONE);
-                btnCriarAventura.setVisibility(View.VISIBLE);
-                btnConfirmarAlteracao.setVisibility(View.GONE);
+                drawable = R.drawable.botao_criar_nova_aventura;
             }
+
+            fabActionHome.setImageResource(drawable);
         }
     }
 
@@ -181,9 +175,8 @@ public class FragmentHome extends Fragment {
     }
 
     public void checkInvites() {
-        User user = ((ActivityHome)getActivity()).getCurrentUser();
         boolean hasUnseenInvites = false;
-        for (Convite c : user.getConvites()) {
+        for (Convite c : currentUser.getConvites()) {
             if (c.getUnseen()) {
                 hasUnseenInvites = true;
                 break;
