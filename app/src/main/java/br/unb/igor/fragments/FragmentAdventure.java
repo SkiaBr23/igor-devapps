@@ -354,12 +354,13 @@ public class FragmentAdventure extends Fragment {
     }
 
     public void updateAdventureInfo() {
-        int backgroundResource = 0;
         if (aventura != null) {
             txtTituloAventuraEdicao.setText(aventura.getTitulo());
             txtDescricaoAventura.setText(aventura.getSinopse());
-            backgroundResource = aventura.getImagemFundo();
 
+            int backgroundResource = aventura.getImagemFundo();
+            imgBackground.setImageResource(ImageAssets.getBackgroundResource(backgroundResource));
+            
             sessoes.clear();
             sessoes.addAll(aventura.getListaSessoes());
 
@@ -374,8 +375,6 @@ public class FragmentAdventure extends Fragment {
             sessoesRecyclerAdapter.notifyDataSetChanged();
             fetchUsers();
         }
-
-        imgBackground.setImageResource(ImageAssets.getBackgroundResource(backgroundResource));
     }
 
     public void onAdventureChange(Aventura newAdventure, boolean isThisFragmentVisible) {
