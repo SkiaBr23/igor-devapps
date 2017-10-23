@@ -360,7 +360,7 @@ public class FragmentAdventure extends Fragment {
 
             int backgroundResource = aventura.getImagemFundo();
             imgBackground.setImageResource(ImageAssets.getBackgroundResource(backgroundResource));
-            
+
             sessoes.clear();
             sessoes.addAll(aventura.getListaSessoes());
 
