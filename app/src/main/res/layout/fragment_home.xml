@@ -12,6 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="20sp"
+        android:gravity="center"
         android:textColor="@color/branco"
         android:text="@string/msg_loading_adventures"
         app:layout_constraintVertical_bias="0.25"

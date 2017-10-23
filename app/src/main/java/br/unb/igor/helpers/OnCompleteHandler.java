@@ -15,6 +15,9 @@ public class OnCompleteHandler {
     public OnCompleteHandler(int steps, OnCompleteCallback callback) {
         this.goal = steps;
         this.callback = callback;
+        if (steps <= 0) {
+            callback.onComplete(false, null, -1);
+        }
     }
 
     public OnCompleteHandler(OnCompleteCallback callback) {

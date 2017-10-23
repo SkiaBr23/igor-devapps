@@ -458,8 +458,12 @@ public class ActivityHome extends AppCompatActivity implements
     }
 
     private void fetchInitialAdventures() {
-        fragmentHome.setIsLoading(true);
         List<String> adventureKeys = currentUser.getAventuras();
+        if (adventureKeys.isEmpty()) {
+            fragmentHome.setIsLoading(false);
+            return;
+        }
+        fragmentHome.setIsLoading(true);
         final OnCompleteHandler handler = new OnCompleteHandler(adventureKeys.size(), new OnCompleteHandler.OnCompleteCallback() {
             @Override
             public void onComplete(boolean cancelled, Object extra, int step) {
@@ -745,7 +749,9 @@ public class ActivityHome extends AppCompatActivity implements
                 adventures.remove(removeIndex);
                 db.removeAdventure(adventure);
                 db.upsertUser(currentUser);
+                getScreenFragment(Screen.Home);
                 fragmentHome.getRecyclerAdapter().notifyItemRemoved(removeIndex);
+                fragmentHome.updateView();
             }
         }).setNegativeButton(R.string.label_cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {

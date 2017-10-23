@@ -156,12 +156,24 @@ public class FragmentHome extends Fragment {
         setEditMode(!isInEditMode);
     }
 
+    public void updateView() {
+        setIsLoading(isLoading);
+    }
+
     public void setIsLoading(boolean b) {
 
         isLoading = b;
 
-        if (txtFloatingMessage != null)
-            txtFloatingMessage.setVisibility(b ? View.VISIBLE : View.GONE);
+        if (txtFloatingMessage != null) {
+            if (b) {
+                txtFloatingMessage.setVisibility(View.VISIBLE);
+            } else if (aventuras == null || aventuras.isEmpty()) {
+                txtFloatingMessage.setText(R.string.msg_no_adventures_to_show);
+                txtFloatingMessage.setVisibility(View.VISIBLE);
+            } else {
+                txtFloatingMessage.setVisibility(View.GONE);
+            }
+        }
 
         if (progressBarLoading != null)
             progressBarLoading.setVisibility(b ? View.VISIBLE : View.GONE);
@@ -172,6 +184,7 @@ public class FragmentHome extends Fragment {
         int from = llm.findFirstVisibleItemPosition();
         int to = llm.findLastVisibleItemPosition();
         aventurasRecyclerAdapter.notifyItemRangeChanged(from, to - from + 1);
+        setIsLoading(isLoading);
     }
 
     public void checkInvites() {
