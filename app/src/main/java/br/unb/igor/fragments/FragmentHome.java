@@ -122,13 +122,13 @@ public class FragmentHome extends Fragment {
         return aventurasRecyclerAdapter;
     }
 
-    public void scrollToIndex(final int index) {
+    public void scrollToIndex(final int index, int delay) {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 recyclerViewAventurasHome.scrollToPosition(index);
             }
-        }, 300);
+        }, delay + 300);
     }
 
     public void setEditMode(boolean b) {

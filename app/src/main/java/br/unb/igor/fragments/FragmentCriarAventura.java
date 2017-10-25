@@ -27,6 +27,8 @@ public class FragmentCriarAventura extends Fragment {
     private FloatingActionButton btnFloatCloseAdventure;
     private AdventureListener mListener;
 
+    private boolean clearEditTextOnCreate = false;
+
     public FragmentCriarAventura() {
         // Required empty public constructor
     }
@@ -59,35 +61,35 @@ public class FragmentCriarAventura extends Fragment {
                              Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.fragment_create_adventure, container, false);
 
-        imgFecharAventura = (ImageView)root.findViewById(R.id.btnCloseAventura);
-        editTituloAventura = (EditText)root.findViewById(R.id.editTituloAventura);
-        btnFloatCloseAdventure = (FloatingActionButton)root.findViewById((R.id.btnCriarAventura));
-        btnConfirmarAventura = (Button)root.findViewById(R.id.btnConfirmarAventura);
+        imgFecharAventura = root.findViewById(R.id.btnCloseAventura);
+        editTituloAventura = root.findViewById(R.id.editTituloAventura);
+        btnFloatCloseAdventure = root.findViewById((R.id.btnCriarAventura));
+        btnConfirmarAventura = root.findViewById(R.id.btnConfirmarAventura);
         btnConfirmarAventura.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (editTituloAventura.getText().toString().length() == 0) {
+                String adventureTitle = editTituloAventura.getText().toString();
+                if (adventureTitle.isEmpty()) {
+                    editTituloAventura.requestFocus();
                     editTituloAventura.setError("Preencha com o título!");
-                    editTituloAventura.setTextColor(Color.BLACK);
+                    return;
                 } else {
-                    View view2 = getActivity().getCurrentFocus();
-                    //Fecha o keyboard, ao final da criação da aventura
-                    if (view != null) {
-                        InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                    }
-                    String title = editTituloAventura.getText().toString();
-                    editTituloAventura.setText("");
-                    mListener.onCreateAdventure(title);
+                    editTituloAventura.setError(null);
                 }
+
+                if (view != null) {
+                    InputMethodManager imm = (InputMethodManager)getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
+
+                clearEditTextOnCreate = true;
+                mListener.onCreateAdventure(adventureTitle);
             }
         });
 
         btnFloatCloseAdventure.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Esse FAB deve fechar a criacao da aventura
-                // sem salvar ela
                 getActivity().onBackPressed();
 
             }
@@ -106,6 +108,15 @@ public class FragmentCriarAventura extends Fragment {
 //        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
 
         return root;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (clearEditTextOnCreate) {
+            editTituloAventura.setText("");
+            clearEditTextOnCreate = false;
+        }
     }
 
 }

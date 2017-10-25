@@ -3,7 +3,9 @@ package br.unb.igor.activities;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -18,9 +20,12 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.FirebaseDatabase;
 
 import br.unb.igor.R;
+import br.unb.igor.helpers.DB;
 import br.unb.igor.helpers.LocalStorage;
+import br.unb.igor.helpers.OnCompleteHandler;
 import br.unb.igor.model.User;
 
 public class ActivitySignup extends AppCompatActivity {
@@ -31,7 +36,6 @@ public class ActivitySignup extends AppCompatActivity {
     EditText _emailText;
     EditText _passwordText;
     Button _signupButton;
-    Button _loginLink;
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
@@ -131,7 +135,7 @@ public class ActivitySignup extends AppCompatActivity {
                     if (!task.isSuccessful()) {
                         onSignupFailed(task.getException());
                     } else {
-                        setDisplayName(mAuth.getCurrentUser(), name);
+                        setupNewUser(mAuth.getCurrentUser(), name);
                         onSignupSuccess(mAuth.getCurrentUser());
                     }
 
@@ -154,9 +158,10 @@ public class ActivitySignup extends AppCompatActivity {
         finish();
     }
 
-    private void setDisplayName(FirebaseUser user, String displayName) {
+    private void setupNewUser(FirebaseUser user, String displayName) {
         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
             .setDisplayName(displayName)
+            .setPhotoUri(Uri.parse(User.DEFAULT_PROFILE_PHOTO_URL))
             .build();
         user.updateProfile(profileUpdates)
             .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -164,10 +169,18 @@ public class ActivitySignup extends AppCompatActivity {
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful()) {
                         Log.d(TAG, "User profile updated.");
-                        FirebaseAuth.getInstance().signOut();
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                FirebaseAuth.getInstance().signOut();
+                            }
+                        }, 200);
                     }
                 }
             });
+        final User newUser = new User(user.getUid(), displayName, user.getEmail(), User.DEFAULT_PROFILE_PHOTO_URL);
+        final DB db = new DB(null, FirebaseDatabase.getInstance().getReference());
+        db.upsertUser(newUser);
     }
 
     public void onSignupFailed(Exception reason) {
@@ -177,6 +190,10 @@ public class ActivitySignup extends AppCompatActivity {
                 message = getString(R.string.msg_password_too_weak);
             } else if (message.contains("The email address is already in use")) {
                 message = getString(R.string.msg_email_already_in_use);
+            } else if (message.contains("The email address is badly formatted")) {
+                message = "O e-mail fornecido não é valido";
+            } else if (message.contains("Password should be at least")) {
+                message = "A senha fornecida é muito curta";
             } else {
                 System.out.println(message);
                 message = getString(R.string.msg_failed_to_register_account);
@@ -193,25 +210,29 @@ public class ActivitySignup extends AppCompatActivity {
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
 
-        if (name.isEmpty() || name.length() < 3) {
-            _nameText.setError("pelo menos 3 dígitos!");
+
+        if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
+            _passwordText.requestFocus();
+            _passwordText.setError("entre 4 e 10 caracteres alfanuméricos");
             valid = false;
         } else {
-            _nameText.setError(null);
+            _passwordText.setError(null);
         }
 
         if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            _emailText.requestFocus();
             _emailText.setError("insira um endereço de email válido");
             valid = false;
         } else {
             _emailText.setError(null);
         }
 
-        if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
-            _passwordText.setError("entre 4 e 10 caracteres alfanuméricos");
+        if (name.isEmpty() || name.length() < 3) {
+            _nameText.requestFocus();
+            _nameText.setError("pelo menos 3 dígitos!");
             valid = false;
         } else {
-            _passwordText.setError(null);
+            _nameText.setError(null);
         }
 
         return valid;

@@ -147,7 +147,7 @@ public class ActivityLogin extends AppCompatActivity implements
             public void onClick(View v) {
                 if (isLoggedIn()) {
                     btnEntrar.setEnabled(false);
-                    onLoginSuccess(mAuth.getCurrentUser());
+                    onLoginSuccess(null);
                 } else if (validate()) {
                     sharedPreferences
                         .edit()
@@ -274,7 +274,7 @@ public class ActivityLogin extends AppCompatActivity implements
             Log.d(TAG, "Got cached sign-in");
             GoogleSignInResult result = opr.get();
             handleSignInResult(result);
-        } else if(mAuth.getCurrentUser() == null || loggedFacebook) {
+        } else if (mAuth.getCurrentUser() == null || loggedFacebook) {
             // If the user has not previously signed in on this device or the sign-in has expired,
             // this asynchronous branch will attempt to sign in the user silently.  Cross-device
             // single sign-on will occur in this branch.
@@ -295,7 +295,6 @@ public class ActivityLogin extends AppCompatActivity implements
         hideProgressDialog();
     }
 
-    // [START onActivityResult]
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -334,8 +333,6 @@ public class ActivityLogin extends AppCompatActivity implements
     }
 
 
-    // [END onActivityResult]
-    // [START handleSignInResult]
     private void handleSignInResult(GoogleSignInResult result) {
         Log.d(TAG, "handleSignInResult:" + result.isSuccess());
         if (result.isSuccess()) {
@@ -352,16 +349,12 @@ public class ActivityLogin extends AppCompatActivity implements
             updateUI(false);
         }
     }
-    // [END handleSignInResult]
 
-    // [START signIn]
     private void signIn() {
         Intent signInIntent = Auth.GoogleSignInApi.getSignInIntent(mGoogleApiClient);
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
-    // [END signIn]
 
-    // [START signOut]
     private void signOut() {
         FirebaseAuth.getInstance().signOut();
         updateUI(false);
@@ -462,7 +455,7 @@ public class ActivityLogin extends AppCompatActivity implements
             case R.id.btnEntrar:
                 if (isLoggedIn()) {
                     btnEntrar.setEnabled(false);
-                    onLoginSuccess(mAuth.getCurrentUser());
+                    onLoginSuccess(null);
                 } else {
                     loginWithPassword();
                 }
@@ -476,20 +469,20 @@ public class ActivityLogin extends AppCompatActivity implements
         }
     }
 
-    private void setDefaultPhoto(FirebaseUser user){
-        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-            .setPhotoUri(Uri.parse(DEFAULT_PROFILE_PHOTO_URL))
-            .build();
-        user.updateProfile(profileUpdates)
-            .addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if (task.isSuccessful()) {
-                        Log.d(TAG, "User profile updated.");
-                    }
-                }
-            });
-    }
+//    private void setDefaultPhoto(FirebaseUser user){
+//        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+//            .setPhotoUri(Uri.parse(DEFAULT_PROFILE_PHOTO_URL))
+//            .build();
+//        user.updateProfile(profileUpdates)
+//            .addOnCompleteListener(new OnCompleteListener<Void>() {
+//                @Override
+//                public void onComplete(@NonNull Task<Void> task) {
+//                    if (task.isSuccessful()) {
+//                        Log.d(TAG, "User profile updated.");
+//                    }
+//                }
+//            });
+//    }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
@@ -523,7 +516,7 @@ public class ActivityLogin extends AppCompatActivity implements
         final ProgressDialog progressDialog = new ProgressDialog(this,
                 R.style.Theme_AppCompat_Light_Dialog);
         progressDialog.setIndeterminate(true);
-        progressDialog.setMessage("Autenticando...");
+        progressDialog.setMessage(getString(R.string.msg_authenticating));
         progressDialog.show();
 
         String email = editTextEmail.getText().toString();
@@ -540,7 +533,7 @@ public class ActivityLogin extends AppCompatActivity implements
                     // the auth state listener will be notified and logic to handle the
                     // signed in user can be handled in the listener.
                     if (task.isSuccessful()) {
-                        onLoginSuccess(task.getResult().getUser());
+                        onLoginSuccess(null);
                     } else {
                         onLoginFailed(task.getException());
                         Log.w(TAG, "signInWithEmail:failed", task.getException());
@@ -551,37 +544,15 @@ public class ActivityLogin extends AppCompatActivity implements
             });
     }
 
-    public void onLoginSuccess(final FirebaseUser firebaseUser) {
-        String photoUrl;
-        if (firebaseUser.getPhotoUrl() == null){
-            setDefaultPhoto(firebaseUser);
-            photoUrl = DEFAULT_PROFILE_PHOTO_URL;
+    public void onLoginSuccess(final FirebaseUser gmailOrFacebookUser) {
+        if (gmailOrFacebookUser != null) {
+            setupGoogleOrFacebookUser(gmailOrFacebookUser);
         } else {
-            photoUrl = firebaseUser.getPhotoUrl().toString();
+            Intent intent = new Intent(ActivityLogin.this, ActivityHome.class);
+            startActivity(intent);
+            finish();
+            overridePendingTransition(R.anim.fade_in_320ms, R.anim.fade_out_320ms);
         }
-        final User newUser = new User(firebaseUser.getUid(), firebaseUser.getDisplayName(), firebaseUser.getEmail(), photoUrl);
-        final DB db = new DB(null, FirebaseDatabase.getInstance().getReference());
-        db.getUserInfoById(firebaseUser.getUid(), new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
-            @Override
-            public void onComplete(boolean cancelled, Object extra, int step) {
-                if (cancelled) {
-                    btnEntrar.setEnabled(true);
-                    return;
-                }
-                User loggedUser;
-                if (extra == null) {
-                    db.upsertUser(newUser);
-                    loggedUser = newUser;
-                } else {
-                    loggedUser = (User)extra;
-                }
-                Intent intent = new Intent(ActivityLogin.this, ActivityHome.class);
-                intent.putExtra(User.PARCEL_KEY_USER, loggedUser);
-                startActivity(intent);
-                finish();
-                overridePendingTransition(R.anim.fade_in_320ms, R.anim.fade_out_320ms);
-            }
-        }));
     }
 
     public void onLoginFailed(Exception exception) {
@@ -593,6 +564,26 @@ public class ActivityLogin extends AppCompatActivity implements
             Toast.makeText(this, R.string.msg_login_not_possible, Toast.LENGTH_LONG).show();
         }
         this.btnEntrar.setEnabled(true);
+    }
+
+    private void setupGoogleOrFacebookUser(FirebaseUser user) {
+        final User newUser = new User(user.getUid(), user.getDisplayName(), user.getEmail(), user.getPhotoUrl().toString());
+        final DB db = new DB(null, FirebaseDatabase.getInstance().getReference());
+        db.getUserInfoById(user.getUid(), new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
+            @Override
+            public void onComplete(boolean cancelled, Object extra, int step) {
+                if (cancelled) {
+                    return;
+                }
+                if (extra == null) {
+                    db.upsertUser(newUser);
+                }
+                Intent intent = new Intent(ActivityLogin.this, ActivityHome.class);
+                startActivity(intent);
+                finish();
+                overridePendingTransition(R.anim.fade_in_320ms, R.anim.fade_out_320ms);
+            }
+        }));
     }
 
     private void handleFacebookAccessToken(AccessToken token) {

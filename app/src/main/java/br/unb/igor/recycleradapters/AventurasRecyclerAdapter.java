@@ -135,4 +135,14 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
     public long getItemId(int position) {
         return aventuras.get(position).getKey().hashCode();
     }
+
+    @Override
+    public void onViewAttachedToWindow(AventurasViewHolder holder) {
+        if (isInEditMode) {
+            if (wobble == null) {
+                wobble = AnimationUtils.loadAnimation(holder.imgTrashBin.getContext(), R.anim.wobble_infinite);
+            }
+            holder.imgTrashBin.startAnimation(wobble);
+        }
+    }
 }

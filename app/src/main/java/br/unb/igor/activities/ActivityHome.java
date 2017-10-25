@@ -1,5 +1,6 @@
 package br.unb.igor.activities;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -19,6 +20,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -268,9 +270,19 @@ public class ActivityHome extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        mAuth = FirebaseAuth.getInstance();
+
+        if (mAuth.getCurrentUser() == null) {
+            signOut();
+            return;
+        }
+
+        database = FirebaseDatabase.getInstance();
+        mDatabase = database.getReference();
+        db = new DB(mAuth, mDatabase);
+
         mDrawerAdapter = new DrawerListAdapter();
         mAuth = FirebaseAuth.getInstance();
-        currentUser = getIntent().getParcelableExtra(User.PARCEL_KEY_USER);
 
         mDrawerLayout = findViewById(R.id.drawer);
         mDrawerOptions = findViewById(R.id.drawer_options);
@@ -321,6 +333,33 @@ public class ActivityHome extends AppCompatActivity implements
             }
         });
 
+        Parcelable selectedAdventure;
+        Parcelable currentUser;
+        if (savedInstanceState != null) {
+            selectedAdventure = savedInstanceState.getParcelable(BUNDLE_SELECTED_ADVENTURE);
+            currentUser = savedInstanceState.getParcelable(BUNDLE_CURRENT_USER);
+            if (selectedAdventure != null) {
+                setSelectedAdventure((Aventura) selectedAdventure);
+            } else {
+                setSelectedAdventure(null);
+            }
+            if (currentUser != null) {
+                this.currentUser = (User) currentUser;
+            }
+            this.adventures = savedInstanceState.getParcelableArrayList(BUNDLE_ADVENTURES);
+            getScreenFragment(Screen.Home);
+            fragmentHome.setIsLoading(false);
+        }
+
+        if (this.currentUser == null) {
+            this.currentUser = new User(mAuth.getCurrentUser());
+            fetchCurrentUser();
+        }
+
+        if (this.adventures == null) {
+            this.adventures = new ArrayList<>();
+        }
+
         final FragmentManager fragmentManager = getSupportFragmentManager();
 
         fragmentHome = (FragmentHome)getScreenFragment(Screen.Home);
@@ -332,27 +371,6 @@ public class ActivityHome extends AppCompatActivity implements
                 .beginTransaction()
                 .replace(R.id.content_frame, fragmentHome, FragmentHome.TAG)
                 .commit();
-        }
-
-        mAuth = FirebaseAuth.getInstance();
-
-        if (mAuth.getCurrentUser() == null || currentUser == null) {
-            signOut();
-            return;
-        }
-
-        database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference();
-        db = new DB(mAuth, mDatabase);
-
-        if (this.adventures == null) {
-            if (savedInstanceState == null) {
-                this.adventures = new ArrayList<>();
-                fetchInitialAdventures();
-            } else {
-                this.adventures = savedInstanceState.getParcelableArrayList(BUNDLE_ADVENTURES);
-                fragmentHome.setIsLoading(false);
-            }
         }
 
         if (mAuth.getCurrentUser().getProviders().contains("google.com")) {
@@ -376,21 +394,6 @@ public class ActivityHome extends AppCompatActivity implements
                 updateThreeDotsMenu();
             }
         });
-
-        Parcelable selectedAdventure;
-        Parcelable currentUser;
-        if (savedInstanceState != null) {
-            selectedAdventure = savedInstanceState.getParcelable(BUNDLE_SELECTED_ADVENTURE);
-            currentUser = savedInstanceState.getParcelable(BUNDLE_CURRENT_USER);
-            if (selectedAdventure != null) {
-                setSelectedAdventure((Aventura) selectedAdventure);
-            } else {
-                setSelectedAdventure(null);
-            }
-            if (currentUser != null) {
-                this.currentUser = (User) currentUser;
-            }
-        }
     }
 
     private void updateThreeDotsMenu() {
@@ -455,6 +458,22 @@ public class ActivityHome extends AppCompatActivity implements
         } else {
             selectedAdventure = aventura;
         }
+    }
+
+    private void fetchCurrentUser() {
+        if (currentUser.hasBeenFetchedFromDB) {
+            return;
+        }
+        db.getUserInfoById(currentUser.getUserId(), new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
+            @Override
+            public void onComplete(boolean cancelled, Object extra, int step) {
+                if (extra != null && extra instanceof User) {
+                    currentUser.assignInternal((User)extra);
+                    currentUser.hasBeenFetchedFromDB = true;
+                    fetchInitialAdventures();
+                }
+            }
+        }));
     }
 
     private void fetchInitialAdventures() {
@@ -569,6 +588,15 @@ public class ActivityHome extends AppCompatActivity implements
         }
         if (drawerChanged) {
             mDrawerAdapter.notifyDataSetChanged();
+        }
+        hideKeyboard();
+    }
+
+    public void hideKeyboard() {
+        View view = getCurrentFocus();
+        if (view != null) {
+            InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
     }
 
@@ -709,6 +737,7 @@ public class ActivityHome extends AppCompatActivity implements
             mCurrentScreen = Screen.Home;
         }
         mDrawerAdapter.notifyDataSetChanged();
+        hideKeyboard();
     }
 
     @Override
@@ -720,7 +749,7 @@ public class ActivityHome extends AppCompatActivity implements
         db.upsertUser(currentUser);
         int index = currentUser.getAventuras().size() - 1;
         fragmentHome.getRecyclerAdapter().notifyItemInserted(index);
-        fragmentHome.scrollToIndex(index);
+        fragmentHome.scrollToIndex(index, 1000);
         showHomeFragment();
     }
 

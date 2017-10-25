@@ -3,6 +3,7 @@ package br.unb.igor.model;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.Exclude;
 
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ public class User implements Parcelable {
 
     public static final String PARCEL_KEY_USER = "user";
     public static final String PARCEL_KEY_EMAIL = "email";
+    public static final String DEFAULT_PROFILE_PHOTO_URL = "http://www.alass.org/wp-content/uploads/default.png";
 
     private String userId;
     private String fullName;
@@ -26,7 +28,10 @@ public class User implements Parcelable {
     private String birthDate;
     private List<Convite> convites = new ArrayList<>();
     private List<String> aventuras = new ArrayList<>();
-    private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+    private Map<String, Object> additionalProperties = new HashMap<>();
+
+    @Exclude
+    public boolean hasBeenFetchedFromDB = false;
 
     public User() {
     }
@@ -36,6 +41,17 @@ public class User implements Parcelable {
         this.fullName = fullName;
         this.email = email;
         this.profilePictureUrl = profilePictureUrl;
+    }
+
+    public User(FirebaseUser u) {
+        this.userId = u.getUid();
+        this.fullName = u.getDisplayName();
+        this.email = u.getEmail();
+        this.profilePictureUrl = u.getPhotoUrl().toString();
+
+        if (this.profilePictureUrl == null || this.profilePictureUrl.isEmpty()) {
+            this.profilePictureUrl = DEFAULT_PROFILE_PHOTO_URL;
+        }
     }
 
     public String getUserId() {
@@ -190,5 +206,28 @@ public class User implements Parcelable {
                 }
             }
         }
+    }
+
+    public void assignInternal(User other) {
+        this.userId = other.getUserId();
+        this.fullName = other.fullName;
+        this.name = other.name;
+        this.email = other.email;
+        this.password = other.password;
+        this.profilePictureUrl = other.profilePictureUrl;
+        this.phoneNumber = other.phoneNumber;
+        this.gender = other.gender;
+        this.birthDate = other.birthDate;
+        this.convites.clear();
+        this.convites.addAll(other.convites);
+        this.aventuras.clear();
+        this.aventuras.addAll(other.aventuras);
+        this.additionalProperties.clear();
+        this.additionalProperties.putAll(other.additionalProperties);
+    }
+
+    @Override
+    public String toString() {
+        return this.fullName + "[" + this.userId + "] " + this.email;
     }
 }
