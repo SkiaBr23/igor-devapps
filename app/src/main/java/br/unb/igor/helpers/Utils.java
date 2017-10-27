@@ -2,7 +2,10 @@ package br.unb.igor.helpers;
 
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationSet;
+import android.view.animation.ScaleAnimation;
 import android.view.animation.Transformation;
 
 import java.text.ParseException;
@@ -97,5 +100,29 @@ public class Utils {
         };
         a.setDuration(duration);
         v.startAnimation(a);
+    }
+
+    public static void fadeOutView(final View v, int duration) {
+        Animation fadeOut = new AlphaAnimation(1.f, 0.f);
+        fadeOut.setDuration(duration);
+        fadeOut.setFillAfter(true);
+        fadeOut.setFillEnabled(true);
+        v.startAnimation(fadeOut);
+    }
+
+    public static void fadeInScaleUpView(final View v, int duration) {
+        AnimationSet set = new AnimationSet(true);
+        Animation scaleUp = new ScaleAnimation(.72f, 1.f, .72f, 1.f,
+                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
+        Animation fadeIn = new AlphaAnimation(0.f, 1.f);
+        scaleUp.setDuration(duration);
+        scaleUp.setFillAfter(true);
+        scaleUp.setFillEnabled(true);
+        fadeIn.setDuration(duration);
+        fadeIn.setFillAfter(true);
+        fadeIn.setFillEnabled(true);
+        set.addAnimation(fadeIn);
+        set.addAnimation(scaleUp);
+        v.startAnimation(set);
     }
 }

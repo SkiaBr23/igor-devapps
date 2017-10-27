@@ -11,10 +11,6 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AlphaAnimation;
-import android.view.animation.Animation;
-import android.view.animation.AnimationSet;
-import android.view.animation.ScaleAnimation;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -35,6 +31,7 @@ import java.util.List;
 import br.unb.igor.R;
 import br.unb.igor.activities.ActivityHome;
 import br.unb.igor.helpers.AdventureListener;
+import br.unb.igor.helpers.Utils;
 import br.unb.igor.model.Aventura;
 import br.unb.igor.model.User;
 import br.unb.igor.recycleradapters.JogadoresRecyclerAdapter;
@@ -58,10 +55,9 @@ public class FragmentAdicionarJogador extends Fragment {
     private AdventureListener mListener;
 
     private boolean isQueryingUsers;
-
+    private int animationDuration = 320;
     private Handler handler = new Handler();
-    private AnimationSet animationSetFirst = new AnimationSet(false);
-    private AnimationSet animationSetSecond = new AnimationSet(false);
+
     private Runnable onBeginSearch = new Runnable() {
         @Override
         public void run() {
@@ -69,34 +65,28 @@ public class FragmentAdicionarJogador extends Fragment {
             recyclerViewListaPesquisaJogadores.setVisibility(View.INVISIBLE);
             loadingSpinner.setVisibility(View.VISIBLE);
             loadingSpinner.setProgress(0);
-            txtInfoLabel.clearAnimation();
-            txtInfoLabel.startAnimation(animationSetSecond);
-            loadingSpinner.clearAnimation();
-            loadingSpinner.startAnimation(animationSetSecond);
+            Utils.fadeInScaleUpView(txtInfoLabel, animationDuration);
+            Utils.fadeInScaleUpView(loadingSpinner, animationDuration);
         }
     };
 
     private void onSearchReturn() {
-        txtInfoLabel.clearAnimation();
-        txtInfoLabel.startAnimation(animationSetFirst);
-        txtInfoLabel.postDelayed(onSearchFinish, animationSetFirst.getDuration());
-        loadingSpinner.clearAnimation();
-        loadingSpinner.startAnimation(animationSetFirst);
-    };
+        Utils.fadeOutView(txtInfoLabel, animationDuration);
+        Utils.fadeOutView(loadingSpinner, animationDuration);
+        txtInfoLabel.postDelayed(onSearchFinish, animationDuration);
+    }
 
     private Runnable onSearchFinish = new Runnable() {
         @Override
         public void run() {
             if (users.isEmpty()) {
                 txtInfoLabel.setText(getString(R.string.msg_no_users_to_show));
-                txtInfoLabel.clearAnimation();
-                txtInfoLabel.startAnimation(animationSetSecond);
+                Utils.fadeInScaleUpView(txtInfoLabel, animationDuration);
                 recyclerViewListaPesquisaJogadores.setVisibility(View.INVISIBLE);
             } else {
                 txtInfoLabel.setText("");
                 recyclerViewListaPesquisaJogadores.setVisibility(View.VISIBLE);
-                recyclerViewListaPesquisaJogadores.clearAnimation();
-                recyclerViewListaPesquisaJogadores.startAnimation(animationSetSecond);
+                Utils.fadeInScaleUpView(recyclerViewListaPesquisaJogadores, animationDuration);
             }
             loadingSpinner.setVisibility(View.INVISIBLE);
             isQueryingUsers = false;
@@ -104,15 +94,6 @@ public class FragmentAdicionarJogador extends Fragment {
     };
 
     public FragmentAdicionarJogador() {
-        Animation scaleUp = new ScaleAnimation(.72f, 1.f, .72f, 1.f,
-                Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f);
-        Animation fadeOut = new AlphaAnimation(1.f, 0.f);
-        Animation fadeIn = new AlphaAnimation(0.f, 1.f);
-        animationSetFirst.addAnimation(fadeOut);
-        animationSetSecond.addAnimation(scaleUp);
-        animationSetSecond.addAnimation(fadeIn);
-        animationSetFirst.setDuration(300);
-        animationSetSecond.setDuration(300);
     }
 
     @Override
@@ -190,6 +171,10 @@ public class FragmentAdicionarJogador extends Fragment {
         txtInfoLabel.setText(R.string.msg_no_users_to_show);
         editTxtPesquisaJogadores.setText("");
         users.clear();
+        User u = new User();
+        u.setFullName("test locouo");
+        u.setEmail("aehua");
+        users.add(u);
         jogadoresPesquisadosRecyclerAdapter.notifyDataSetChanged();
         isQueryingUsers = false;
 
@@ -201,10 +186,10 @@ public class FragmentAdicionarJogador extends Fragment {
             return;
         }
         isQueryingUsers = true;
-        txtInfoLabel.startAnimation(animationSetFirst);
-        loadingSpinner.startAnimation(animationSetFirst);
-        recyclerViewListaPesquisaJogadores.startAnimation(animationSetFirst);
-        txtInfoLabel.postDelayed(onBeginSearch, animationSetFirst.getDuration());
+        Utils.fadeOutView(txtInfoLabel, animationDuration);
+        Utils.fadeOutView(loadingSpinner, animationDuration);
+        Utils.fadeOutView(recyclerViewListaPesquisaJogadores, animationDuration);
+        txtInfoLabel.postDelayed(onBeginSearch, animationDuration);
         editTxtPesquisaJogadores.clearFocus();
         final String userId = mAuth.getCurrentUser().getUid();
         handler.postDelayed(new Runnable() {
@@ -236,7 +221,7 @@ public class FragmentAdicionarJogador extends Fragment {
                     }
                 });
             }
-        }, animationSetFirst.getDuration() + animationSetSecond.getDuration());
+        }, animationDuration << 1);
 
     }
 
