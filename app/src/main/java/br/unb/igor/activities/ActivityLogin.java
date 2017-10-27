@@ -63,7 +63,6 @@ public class ActivityLogin extends AppCompatActivity implements
     private EditText editTextEmail;
     private EditText editTextSenha;
     private ImageView btnFacebook;
-    private String DEFAULT_PROFILE_PHOTO_URL = "http://www.alass.org/wp-content/uploads/default.png";
     private TextView criarConta;
     private TextView esqueciSenha;
     private Button btnEntrar;
@@ -164,7 +163,6 @@ public class ActivityLogin extends AppCompatActivity implements
                 callSignupActivity();
             }
         });
-
 
         // [START configure_signin]
         // Configure sign-in to request the user's ID, email address, and basic

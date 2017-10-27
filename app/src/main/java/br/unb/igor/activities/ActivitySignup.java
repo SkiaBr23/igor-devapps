@@ -120,8 +120,8 @@ public class ActivitySignup extends AppCompatActivity {
         final String name = _nameText.getText().toString();
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
-        String gender = _genderText.getText().toString();
-        String birthDate = _birthDateText.getText().toString();
+        final String gender = _genderText.getText().toString();
+        final String birthDate = _birthDateText.getText().toString();
 
         mAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -135,7 +135,7 @@ public class ActivitySignup extends AppCompatActivity {
                     if (!task.isSuccessful()) {
                         onSignupFailed(task.getException());
                     } else {
-                        setupNewUser(mAuth.getCurrentUser(), name);
+                        setupNewUser(mAuth.getCurrentUser(), name, gender, birthDate);
                         onSignupSuccess(mAuth.getCurrentUser());
                     }
 
@@ -158,7 +158,7 @@ public class ActivitySignup extends AppCompatActivity {
         finish();
     }
 
-    private void setupNewUser(FirebaseUser user, String displayName) {
+    private void setupNewUser(FirebaseUser user, String displayName, String gender, String birthday) {
         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
             .setDisplayName(displayName)
             .setPhotoUri(Uri.parse(User.DEFAULT_PROFILE_PHOTO_URL))
@@ -179,6 +179,8 @@ public class ActivitySignup extends AppCompatActivity {
                 }
             });
         final User newUser = new User(user.getUid(), displayName, user.getEmail(), User.DEFAULT_PROFILE_PHOTO_URL);
+        newUser.setGender(gender);
+        newUser.setBirthDate(birthday);
         final DB db = new DB(null, FirebaseDatabase.getInstance().getReference());
         db.upsertUser(newUser);
     }
