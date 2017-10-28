@@ -31,4 +31,5 @@
     <color name="baseAventuraEdicao">#1e2843</color>
     <color name="fundoCriarAventura">#ff146e6f</color>
     <color name="bgnHome">#140721</color>
+    <color name="cinzaClaro">#b8b8b8</color>
 </resources>

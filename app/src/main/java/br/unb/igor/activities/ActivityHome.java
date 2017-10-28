@@ -86,10 +86,7 @@ public class ActivityHome extends AppCompatActivity implements
     private DrawerListAdapter mDrawerAdapter;
     private ListView mDrawerOptions;
     private FirebaseAuth mAuth;
-    private FirebaseDatabase database;
-    private DatabaseReference mDatabase;
     private GoogleApiClient mGoogleApiClient;
-    private DB db;
 
     private Aventura selectedAdventure = null;
     private User currentUser = null;
@@ -282,10 +279,6 @@ public class ActivityHome extends AppCompatActivity implements
             return;
         }
 
-        database = FirebaseDatabase.getInstance();
-        mDatabase = database.getReference();
-        db = new DB(mAuth, mDatabase);
-
         mDrawerAdapter = new DrawerListAdapter();
         mAuth = FirebaseAuth.getInstance();
 
@@ -425,13 +418,13 @@ public class ActivityHome extends AppCompatActivity implements
         mDrawerAdapter.notifyDataSetChanged();
         drawerNeedsUpdate = false;
 
-        mDatabase
+        DB.ref
             .child("users")
             .child(currentUser.getUserId())
             .child("convites")
             .addChildEventListener(InviteChangeFeedListener);
 
-        mDatabase
+        DB.ref
             .child("adventures")
             .addChildEventListener(AdventureChangeFeedListener);
     }
@@ -440,13 +433,13 @@ public class ActivityHome extends AppCompatActivity implements
     public void onPause() {
         super.onPause();
 
-        mDatabase
+        DB.ref
             .child("users")
             .child(currentUser.getUserId())
             .child("convites")
             .removeEventListener(InviteChangeFeedListener);
 
-        mDatabase
+        DB.ref
             .child("adventures")
             .removeEventListener(AdventureChangeFeedListener);
     }
@@ -474,7 +467,7 @@ public class ActivityHome extends AppCompatActivity implements
         if (currentUser.hasBeenFetchedFromDB) {
             return;
         }
-        db.getUserInfoById(currentUser.getUserId(), new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
+        DB.getUserInfoById(currentUser.getUserId(), new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
             @Override
             public void onComplete(boolean cancelled, Object extra, int step) {
                 if (extra != null && extra instanceof User) {
@@ -502,7 +495,7 @@ public class ActivityHome extends AppCompatActivity implements
         int index = 0;
         for (String adventureKey : adventureKeys) {
             final int adventureIndex = index++;
-            db.getAdventureById(adventureKey, new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
+            DB.getAdventureById(adventureKey, new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
                 @Override
                 public void onComplete(boolean cancelled, Object extra, int step) {
                     if (extra != null && extra instanceof Aventura) {
@@ -543,7 +536,7 @@ public class ActivityHome extends AppCompatActivity implements
                     reorderedIds.add(a.getKey());
                 }
                 currentUser.setAventuras(reorderedIds);
-                db.upsertUser(currentUser);
+                DB.upsertUser(currentUser);
                 break;
             default:
                 break;
@@ -577,7 +570,7 @@ public class ActivityHome extends AppCompatActivity implements
         for (Convite c : currentUser.getConvites()) {
             c.setUnseen(false);
         }
-        db.upsertUser(currentUser);
+        DB.upsertUser(currentUser);
         getScreenFragment(Screen.Home);
         fragmentHome.checkInvites();
     }
@@ -782,10 +775,10 @@ public class ActivityHome extends AppCompatActivity implements
     @Override
     public void onCreateAdventure(String title) {
         Aventura aventura = new Aventura(title, currentUser.getUserId());
-        db.createAdventure(aventura);
+        DB.createAdventure(aventura);
         currentUser.addAdventure(aventura);
         adventures.add(aventura);
-        db.upsertUser(currentUser);
+        DB.upsertUser(currentUser);
         int index = currentUser.getAventuras().size() - 1;
         fragmentHome.getRecyclerAdapter().notifyItemInserted(index);
         fragmentHome.scrollToIndex(index, 1000);
@@ -815,8 +808,8 @@ public class ActivityHome extends AppCompatActivity implements
                 Aventura adventure = adventures.get(removeIndex);
                 currentUser.getAventuras().remove(removeIndex);
                 adventures.remove(removeIndex);
-                db.removeAdventure(adventure);
-                db.upsertUser(currentUser);
+                DB.removeAdventure(adventure);
+                DB.upsertUser(currentUser);
                 getScreenFragment(Screen.Home);
                 fragmentHome.getRecyclerAdapter().notifyItemRemoved(removeIndex);
                 fragmentHome.updateView();
@@ -884,7 +877,7 @@ public class ActivityHome extends AppCompatActivity implements
         if (selectedAdventure != null) {
             Sessao sessaoSaida = new Sessao(selectedAdventure.getKey(), tituloSessao, dataSessao);
             selectedAdventure.addSessao(sessaoSaida);
-            db.upsertAdventure(selectedAdventure);
+            DB.upsertAdventure(selectedAdventure);
             getScreenFragment(Screen.Home);
             fragmentHome.notifyItemChangedVisible();
             onBackPressed();
@@ -894,7 +887,7 @@ public class ActivityHome extends AppCompatActivity implements
     @Override
     public void onUserInvitation(User user, boolean hasBeenInvited) {
         if (selectedAdventure != null) {
-            db.setUserInvitation(user, currentUser.getUserId(), selectedAdventure, hasBeenInvited);
+            DB.setUserInvitation(user, currentUser.getUserId(), selectedAdventure, hasBeenInvited);
         }
     }
 
@@ -902,7 +895,7 @@ public class ActivityHome extends AppCompatActivity implements
     public void onUserKickedOut(User user) {
         if (selectedAdventure != null) {
             selectedAdventure.kickUser(user.getUserId());
-            db.upsertAdventure(selectedAdventure);
+            DB.upsertAdventure(selectedAdventure);
         }
     }
 }

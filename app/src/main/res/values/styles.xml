@@ -43,4 +43,12 @@
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
+    <style name="editTextAdventure">
+        <item name="colorAccent">@color/branco</item>
+        <item name="colorPrimary">@color/branco</item>
+        <item name="colorControlNormal">@color/branco</item>
+        <item name="colorControlActivated">#c5d7ff</item>
+        <item name="colorControlHighlight">#c5d7ff</item>
+    </style>
+
 </resources>

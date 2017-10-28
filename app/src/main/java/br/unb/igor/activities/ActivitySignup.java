@@ -181,8 +181,7 @@ public class ActivitySignup extends AppCompatActivity {
         final User newUser = new User(user.getUid(), displayName, user.getEmail(), User.DEFAULT_PROFILE_PHOTO_URL);
         newUser.setGender(gender);
         newUser.setBirthDate(birthday);
-        final DB db = new DB(null, FirebaseDatabase.getInstance().getReference());
-        db.upsertUser(newUser);
+        DB.upsertUser(newUser);
     }
 
     public void onSignupFailed(Exception reason) {

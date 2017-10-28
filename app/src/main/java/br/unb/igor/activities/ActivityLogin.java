@@ -565,16 +565,16 @@ public class ActivityLogin extends AppCompatActivity implements
     }
 
     private void setupGoogleOrFacebookUser(FirebaseUser user) {
-        final User newUser = new User(user.getUid(), user.getDisplayName(), user.getEmail(), user.getPhotoUrl().toString());
-        final DB db = new DB(null, FirebaseDatabase.getInstance().getReference());
-        db.getUserInfoById(user.getUid(), new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
+        String photoUrl = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : User.DEFAULT_PROFILE_PHOTO_URL;
+        final User newUser = new User(user.getUid(), user.getDisplayName(), user.getEmail(), photoUrl);
+        DB.getUserInfoById(user.getUid(), new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
             @Override
             public void onComplete(boolean cancelled, Object extra, int step) {
                 if (cancelled) {
                     return;
                 }
                 if (extra == null) {
-                    db.upsertUser(newUser);
+                    DB.upsertUser(newUser);
                 }
                 Intent intent = new Intent(ActivityLogin.this, ActivityHome.class);
                 startActivity(intent);

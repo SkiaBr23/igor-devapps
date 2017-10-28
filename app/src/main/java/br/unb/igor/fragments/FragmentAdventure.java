@@ -182,7 +182,7 @@ public class FragmentAdventure extends Fragment {
                     txtDescricaoAventura.setText(descr);
                     aventura.setTitulo(title);
                     aventura.setSinopse(descr);
-                    DB.getLastInstance().upsertAdventure(aventura);
+                    DB.upsertAdventure(aventura);
                     setEditMode(false);
                 } else {
                     if (isOnTabPlayers) {
@@ -303,7 +303,7 @@ public class FragmentAdventure extends Fragment {
         List<String> invited = aventura.getJogadoresConvidadosIds();
         List<String> concat = new ArrayList<>(players);
         concat.addAll(invited);
-        DB.getLastInstance().getUsersById(concat,
+        DB.getUsersById(concat,
             new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
                 @Override
                 public void onComplete(boolean cancelled, Object extra, int step) {
@@ -336,7 +336,7 @@ public class FragmentAdventure extends Fragment {
             }
         } else if (masterUserFetchState == FetchState.NotFetched && aventura != null) {
             masterUserFetchState = FetchState.Fetching;
-            DB.getLastInstance().getUserInfoById(aventura.getMestreUserId(),
+            DB.getUserInfoById(aventura.getMestreUserId(),
                 new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
                     @Override
                     public void onComplete(boolean cancelled, Object extra, int step) {
@@ -429,7 +429,7 @@ public class FragmentAdventure extends Fragment {
                     newUIDs.add(uid);
                 }
             }
-            DB.getLastInstance().getUsersById(newUIDs, new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
+            DB.getUsersById(newUIDs, new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
                 @Override
                 public void onComplete(boolean cancelled, Object extra, int step) {
                     if (extra != null && extra instanceof List) {
