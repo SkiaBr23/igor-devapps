@@ -15,7 +15,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/igor_login_backgrownd"/>
+        android:src="@drawable/miniatura_krevast"/>
 
     <TextView
         app:layout_constraintTop_toTopOf="parent"
@@ -32,11 +32,13 @@
         android:text="@string/edit_adventure_title" />
 
     <EditText
+        android:id="@+id/txtTituloAventuraEdicaoEdit"
         app:layout_constraintTop_toTopOf="@+id/txtTituloAventuraEdicao"
         app:layout_constraintLeft_toLeftOf="@+id/txtTituloAventuraEdicao"
         app:layout_constraintRight_toRightOf="@+id/txtTituloAventuraEdicao"
         app:layout_constraintBottom_toBottomOf="@+id/txtTituloAventuraEdicao"
-        android:id="@+id/txtTituloAventuraEdicaoEdit"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp"
         android:layout_width="0dp"
         android:textColor="@color/branco"
         android:textColorHint="@color/cinzaClaro"
@@ -152,6 +154,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     android:theme="@style/editTextAdventure"
                     android:hint="@string/adventure_label_description"
+                    android:textColorHint="@color/cinzaClaro"
                     android:gravity="center"
                     android:textStyle="bold"
                     android:textSize="15sp"

@@ -147,6 +147,7 @@ public class FragmentAdicionarJogador extends Fragment {
 
         di.currentUserId = currentUser.getUserId();
         di.users = users;
+        di.canPerformActions = true;
 
         jogadoresPesquisadosRecyclerAdapter = new JogadoresRecyclerAdapter(mListener, di);
         recyclerViewListaPesquisaJogadores.setAdapter(jogadoresPesquisadosRecyclerAdapter);

@@ -520,6 +520,7 @@ public class ActivityHome extends AppCompatActivity implements
                 if (mCurrentScreen == Screen.Home) {
                     fragmentHome.setEditMode(true);
                 } else if (mCurrentScreen == Screen.Adventure) {
+                    getScreenFragment(Screen.Adventure);
                     fragmentAdventure.setEditMode(true);
                 }
                 break;
@@ -622,6 +623,11 @@ public class ActivityHome extends AppCompatActivity implements
             InputMethodManager imm = (InputMethodManager)getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         }
+    }
+
+    public void showKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT, 0);
     }
 
     public void setScreen(Screen s) {
@@ -758,6 +764,10 @@ public class ActivityHome extends AppCompatActivity implements
         }
         if (fragmentAdventure != null && fragmentAdventure == currentFrag && fragmentAdventure.isInEditMode()) {
             fragmentAdventure.setEditMode(false);
+            return;
+        }
+        if (fragmentAccount != null && fragmentAccount == currentFrag && fragmentAccount.isEditingUsername()) {
+            fragmentAccount.toggleUsernameEdit(false);
             return;
         }
         super.onBackPressed();

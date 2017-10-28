@@ -25,6 +25,7 @@ public class JogadoresRecyclerAdapter extends RecyclerView.Adapter<JogadoresView
 
     public static class DisplayInfo {
         public boolean isMaster = false;
+        public boolean canPerformActions = false;
         public String currentUserId = null;
         public List<User> users = new ArrayList<>();
         public Set<String> alreadyInvitedIds = new ArraySet<>();
@@ -60,10 +61,17 @@ public class JogadoresRecyclerAdapter extends RecyclerView.Adapter<JogadoresView
         if (mode.currentUserId != null && mode.currentUserId.equals(user.getUserId())) {
             holder.txtYouIndicator.setVisibility(View.VISIBLE);
         }
-        if (mode.isMaster) {
+        if (mode.isMaster && mode.canPerformActions) {
             updateInviteButton(holder, user);
+            holder.btnInvite.setVisibility(View.VISIBLE);
+            holder.txtInvitationSent.setVisibility(View.GONE);
         } else {
             holder.btnInvite.setVisibility(View.GONE);
+            if (mode.alreadyInvitedIds.contains(user.getUserId())) {
+                holder.txtInvitationSent.setVisibility(View.VISIBLE);
+            } else {
+                holder.txtInvitationSent.setVisibility(View.GONE);
+            }
         }
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override

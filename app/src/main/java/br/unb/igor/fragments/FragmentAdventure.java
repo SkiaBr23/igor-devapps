@@ -206,6 +206,7 @@ public class FragmentAdventure extends Fragment {
 
         di.isMaster = isCurrentUserMaster();
         di.currentUserId = getCurrentUserId();
+        di.canPerformActions = false;
 
         if (aventura != null) {
             di.alreadyJoinedIds = aventura.getJogadoresUserIdsSet();
@@ -247,6 +248,8 @@ public class FragmentAdventure extends Fragment {
             return;
         }
         isInEditMode = b;
+        jogadoresRecyclerAdapter.getDisplayInfo().canPerformActions = b;
+        jogadoresRecyclerAdapter.notifyDataSetChanged();
         if (b) {
             txtDescricaoAventura.setVisibility(View.INVISIBLE);
             txtDescricaoAventuraEdit.setVisibility(View.VISIBLE);

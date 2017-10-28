@@ -77,4 +77,5 @@
     <string name="msg_no_adventures_to_show">Você ainda não participa de nenhuma aventura</string>
     <string name="msg_authenticating">Autenticando...</string>
     <string name="label_username">Nome de usuário</string>
+    <string name="label_invitation_sent">Convite\nEnviado</string>
 </resources>

@@ -19,6 +19,7 @@ public class JogadoresViewHolder extends RecyclerView.ViewHolder {
     public TextView txtYouIndicator;
     public CircleImageView profileImageJogador;
     public Button btnInvite;
+    public TextView txtInvitationSent;
 
     public JogadoresViewHolder(View itemView) {
         super(itemView);
@@ -27,6 +28,7 @@ public class JogadoresViewHolder extends RecyclerView.ViewHolder {
         txtYouIndicator = itemView.findViewById(R.id.boxYouIndicator);
         profileImageJogador = itemView.findViewById(R.id.profileImageJogador);
         btnInvite = itemView.findViewById(R.id.btnInvite);
+        txtInvitationSent = itemView.findViewById(R.id.txtInvitationSent);
     }
 
 }
