@@ -10,6 +10,7 @@ import android.os.Vibrator;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
@@ -46,6 +47,7 @@ import java.util.Comparator;
 import java.util.List;
 
 import br.unb.igor.R;
+import br.unb.igor.fragments.FragmentAccount;
 import br.unb.igor.fragments.FragmentAdicionarJogador;
 import br.unb.igor.fragments.FragmentConvites;
 import br.unb.igor.fragments.FragmentCriarAventura;
@@ -76,6 +78,7 @@ public class ActivityHome extends AppCompatActivity implements
     private FragmentAdicionarJogador fragmentAdicionarJogador;
     private FragmentConvites fragmentConvites;
     private FragmentCriarAventura fragmentCreateAdventure;
+    private FragmentAccount fragmentAccount;
 
     private ImageView imgHamburguer;
     private ImageView imgOptionsMenu;
@@ -91,6 +94,8 @@ public class ActivityHome extends AppCompatActivity implements
     private Aventura selectedAdventure = null;
     private User currentUser = null;
     private ArrayList<Aventura> adventures;
+
+    private boolean drawerNeedsUpdate = false;
 
     private ChildEventListener AdventureChangeFeedListener = new ChildEventListenerAdapter() {
         @Override
@@ -309,6 +314,10 @@ public class ActivityHome extends AppCompatActivity implements
         imgHamburguer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (drawerNeedsUpdate) {
+                    mDrawerAdapter.notifyDataSetChanged();
+                    drawerNeedsUpdate = false;
+                }
                 mDrawerLayout.openDrawer(Gravity.START);
             }
         });
@@ -414,6 +423,7 @@ public class ActivityHome extends AppCompatActivity implements
         mCurrentScreen = getFragmentScreen(getSupportFragmentManager().findFragmentById(R.id.content_frame));
         updateThreeDotsMenu();
         mDrawerAdapter.notifyDataSetChanged();
+        drawerNeedsUpdate = false;
 
         mDatabase
             .child("users")
@@ -577,17 +587,38 @@ public class ActivityHome extends AppCompatActivity implements
         if (f instanceof FragmentHome) {
             showHomeFragment();
         } else {
+            // Screens from the Drawer will force the back button
+            // to return to home
+            for (Screen s : drawerScreens) {
+                if (s.equals(newScreen)) {
+                    showHomeFragment();
+                    break;
+                }
+            }
             FragmentManager fragmentManager = getSupportFragmentManager();
-            fragmentManager
-                    .beginTransaction()
-                    .setCustomAnimations(R.animator.fade_opaque_320ms, R.animator.fade_out_320ms, R.animator.fade_opaque_320ms, R.animator.fade_out_320ms)
-                    .replace(R.id.content_frame, f, tag)
-                    .addToBackStack(tag)
-                    .commit();
+            FragmentTransaction ft = fragmentManager.beginTransaction();
+            if (f instanceof FragmentAdventure) {
+                ft.setCustomAnimations(
+                    R.anim.slide_in_right_320ms,
+                    R.anim.slide_out_left_320ms,
+                    R.anim.slide_in_left_320ms,
+                    R.anim.slide_out_right_320ms
+                );
+            } else {
+                ft.setCustomAnimations(
+                    R.animator.fade_opaque_320ms,
+                    R.animator.fade_out_320ms,
+                    R.animator.fade_opaque_320ms,
+                    R.animator.fade_out_320ms
+                );
+            }
+            ft.replace(R.id.content_frame, f, tag)
+                .addToBackStack(tag)
+                .commit();
             mCurrentScreen = newScreen;
         }
         if (drawerChanged) {
-            mDrawerAdapter.notifyDataSetChanged();
+            drawerNeedsUpdate = true;
         }
         hideKeyboard();
     }
@@ -686,6 +717,12 @@ public class ActivityHome extends AppCompatActivity implements
                 }
                 break;
             case Account:
+                if (fragmentAccount != null && fragmentAccount.getRetainInstance()) {
+                    fragment = fragmentAccount;
+                } else {
+                    fragment = getFragmentByClass(FragmentAccount.class);
+                    fragmentAccount = (FragmentAccount) fragment;
+                }
             case Books:
             case Settings:
             case Exit:
@@ -708,6 +745,8 @@ public class ActivityHome extends AppCompatActivity implements
             return Screen.Invites;
         } else if (f instanceof FragmentAdicionarJogador) {
             return Screen.AddPlayer;
+        } else if (f instanceof FragmentAccount) {
+            return Screen.Account;
         }
         return Screen.Exit;
     }
@@ -736,7 +775,7 @@ public class ActivityHome extends AppCompatActivity implements
         } else {
             mCurrentScreen = Screen.Home;
         }
-        mDrawerAdapter.notifyDataSetChanged();
+        drawerNeedsUpdate = true;
         hideKeyboard();
     }
 
