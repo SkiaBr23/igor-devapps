@@ -78,4 +78,5 @@
     <string name="msg_authenticating">Autenticando...</string>
     <string name="label_username">Nome de usuário</string>
     <string name="label_invitation_sent">Convite\nEnviado</string>
+    <string name="msg_failed_to_upload_picture">Não foi possível enviar a imagem</string>
 </resources>

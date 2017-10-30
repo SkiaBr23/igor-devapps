@@ -39,6 +39,7 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.squareup.picasso.Picasso;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -474,22 +475,34 @@ public class ActivityHome extends AppCompatActivity implements
                     currentUser.assignInternal((User)extra);
                     currentUser.hasBeenFetchedFromDB = true;
                     fetchInitialAdventures();
+                    Picasso
+                        .with(ActivityHome.this)
+                        .load(currentUser.getProfilePictureUrl())
+                        .fetch();
+                    FragmentManager fm = getSupportFragmentManager();
+                    Fragment currentFrag = fm.findFragmentById(R.id.content_frame);
+                    if (currentFrag instanceof FragmentAccount) {
+                        ((FragmentAccount)currentFrag).onUserChanged();
+                    }
                 }
             }
         }));
     }
 
     private void fetchInitialAdventures() {
-        List<String> adventureKeys = currentUser.getAventuras();
+        final List<String> adventureKeys = currentUser.getAventuras();
         if (adventureKeys.isEmpty()) {
             fragmentHome.setIsLoading(false);
             return;
         }
         fragmentHome.setIsLoading(true);
+        final List<String> invalidAdventureIDs = new ArrayList<>();
         final OnCompleteHandler handler = new OnCompleteHandler(adventureKeys.size(), new OnCompleteHandler.OnCompleteCallback() {
             @Override
             public void onComplete(boolean cancelled, Object extra, int step) {
                 fragmentHome.setIsLoading(false);
+                currentUser.removeAdventures(invalidAdventureIDs);
+                DB.upsertUser(currentUser);
             }
         });
         int index = 0;
@@ -506,6 +519,8 @@ public class ActivityHome extends AppCompatActivity implements
                             adventures.add(adventureIndex, (Aventura) extra);
                             fragmentHome.getRecyclerAdapter().notifyItemInserted(adventureIndex);
                         }
+                    } else {
+                        invalidAdventureIDs.add(adventureKeys.get(adventureIndex));
                     }
                     handler.advance();
                 }
@@ -752,8 +767,8 @@ public class ActivityHome extends AppCompatActivity implements
 
     @Override
     public void onBackPressed() {
-        if (mDrawerLayout.isDrawerOpen(Gravity.LEFT)) {
-            mDrawerLayout.closeDrawer(Gravity.LEFT);
+        if (mDrawerLayout.isDrawerOpen(Gravity.START)) {
+            mDrawerLayout.closeDrawer(Gravity.START);
             return;
         }
         FragmentManager fm = getSupportFragmentManager();

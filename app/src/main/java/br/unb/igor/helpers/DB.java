@@ -1,5 +1,10 @@
 package br.unb.igor.helpers;
 
+import android.graphics.Bitmap;
+import android.support.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -7,7 +12,12 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +30,7 @@ public class DB {
 
     public static FirebaseAuth auth = FirebaseAuth.getInstance();
     public static DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+    public static StorageReference store = FirebaseStorage.getInstance().getReference();
 
     public static void deleteAllAdventures() {
         ref.child("adventures").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -178,6 +189,29 @@ public class DB {
                 }
             });
         }
+    }
+
+    public static void updateUserPhoto(User user, Bitmap bm, final OnCompleteHandler handler) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bm.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        UploadTask task = store
+            .child("profilePhotos")
+            .child(user.getUserId())
+            .putBytes(baos.toByteArray());
+        task.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                handler.cancel();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                handler.setExtra(taskSnapshot.getDownloadUrl());
+                handler.advance();
+            }
+        });
+
+
     }
 
 }

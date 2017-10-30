@@ -8,6 +8,7 @@ import com.google.firebase.database.Exclude;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -131,7 +132,8 @@ public class User implements Parcelable {
     }
 
     public void setConvites(List<Convite> convites) {
-        this.convites = convites;
+        this.convites.clear();
+        this.convites.addAll(convites);
     }
 
     public List<String> getAventuras() {
@@ -139,7 +141,8 @@ public class User implements Parcelable {
     }
 
     public void setAventuras(List<String> aventuras) {
-        this.aventuras = aventuras;
+        this.aventuras.clear();
+        this.aventuras.addAll(aventuras);
     }
 
     public Map<String, Object> getAdditionalProperties() {
@@ -241,6 +244,17 @@ public class User implements Parcelable {
         this.additionalProperties.clear();
         this.additionalProperties.putAll(other.additionalProperties);
     }
+
+    public void removeAdventures(List<String> adventureIDs) {
+        this.aventuras.removeAll(adventureIDs);
+        Iterator<Convite> it = this.convites.iterator();
+        while (it.hasNext()) {
+            Convite c = it.next();
+            if (adventureIDs.contains(c.getKeyAventura())) {
+                it.remove();
+            }
+        }
+     }
 
     @Override
     public String toString() {
