@@ -10,6 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -79,6 +81,13 @@ public class JogadoresRecyclerAdapter extends RecyclerView.Adapter<JogadoresView
                 mListener.onViewUserInfo(user);
             }
         });
+
+        if (user.getProfilePictureUrl() != null) {
+            Picasso
+                    .with(holder.profileImageJogador.getContext())
+                    .load(user.getProfilePictureUrl())
+                    .into(holder.profileImageJogador);
+        }
     }
 
     @Override
