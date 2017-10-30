@@ -40,6 +40,7 @@ public class FragmentAccount extends Fragment {
     private LinearLayout buttonEdit;
     private ImageView usernameActionIcon;
     private ImageView profileImage;
+    private ImageView profileImgChanger;
 
     private TextView txtLoading;
     private ProgressBar progressBar;
@@ -64,6 +65,7 @@ public class FragmentAccount extends Fragment {
         buttonEdit = root.findViewById(R.id.containerEditUsername);
         usernameActionIcon = root.findViewById(R.id.usernameActionIcon);
         profileImage = root.findViewById(R.id.profileImageJogador);
+        profileImgChanger = root.findViewById(R.id.profileCamera);
         userInfoContainer = root.findViewById(R.id.container);
         txtLoading = root.findViewById(R.id.labelLoading);
         progressBar = root.findViewById(R.id.progressBar);
@@ -77,7 +79,7 @@ public class FragmentAccount extends Fragment {
             }
         });
 
-        profileImage.setOnClickListener(new View.OnClickListener() {
+        profileImgChanger.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (user.hasBeenFetchedFromDB) {
