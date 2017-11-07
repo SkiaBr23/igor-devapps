@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -65,6 +66,7 @@ public class FragmentAdventure extends Fragment {
     private TextView txtIndicadorNenhumaSessao;
     private TextView txtInfoLabel;
     private ProgressBar loadingSpinner;
+    private Button btnRolagemDados;
 
     private RecyclerView recyclerViewListaSessoes;
     private RecyclerView recyclerViewListaJogadores;
@@ -137,6 +139,7 @@ public class FragmentAdventure extends Fragment {
         loadingSpinner = root.findViewById(R.id.loadingSpinner);
         recyclerViewListaSessoes = root.findViewById(R.id.recyclerViewListaSessoes);
         recyclerViewListaJogadores = root.findViewById(R.id.recyclerViewListaJogadores);
+        btnRolagemDados = (Button)root.findViewById(R.id.btnRolagemDados);
 
         mAuth = FirebaseAuth.getInstance();
         boxAndamentoAventura = root.findViewById(R.id.boxAndamentoAventura);
@@ -234,6 +237,13 @@ public class FragmentAdventure extends Fragment {
         setEditMode(false);
         loadMasterInfo();
         updateAdventureInfo();
+
+        btnRolagemDados.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListener.rolagemDados();
+            }
+        });
 
         return root;
     }

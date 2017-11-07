@@ -15,4 +15,5 @@ public interface AdventureListener {
     void onConfirmarSessao(String tituloSessao, String dataSessao);
     void onUserInvitation(User user, boolean hasBeenInvited);
     void onUserKickedOut(User user);
+    void rolagemDados();
 }

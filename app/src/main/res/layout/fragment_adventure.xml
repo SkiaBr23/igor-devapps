@@ -31,6 +31,14 @@
         android:layout_height="wrap_content"
         android:text="@string/edit_adventure_title" />
 
+    <Button
+        android:id="@+id/btnRolagemDados"
+        app:layout_constraintTop_toBottomOf="@+id/txtTituloAventuraEdicao"
+        app:layout_constraintLeft_toLeftOf="@+id/txtTituloAventuraEdicao"
+        android:layout_width="150dp"
+        android:text="Rolar dados"
+        android:layout_height="40dp" />
+
     <EditText
         android:id="@+id/txtTituloAventuraEdicaoEdit"
         app:layout_constraintTop_toTopOf="@+id/txtTituloAventuraEdicao"

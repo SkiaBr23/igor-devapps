@@ -54,6 +54,7 @@ import br.unb.igor.fragments.FragmentConvites;
 import br.unb.igor.fragments.FragmentCriarAventura;
 import br.unb.igor.fragments.FragmentCriarSessao;
 import br.unb.igor.fragments.FragmentAdventure;
+import br.unb.igor.fragments.FragmentDiceRoller;
 import br.unb.igor.fragments.FragmentHome;
 import br.unb.igor.helpers.AdventureListener;
 import br.unb.igor.helpers.ChildEventListenerAdapter;
@@ -922,5 +923,16 @@ public class ActivityHome extends AppCompatActivity implements
             selectedAdventure.kickUser(user.getUserId());
             DB.upsertAdventure(selectedAdventure);
         }
+    }
+
+    @Override
+    public void rolagemDados() {
+        FragmentDiceRoller fragmentDiceRoller = new FragmentDiceRoller();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.content_frame, fragmentDiceRoller)
+                .addToBackStack(fragmentDiceRoller.TAG)
+                .commit();
+
     }
 }
