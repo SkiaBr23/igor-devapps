@@ -12,11 +12,17 @@ import android.widget.Button;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import br.unb.igor.R;
+import br.unb.igor.activities.ActivityHome;
+import br.unb.igor.helpers.DiceRoller;
 import br.unb.igor.model.Jogada;
+import br.unb.igor.model.User;
 import br.unb.igor.recycleradapters.JogadasRecyclerAdapter;
 
 /**
@@ -31,9 +37,11 @@ public class FragmentDiceRoller extends Fragment {
     public NumberPicker numberPickerqtdAdicional;
     public Button btnRolarDados;
     public RecyclerView recyclerViewListaJogadas;
-    private RecyclerView.LayoutManager layoutManager;
+    private LinearLayoutManager layoutManager;
     private JogadasRecyclerAdapter jogadasRecyclerAdapter;
     private List<Jogada> jogadas;
+    private FirebaseAuth mAuth;
+    private User user;
 
 
     public FragmentDiceRoller() {
@@ -52,7 +60,6 @@ public class FragmentDiceRoller extends Fragment {
         btnRolarDados = (Button)root.findViewById(R.id.btnRolarDados);
         recyclerViewListaJogadas = (RecyclerView)root.findViewById(R.id.recyclerViewListaJogadas);
 
-
         jogadas = new ArrayList<>();
 
         numberPickerqtdDados.setMinValue(1);
@@ -69,9 +76,16 @@ public class FragmentDiceRoller extends Fragment {
         numberPickerqtdAdicional.setDisplayedValues(nums);
 
         layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager.setStackFromEnd(true);
+        layoutManager.setReverseLayout(true);
         recyclerViewListaJogadas.setLayoutManager(layoutManager);
         jogadasRecyclerAdapter = new JogadasRecyclerAdapter(getActivity());
         recyclerViewListaJogadas.setAdapter(jogadasRecyclerAdapter);
+
+
+
+        mAuth = FirebaseAuth.getInstance();
+        user = ((ActivityHome)getActivity()).getCurrentUser();
 
         btnRolarDados.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -80,53 +94,45 @@ public class FragmentDiceRoller extends Fragment {
                 String qtdDado = String.valueOf(numberPickerqtdDados.getValue());
                 String tipoDado = String.valueOf(numberPickertipoDado.getValue());
                 tipoDado = ajustaTipoDado(tipoDado);
-                String adicional = String.valueOf(numberPickerqtdAdicional.getValue());
-                adicional = ajustaAdicional(adicional);
-                String comando = qtdDado + tipoDado + "+" + adicional;
-                String resultado = "20";
+                String adicional = String.valueOf(numberPickerqtdAdicional.getValue()+(-6));
+                String comando = qtdDado + tipoDado + "+(" + adicional + ")";
+                String resultado = obterResultado(comando);
                 newJogada.setComando(comando);
-                newJogada.setNomeAutor("Maximillian");
+                newJogada.setNomeAutor(user.getFullName());
                 newJogada.setResultado(resultado);
+                newJogada.setIdAutor(user.getUserId());
+                newJogada.setUrlFotoAutor(user.getProfilePictureUrl());
                 jogadas.add(newJogada);
                 jogadasRecyclerAdapter.setJogadas(jogadas);
                 jogadasRecyclerAdapter.notifyDataSetChanged();
+                recyclerViewListaJogadas.scrollToPosition(jogadas.size()-1);
             }
         });
 
         return root;
     }
 
-    public String ajustaAdicional (String adicional) {
-        switch(adicional){
-            case "0":
-                return "-6";
-            case "1":
-                return "-5";
-            case "2":
-                return "-4";
-            case "3":
-                return "-3";
-            case "4":
-                return "-2";
-            case "5":
-                return "-1";
-            case "6":
-                return "0";
-            case "7":
-                return "1";
-            case "8":
-                return "2";
-            case "9":
-                return "3";
-            case "10":
-                return "4";
-            case "11":
-                return "5";
-            case "12":
-                return "6";
+    public String obterResultado (String comando) {
+        int qtdDado = Integer.valueOf(String.valueOf(comando.charAt(0)));
+        int faces;
+        String[] parts = comando.split("\\+");
+        if (parts[0].length() == 3) {
+             faces = Integer.valueOf(String.valueOf(parts[0].charAt(2)));
+        } else if (parts[0].length() == 4) {
+            String facesString = String.valueOf(parts[0].charAt(2))+String.valueOf(parts[0].charAt(3));
+            faces = Integer.valueOf(facesString);
+        } else {
+            String facesString = String.valueOf(parts[0].charAt(2))+String.valueOf(parts[0].charAt(3))+String.valueOf(parts[0].charAt(4));
+            faces = Integer.valueOf(facesString);
         }
-        return "10";
+        int adicional;
+        if (parts[1].length() == 3) {
+            adicional = Integer.valueOf(String.valueOf(parts[1].charAt(1)));
+        } else {
+            adicional = Integer.valueOf(String.valueOf(parts[1].charAt(2)))*(-1);
+        }
 
+        return String.valueOf(DiceRoller.roll(faces,qtdDado,adicional));
     }
 
     public String ajustaTipoDado (String tipoDado) {

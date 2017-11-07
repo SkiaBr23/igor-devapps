@@ -6,10 +6,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import br.unb.igor.R;
+import br.unb.igor.helpers.CircleTransform;
 import br.unb.igor.model.Convite;
 import br.unb.igor.model.Jogada;
 
@@ -51,9 +54,16 @@ public class JogadasRecyclerAdapter extends RecyclerView.Adapter<JogadasViewHold
         Jogada jogada = this.jogadas.get(holder.getAdapterPosition());
 
         holder.txtJogadorPersonagem.setText(jogada.getNomeAutor());
-        holder.txtDataJogada.setText("10:11:12");
+        holder.txtDataJogada.setText(jogada.getTimeSent());
         holder.txtJogada.setText(jogada.getComando());
         holder.txtResultado.setText(jogada.getResultado());
+        if (!jogada.getUrlFotoAutor().isEmpty()) {
+            Picasso
+                    .with(holder.profileImage.getContext())
+                    .load(jogada.getUrlFotoAutor())
+                    .transform(new CircleTransform())
+                    .into(holder.profileImage);
+        }
     }
 
     @Override

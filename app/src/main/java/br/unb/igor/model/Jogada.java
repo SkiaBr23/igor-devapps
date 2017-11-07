@@ -21,6 +21,7 @@ public class Jogada {
 
 
     public Jogada() {
+        this.timestamp = new Date();
     }
 
     public Jogada(String comando, String resultado, String idAutor, String nomeAutor, String nomePersonagem, String urlFotoAutor, int tipo) {
