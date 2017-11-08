@@ -1,6 +1,7 @@
 package br.unb.igor.fragments;
 
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -59,7 +60,7 @@ public class FragmentDiceRoller extends Fragment {
         numberPickerqtdAdicional = (NumberPicker)root.findViewById(R.id.numberPickerAdicional);
         btnRolarDados = (Button)root.findViewById(R.id.btnRolarDados);
         recyclerViewListaJogadas = (RecyclerView)root.findViewById(R.id.recyclerViewListaJogadas);
-
+        final MediaPlayer mp = MediaPlayer.create(getActivity(), R.raw.dice1);
         jogadas = new ArrayList<>();
 
         numberPickerqtdDados.setMinValue(1);
@@ -106,8 +107,19 @@ public class FragmentDiceRoller extends Fragment {
                 jogadasRecyclerAdapter.setJogadas(jogadas);
                 jogadasRecyclerAdapter.notifyDataSetChanged();
                 recyclerViewListaJogadas.scrollToPosition(jogadas.size()-1);
+                mp.start();
+                btnRolarDados.setEnabled(false);
+                btnRolarDados.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        btnRolarDados.setEnabled(true);
+                        mp.pause();
+                    }
+                }, 2000);
             }
         });
+
+
 
         return root;
     }
