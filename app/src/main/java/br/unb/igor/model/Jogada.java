@@ -39,6 +39,11 @@ public class Jogada {
         DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
         return dateFormat.format(this.timestamp);
     }
+
+    public String getTimeSentMin() {
+        DateFormat dateFormat = new SimpleDateFormat("HH:mm");
+        return dateFormat.format(this.timestamp);
+    }
     public Date getTimestamp() {
         return timestamp;
     }

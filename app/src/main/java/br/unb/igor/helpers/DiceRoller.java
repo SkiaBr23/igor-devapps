@@ -26,7 +26,14 @@ public class DiceRoller {
     }
 
     public static String diceToText(int faces, int dices, int modifier){
-        return dices + "d" + faces + " + " + modifier;
+        if(modifier > 0)
+            return dices + "d" + faces + " + " + modifier;
+        if(modifier == 0)
+            return diceToText(faces,dices);
+        if(modifier < 0)
+            return dices + "d" + faces + " - " + modifier*(-1);
+
+        return "";
     }
 
     public static String diceToText(int faces, int dices){

@@ -92,12 +92,12 @@ public class FragmentDiceRoller extends Fragment {
             @Override
             public void onClick(View view) {
                 Jogada newJogada = new Jogada();
-                String qtdDado = String.valueOf(numberPickerqtdDados.getValue());
-                String tipoDado = String.valueOf(numberPickertipoDado.getValue());
+                int qtdDado = numberPickerqtdDados.getValue();
+                int tipoDado = numberPickertipoDado.getValue();
                 tipoDado = ajustaTipoDado(tipoDado);
-                String adicional = String.valueOf(numberPickerqtdAdicional.getValue()+(-6));
-                String comando = qtdDado + tipoDado + "+(" + adicional + ")";
-                String resultado = obterResultado(comando);
+                int modificador = numberPickerqtdAdicional.getValue()+(-6);
+                String resultado = String.valueOf(DiceRoller.roll(tipoDado,qtdDado,modificador));
+                String comando = DiceRoller.diceToText(tipoDado,qtdDado,modificador);
                 newJogada.setComando(comando);
                 newJogada.setNomeAutor(user.getFullName());
                 newJogada.setResultado(resultado);
@@ -119,52 +119,27 @@ public class FragmentDiceRoller extends Fragment {
             }
         });
 
-
-
         return root;
     }
 
-    public String obterResultado (String comando) {
-        int qtdDado = Integer.valueOf(String.valueOf(comando.charAt(0)));
-        int faces;
-        String[] parts = comando.split("\\+");
-        if (parts[0].length() == 3) {
-             faces = Integer.valueOf(String.valueOf(parts[0].charAt(2)));
-        } else if (parts[0].length() == 4) {
-            String facesString = String.valueOf(parts[0].charAt(2))+String.valueOf(parts[0].charAt(3));
-            faces = Integer.valueOf(facesString);
-        } else {
-            String facesString = String.valueOf(parts[0].charAt(2))+String.valueOf(parts[0].charAt(3))+String.valueOf(parts[0].charAt(4));
-            faces = Integer.valueOf(facesString);
-        }
-        int adicional;
-        if (parts[1].length() == 3) {
-            adicional = Integer.valueOf(String.valueOf(parts[1].charAt(1)));
-        } else {
-            adicional = Integer.valueOf(String.valueOf(parts[1].charAt(2)))*(-1);
-        }
-
-        return String.valueOf(DiceRoller.roll(faces,qtdDado,adicional));
-    }
-
-    public String ajustaTipoDado (String tipoDado) {
+    public int ajustaTipoDado (Integer tipoDado) {
         switch(tipoDado){
-            case "0":
-                return "D4";
-            case "1":
-                return "D6";
-            case "2":
-                return "D8";
-            case "3":
-                return "D10";
-            case "4":
-                return "D12";
-            case "5":
-                return "D20";
-            case "6":
-                return "D100";
+            case 0:
+                return 4;
+            case 1:
+                return 6;
+            case 2:
+                return 8;
+            case 3:
+                return 10;
+            case 4:
+                return 12;
+            case 5:
+                return 20;
+            case 6:
+                return 100;
         }
-        return "D200";
+        return 200;
     }
 
 }

@@ -54,8 +54,8 @@ public class JogadasRecyclerAdapter extends RecyclerView.Adapter<JogadasViewHold
         Jogada jogada = this.jogadas.get(holder.getAdapterPosition());
 
         holder.txtJogadorPersonagem.setText(jogada.getNomeAutor());
-        holder.txtDataJogada.setText(jogada.getTimeSent());
-        holder.txtJogada.setText(jogada.getComando());
+        holder.txtDataJogada.setText(jogada.getTimeSentMin());
+        holder.txtJogada.setText("Rolando " + jogada.getComando() + " = ");
         holder.txtResultado.setText(jogada.getResultado());
         if (!jogada.getUrlFotoAutor().isEmpty()) {
             Picasso
