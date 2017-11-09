@@ -16,6 +16,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -37,8 +38,13 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.lang.reflect.Field;
@@ -93,6 +99,10 @@ public class ActivityHome extends AppCompatActivity implements
     private Aventura selectedAdventure = null;
     private User currentUser = null;
     private ArrayList<Aventura> adventures;
+    private ArrayList<Convite> invitations;
+
+    public static FirebaseAuth auth = FirebaseAuth.getInstance();
+    public static DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
 
     private boolean drawerNeedsUpdate = false;
 
@@ -364,6 +374,10 @@ public class ActivityHome extends AppCompatActivity implements
             this.adventures = new ArrayList<>();
         }
 
+        if (this.invitations == null) {
+            this.invitations = new ArrayList<>();
+        }
+
         final FragmentManager fragmentManager = getSupportFragmentManager();
 
         fragmentHome = (FragmentHome)getScreenFragment(Screen.Home);
@@ -475,6 +489,7 @@ public class ActivityHome extends AppCompatActivity implements
                 if (extra != null && extra instanceof User) {
                     currentUser.assignInternal((User)extra);
                     currentUser.hasBeenFetchedFromDB = true;
+                    fetchInvitations();
                     fetchInitialAdventures();
                     Picasso
                         .with(ActivityHome.this)
@@ -571,6 +586,25 @@ public class ActivityHome extends AppCompatActivity implements
 
     public List<Aventura> getAdventures() {
         return adventures;
+    }
+
+    public List<Convite> getInvitations(){
+        return invitations;
+    }
+
+
+    public void fetchInvitations() {
+        ref.child("users").child(auth.getCurrentUser().getUid()).child("convites").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                GenericTypeIndicator<ArrayList<Convite>> genericTypeIndicator =new GenericTypeIndicator<ArrayList<Convite>>(){};
+                invitations = dataSnapshot.getValue(genericTypeIndicator);
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.d("getInvitations","Error getting invitations");
+            }
+        });
     }
 
     public void showHomeFragment() {
@@ -847,6 +881,7 @@ public class ActivityHome extends AppCompatActivity implements
         alerta = builder.create();
         alerta.show();
     }
+
 
     // [START signOut]
     private void signOut() {

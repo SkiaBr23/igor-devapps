@@ -2,12 +2,24 @@ package br.unb.igor.fragments;
 
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,14 +39,11 @@ public class FragmentConvites extends Fragment {
     private RecyclerView recyclerViewListaConvites;
     private ConvitesRecyclerAdapter convitesRecyclerAdapter;
     private RecyclerView.LayoutManager layoutManagerConvites;
-    private List<Convite> convites;
 
 
     public FragmentConvites() {
         // Required empty public constructor
     }
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -44,7 +53,7 @@ public class FragmentConvites extends Fragment {
         recyclerViewListaConvites = root.findViewById(R.id.recyclerViewListaConvites);
         layoutManagerConvites = new LinearLayoutManager(getActivity());
         recyclerViewListaConvites.setLayoutManager(layoutManagerConvites);
-        convitesRecyclerAdapter = new ConvitesRecyclerAdapter(getActivity(), getConvites());
+        convitesRecyclerAdapter = new ConvitesRecyclerAdapter(getActivity(), ((ActivityHome)getActivity()).getInvitations());
         recyclerViewListaConvites.setAdapter(convitesRecyclerAdapter);
 
         ((ActivityHome)getActivity()).markInvitationsAsSeen();
@@ -52,10 +61,5 @@ public class FragmentConvites extends Fragment {
         return root;
     }
 
-    public List<Convite> getConvites() {
-        if (this.convites == null) {
-            this.convites = new ArrayList<>();
-        }
-        return this.convites;
-    }
+
 }

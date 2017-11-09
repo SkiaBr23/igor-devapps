@@ -112,7 +112,7 @@ public class DB {
         ref.child("users").child(user.getUserId()).setValue(user);
     }
 
-    public static void setUserInvitation(final User invitedUser, String whoInvitedId, final Aventura aventura, boolean isInvited) {
+    public static void setUserInvitation(final User invitedUser, User whoInvited, final Aventura aventura, boolean isInvited) {
         String uid = invitedUser.getUserId();
         if (aventura.getKey().isEmpty() || uid.isEmpty()) {
             // Invalid keys
@@ -127,7 +127,7 @@ public class DB {
             // Invitation has already been sent or revoked
             return;
         }
-        Convite convite = new Convite(whoInvitedId, aventura.getKey());
+        Convite convite = new Convite(whoInvited.getUserId(), aventura.getKey(),whoInvited.getFullName(),whoInvited.getProfilePictureUrl());
         invitedUser.setInvitation(convite, isInvited);
         if (isInvited) {
             aventura.addInvitedUser(uid);

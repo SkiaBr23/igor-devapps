@@ -9,14 +9,39 @@ public class Convite implements Parcelable {
     String invitedById;
     String keyAventura;
     Boolean unseen;
+    String invitedByName;
+    String urlPhoto;
 
     public Convite() {
+    }
+
+    public Convite(String invitedById, String keyAventura, String invitedByName, String urlPhoto) {
+        this.invitedById = invitedById;
+        this.keyAventura = keyAventura;
+        this.invitedByName = invitedByName;
+        this.urlPhoto = urlPhoto;
     }
 
     public Convite(String invitedById, String keyAventura) {
         this.invitedById = invitedById;
         this.keyAventura = keyAventura;
         this.unseen = true;
+    }
+
+    public String getInvitedByName() {
+        return invitedByName;
+    }
+
+    public void setInvitedByName(String invitedByName) {
+        this.invitedByName = invitedByName;
+    }
+
+    public String getUrlPhoto() {
+        return urlPhoto;
+    }
+
+    public void setUrlPhoto(String urlPhoto) {
+        this.urlPhoto = urlPhoto;
     }
 
     public String getKey() {
