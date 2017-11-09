@@ -2,6 +2,7 @@ package br.unb.igor.recycleradapters;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -12,12 +13,16 @@ public class ConvitesViewHolder extends RecyclerView.ViewHolder implements View.
 
     public TextView txtNomeMestre;
     public CircleImageView profileImageMestre;
+    public ImageButton imgBtnAceitarConvite;
+    public ImageButton imgBtnCancelarConvite;
 
     public ConvitesViewHolder(View itemView) {
         super(itemView);
         itemView.setOnClickListener(this);
         txtNomeMestre = itemView.findViewById(R.id.txtViewNomeMestreCard);
         profileImageMestre = itemView.findViewById(R.id.profileImageCard);
+        imgBtnAceitarConvite = itemView.findViewById(R.id.imgBtnAceitarConvite);
+        imgBtnCancelarConvite = itemView.findViewById(R.id.imgBtnCancelarConvite);
     }
 
     @Override

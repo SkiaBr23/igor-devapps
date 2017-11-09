@@ -53,7 +53,19 @@ public class FragmentConvites extends Fragment {
         recyclerViewListaConvites = root.findViewById(R.id.recyclerViewListaConvites);
         layoutManagerConvites = new LinearLayoutManager(getActivity());
         recyclerViewListaConvites.setLayoutManager(layoutManagerConvites);
-        convitesRecyclerAdapter = new ConvitesRecyclerAdapter(getActivity(), ((ActivityHome)getActivity()).getInvitations());
+        convitesRecyclerAdapter = new ConvitesRecyclerAdapter(getActivity(), ((ActivityHome) getActivity()).getInvitations(), new ConvitesRecyclerAdapter.ListAdapterListener() {
+            @Override
+            public void onClickCancelarConvite(int indexConvite) {
+                convitesRecyclerAdapter.notifyDataSetChanged();
+                //TODO: Colocar aqui a chamada para remover o convite no firebase
+            }
+
+            @Override
+            public void onClickConfirmarConvite(int indexConvite) {
+                //TODO: Colocar aqui a chamada para aceitar o convite no firebase
+                //TODO: Depois de atualizar no firebase, remover o item da lista e dar um notify
+            }
+        });
         recyclerViewListaConvites.setAdapter(convitesRecyclerAdapter);
 
         ((ActivityHome)getActivity()).markInvitationsAsSeen();

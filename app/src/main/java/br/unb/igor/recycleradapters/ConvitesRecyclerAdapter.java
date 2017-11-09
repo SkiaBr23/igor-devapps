@@ -1,10 +1,13 @@
 package br.unb.igor.recycleradapters;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -18,10 +21,17 @@ public class ConvitesRecyclerAdapter extends RecyclerView.Adapter<ConvitesViewHo
 
     private Context context;
     private List<Convite> convites;
+    private ListAdapterListener mListener;
 
-    public ConvitesRecyclerAdapter(Context context, List<Convite> convites) {
+    public interface ListAdapterListener { // create an interface
+        void onClickCancelarConvite(int indexConvite);
+        void onClickConfirmarConvite(int indexConvite);
+    }
+
+    public ConvitesRecyclerAdapter(Context context, List<Convite> convites, ListAdapterListener listAdapterListener) {
         this.context = context;
         this.convites = convites;
+        this.mListener = listAdapterListener;
         setHasStableIds(true);
     }
 
@@ -42,7 +52,7 @@ public class ConvitesRecyclerAdapter extends RecyclerView.Adapter<ConvitesViewHo
         if (position >= this.convites.size()) {
             return;
         }
-        Convite convite = this.convites.get(holder.getAdapterPosition());
+        final Convite convite = this.convites.get(holder.getAdapterPosition());
 
         holder.txtNomeMestre.setText(convite.getInvitedByName());
         if (convite.getUrlPhoto() != null) {
@@ -54,6 +64,56 @@ public class ConvitesRecyclerAdapter extends RecyclerView.Adapter<ConvitesViewHo
                         .into(holder.profileImageMestre);
             }
         }
+
+        holder.imgBtnAceitarConvite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
+                alertDialog.setTitle("Aceitar Convite");
+                alertDialog.setMessage("Deseja realmente aceitar o convite?");
+                alertDialog.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        mListener.onClickConfirmarConvite(holder.getAdapterPosition());
+                    }
+                });
+                alertDialog.setNegativeButton("Não", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                AlertDialog dialog = alertDialog.create();
+                dialog.show();
+
+            }
+        });
+
+        holder.imgBtnCancelarConvite.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
+                alertDialog.setTitle("Cancelar Convite");
+                alertDialog.setMessage("Deseja realmente cancelar o convite?");
+                alertDialog.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        convites.remove(convite);
+                        mListener.onClickCancelarConvite(holder.getAdapterPosition());
+                    }
+                });
+                alertDialog.setNegativeButton("Não", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                AlertDialog dialog = alertDialog.create();
+                dialog.show();
+            }
+        });
     }
 
     @Override
