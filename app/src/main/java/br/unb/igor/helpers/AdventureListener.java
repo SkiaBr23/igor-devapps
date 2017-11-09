@@ -16,4 +16,5 @@ public interface AdventureListener {
     void onUserInvitation(User user, boolean hasBeenInvited);
     void onUserKickedOut(User user);
     void rolagemDados();
+    void onInvitesView();
 }

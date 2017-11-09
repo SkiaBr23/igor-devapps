@@ -13,6 +13,7 @@ public class Convite implements Parcelable {
     String urlPhoto;
 
     public Convite() {
+        this.unseen = true;
     }
 
     public Convite(String invitedById, String keyAventura, String invitedByName, String urlPhoto) {
@@ -20,6 +21,7 @@ public class Convite implements Parcelable {
         this.keyAventura = keyAventura;
         this.invitedByName = invitedByName;
         this.urlPhoto = urlPhoto;
+        this.unseen = true;
     }
 
     public Convite(String invitedById, String keyAventura) {

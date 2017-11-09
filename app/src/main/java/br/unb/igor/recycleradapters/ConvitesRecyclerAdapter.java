@@ -6,9 +6,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.squareup.picasso.Picasso;
+
 import java.util.List;
 
 import br.unb.igor.R;
+import br.unb.igor.helpers.CircleTransform;
 import br.unb.igor.model.Convite;
 
 public class ConvitesRecyclerAdapter extends RecyclerView.Adapter<ConvitesViewHolder> {
@@ -36,11 +39,26 @@ public class ConvitesRecyclerAdapter extends RecyclerView.Adapter<ConvitesViewHo
 
     @Override
     public void onBindViewHolder(final ConvitesViewHolder holder, int position) {
+        if (position >= this.convites.size()) {
+            return;
+        }
+        Convite convite = this.convites.get(holder.getAdapterPosition());
+
+        holder.txtNomeMestre.setText(convite.getInvitedByName());
+        if (convite.getUrlPhoto() != null) {
+            if (!convite.getUrlPhoto().isEmpty()) {
+                Picasso
+                        .with(holder.profileImageMestre.getContext())
+                        .load(convite.getUrlPhoto())
+                        .transform(new CircleTransform())
+                        .into(holder.profileImageMestre);
+            }
+        }
     }
 
     @Override
     public int getItemCount() {
-        return 10;
+        return this.convites.size();
     }
 
     @Override

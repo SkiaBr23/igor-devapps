@@ -83,6 +83,13 @@ public class FragmentHome extends Fragment {
 
         cardInfoConvites = root.findViewById(R.id.cardInformativoConvites);
 
+        cardInfoConvites.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListener.onInvitesView();
+            }
+        });
+
         if (collapseNotificationsOnCreate) {
             collapseNotificationsOnCreate = false;
             isNotificationsExpanded = false;

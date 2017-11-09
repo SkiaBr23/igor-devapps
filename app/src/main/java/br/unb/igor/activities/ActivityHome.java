@@ -948,7 +948,7 @@ public class ActivityHome extends AppCompatActivity implements
     @Override
     public void onUserInvitation(User user, boolean hasBeenInvited) {
         if (selectedAdventure != null) {
-            DB.setUserInvitation(user, currentUser.getUserId(), selectedAdventure, hasBeenInvited);
+            DB.setUserInvitation(user, currentUser, selectedAdventure, hasBeenInvited);
         }
     }
 
@@ -969,5 +969,11 @@ public class ActivityHome extends AppCompatActivity implements
                 .addToBackStack(fragmentDiceRoller.TAG)
                 .commit();
 
+    }
+
+    @Override
+    public void onInvitesView() {
+        getScreenFragment(Screen.Invites);
+        pushFragment(fragmentConvites, FragmentConvites.TAG, Screen.Invites);
     }
 }

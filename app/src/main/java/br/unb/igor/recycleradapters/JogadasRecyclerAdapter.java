@@ -57,12 +57,14 @@ public class JogadasRecyclerAdapter extends RecyclerView.Adapter<JogadasViewHold
         holder.txtDataJogada.setText(jogada.getTimeSentMin());
         holder.txtJogada.setText("Rolando " + jogada.getComando() + " = ");
         holder.txtResultado.setText(jogada.getResultado());
-        if (!jogada.getUrlFotoAutor().isEmpty()) {
-            Picasso
-                    .with(holder.profileImage.getContext())
-                    .load(jogada.getUrlFotoAutor())
-                    .transform(new CircleTransform())
-                    .into(holder.profileImage);
+        if (jogada.getUrlFotoAutor() != null) {
+            if (!jogada.getUrlFotoAutor().isEmpty()) {
+                Picasso
+                        .with(holder.profileImage.getContext())
+                        .load(jogada.getUrlFotoAutor())
+                        .transform(new CircleTransform())
+                        .into(holder.profileImage);
+            }
         }
     }
 
