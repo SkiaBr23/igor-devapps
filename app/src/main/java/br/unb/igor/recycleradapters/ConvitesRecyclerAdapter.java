@@ -118,7 +118,8 @@ public class ConvitesRecyclerAdapter extends RecyclerView.Adapter<ConvitesViewHo
 
     @Override
     public int getItemCount() {
-        return this.convites.size();
+
+        return this.convites != null ? this.convites.size() : 0;
     }
 
     @Override
