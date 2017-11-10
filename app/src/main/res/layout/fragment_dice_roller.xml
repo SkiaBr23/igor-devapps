@@ -53,7 +53,7 @@
                 app:layout_constraintRight_toRightOf="@+id/numberPickerQtdDados"
                 app:layout_constraintTop_toTopOf="parent"
                 android:layout_width="wrap_content"
-                android:text="Quantidade\nde dados"
+                android:text="Quantidade"
                 android:layout_marginBottom="5dp"
                 android:textAlignment="center"
                 android:textColor="@color/branco"
@@ -62,8 +62,11 @@
 
             <NumberPicker
                 android:id="@+id/numberPickerQtdDados"
+                android:theme="@style/AppTheme.Picker"
+
                 android:layout_width="80dp"
                 android:layout_height="80dp"
+
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintLeft_toLeftOf="parent"
                 app:layout_constraintRight_toLeftOf="@+id/numberPickerTipoDado"
@@ -78,7 +81,7 @@
                 app:layout_constraintLeft_toLeftOf="@+id/numberPickerTipoDado"
                 app:layout_constraintTop_toTopOf="parent"
                 android:layout_width="wrap_content"
-                android:text="Tipo\ndo dado"
+                android:text="Dado"
                 android:layout_marginBottom="5dp"
                 android:textAlignment="center"
                 android:textColor="@color/branco"
@@ -87,12 +90,14 @@
 
             <NumberPicker
                 android:id="@+id/numberPickerTipoDado"
+                android:theme="@style/AppTheme.Picker"
                 app:layout_constraintLeft_toRightOf="@+id/numberPickerQtdDados"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintRight_toLeftOf="@+id/numberPickerAdicional"
                 app:layout_constraintTop_toBottomOf="@+id/txtTipoDado"
                 android:layout_width="80dp"
                 android:layout_height="80dp">
+
             </NumberPicker>
 
             <TextView
@@ -102,7 +107,7 @@
                 app:layout_constraintLeft_toLeftOf="@+id/numberPickerAdicional"
                 app:layout_constraintTop_toTopOf="parent"
                 android:layout_width="wrap_content"
-                android:text="Adicional\n"
+                android:text="Modificador"
                 android:layout_marginBottom="5dp"
                 android:textAlignment="center"
                 android:textColor="@color/branco"
@@ -114,6 +119,8 @@
                 app:layout_constraintLeft_toRightOf="@+id/numberPickerTipoDado"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintRight_toRightOf="parent"
+                android:theme="@style/AppTheme.Picker"
+
                 app:layout_constraintTop_toBottomOf="@+id/txtAdicional"
                 android:layout_width="80dp"
                 android:layout_marginRight="80dp"

@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.NumberPicker;
 import android.widget.Toast;
 
@@ -82,8 +83,6 @@ public class FragmentDiceRoller extends Fragment {
         recyclerViewListaJogadas.setLayoutManager(layoutManager);
         jogadasRecyclerAdapter = new JogadasRecyclerAdapter(getActivity());
         recyclerViewListaJogadas.setAdapter(jogadasRecyclerAdapter);
-
-
 
         mAuth = FirebaseAuth.getInstance();
         user = ((ActivityHome)getActivity()).getCurrentUser();
