@@ -1,6 +1,7 @@
 package br.unb.igor.helpers;
 
 import br.unb.igor.model.Aventura;
+import br.unb.igor.model.Convite;
 import br.unb.igor.model.Sessao;
 import br.unb.igor.model.User;
 
@@ -15,6 +16,7 @@ public interface AdventureListener {
     void onConfirmarSessao(String tituloSessao, String dataSessao);
     void onUserInvitation(User user, boolean hasBeenInvited);
     void onUserKickedOut(User user);
+    void onClickCancelarConvite(Convite convite);
     void rolagemDados();
     void onInvitesView();
 }

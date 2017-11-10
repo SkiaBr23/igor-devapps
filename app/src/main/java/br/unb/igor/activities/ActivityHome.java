@@ -961,6 +961,24 @@ public class ActivityHome extends AppCompatActivity implements
     }
 
     @Override
+    public void onClickCancelarConvite(Convite convite) {
+        if(currentUser != null){
+            DB.getAdventureById(convite.getKeyAventura(), new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
+                @Override
+                public void onComplete(boolean cancelled, Object extra, int step) {
+                    if (extra != null && extra instanceof Aventura) {
+                        currentUser.hasBeenFetchedFromDB = true;
+                        ((Aventura) extra).removeInvitedUser(currentUser.getUserId());
+                        DB.upsertAdventure((Aventura) extra);
+                    }
+                }
+            }));
+            currentUser.removeConvite(convite.getKeyAventura());
+            DB.upsertUser(currentUser);
+        }
+    }
+
+    @Override
     public void rolagemDados() {
         FragmentDiceRoller fragmentDiceRoller = new FragmentDiceRoller();
         getSupportFragmentManager()

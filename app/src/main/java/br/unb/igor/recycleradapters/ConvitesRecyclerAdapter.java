@@ -24,7 +24,7 @@ public class ConvitesRecyclerAdapter extends RecyclerView.Adapter<ConvitesViewHo
     private ListAdapterListener mListener;
 
     public interface ListAdapterListener { // create an interface
-        void onClickCancelarConvite(int indexConvite);
+        void onClickCancelarConvite(Convite convite);
         void onClickConfirmarConvite(int indexConvite);
     }
 
@@ -94,13 +94,13 @@ public class ConvitesRecyclerAdapter extends RecyclerView.Adapter<ConvitesViewHo
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
-                alertDialog.setTitle("Cancelar Convite");
-                alertDialog.setMessage("Deseja realmente cancelar o convite?");
+                alertDialog.setTitle("Recusar Convite");
+                alertDialog.setMessage("Deseja realmente recusar o convite?");
                 alertDialog.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         convites.remove(convite);
-                        mListener.onClickCancelarConvite(holder.getAdapterPosition());
+                        mListener.onClickCancelarConvite(convite);
                     }
                 });
                 alertDialog.setNegativeButton("Não", new DialogInterface.OnClickListener() {
