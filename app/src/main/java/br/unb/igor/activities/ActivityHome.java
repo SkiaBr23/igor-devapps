@@ -87,6 +87,7 @@ public class ActivityHome extends AppCompatActivity implements
     private FragmentConvites fragmentConvites;
     private FragmentCriarAventura fragmentCreateAdventure;
     private FragmentAccount fragmentAccount;
+    private FragmentDiceRoller fragmentDiceRoll;
 
     private ImageView imgHamburguer;
     private ImageView imgOptionsMenu;
@@ -99,7 +100,6 @@ public class ActivityHome extends AppCompatActivity implements
     private Aventura selectedAdventure = null;
     private User currentUser = null;
     private ArrayList<Aventura> adventures;
-    private ArrayList<Convite> invitations;
 
     public static FirebaseAuth auth = FirebaseAuth.getInstance();
     public static DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
@@ -178,6 +178,7 @@ public class ActivityHome extends AppCompatActivity implements
         Adventure,
         CreateSession,
         AddPlayer,
+        DiceRoll,
         CreateAdventure
     }
 
@@ -374,10 +375,6 @@ public class ActivityHome extends AppCompatActivity implements
             this.adventures = new ArrayList<>();
         }
 
-        if (this.invitations == null) {
-            this.invitations = new ArrayList<>();
-        }
-
         final FragmentManager fragmentManager = getSupportFragmentManager();
 
         fragmentHome = (FragmentHome)getScreenFragment(Screen.Home);
@@ -489,7 +486,6 @@ public class ActivityHome extends AppCompatActivity implements
                 if (extra != null && extra instanceof User) {
                     currentUser.assignInternal((User)extra);
                     currentUser.hasBeenFetchedFromDB = true;
-                    fetchInvitations();
                     fetchInitialAdventures();
                     Picasso
                         .with(ActivityHome.this)
@@ -586,25 +582,6 @@ public class ActivityHome extends AppCompatActivity implements
 
     public List<Aventura> getAdventures() {
         return adventures;
-    }
-
-    public List<Convite> getInvitations(){
-        return invitations;
-    }
-
-
-    public void fetchInvitations() {
-        ref.child("users").child(auth.getCurrentUser().getUid()).child("convites").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                GenericTypeIndicator<ArrayList<Convite>> genericTypeIndicator =new GenericTypeIndicator<ArrayList<Convite>>(){};
-                invitations = dataSnapshot.getValue(genericTypeIndicator);
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.d("getInvitations","Error getting invitations");
-            }
-        });
     }
 
     public void showHomeFragment() {
@@ -772,6 +749,15 @@ public class ActivityHome extends AppCompatActivity implements
                     fragment = getFragmentByClass(FragmentAccount.class);
                     fragmentAccount = (FragmentAccount) fragment;
                 }
+                break;
+            case DiceRoll:
+                if (fragmentDiceRoll != null && fragmentDiceRoll.getRetainInstance()) {
+                    fragment = fragmentDiceRoll;
+                } else {
+                    fragment = getFragmentByClass(FragmentDiceRoller.class);
+                    fragmentDiceRoll = (FragmentDiceRoller) fragment;
+                }
+                break;
             case Books:
             case Settings:
             case Exit:
@@ -796,6 +782,8 @@ public class ActivityHome extends AppCompatActivity implements
             return Screen.AddPlayer;
         } else if (f instanceof FragmentAccount) {
             return Screen.Account;
+        } else if (f instanceof FragmentDiceRoller) {
+            return Screen.DiceRoll;
         }
         return Screen.Exit;
     }
@@ -961,8 +949,8 @@ public class ActivityHome extends AppCompatActivity implements
     }
 
     @Override
-    public void onClickCancelarConvite(Convite convite) {
-        if(currentUser != null){
+    public void onClickCancelarConvite(Convite convite, int index) {
+        if (currentUser != null){
             DB.getAdventureById(convite.getKeyAventura(), new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
                 @Override
                 public void onComplete(boolean cancelled, Object extra, int step) {
@@ -975,18 +963,15 @@ public class ActivityHome extends AppCompatActivity implements
             }));
             currentUser.removeConvite(convite.getKeyAventura());
             DB.upsertUser(currentUser);
+            getScreenFragment(Screen.Invites);
+            fragmentConvites.notifyInviteRemoved(index);
         }
     }
 
     @Override
     public void rolagemDados() {
-        FragmentDiceRoller fragmentDiceRoller = new FragmentDiceRoller();
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.content_frame, fragmentDiceRoller)
-                .addToBackStack(fragmentDiceRoller.TAG)
-                .commit();
-
+        getScreenFragment(Screen.DiceRoll);
+        pushFragment(fragmentDiceRoll, FragmentDiceRoller.TAG, Screen.DiceRoll);
     }
 
     @Override

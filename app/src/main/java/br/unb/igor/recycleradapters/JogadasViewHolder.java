@@ -13,6 +13,7 @@ public class JogadasViewHolder extends RecyclerView.ViewHolder implements View.O
     public CircleImageView profileImage;
     public TextView txtResultado;
     public TextView txtJogada;
+    public TextView txtChance;
     public TextView txtDataJogada;
 
     public JogadasViewHolder(View itemView) {
@@ -22,6 +23,7 @@ public class JogadasViewHolder extends RecyclerView.ViewHolder implements View.O
         profileImage = itemView.findViewById(R.id.profileImage);
         txtResultado = itemView.findViewById(R.id.txtResultado);
         txtJogada = itemView.findViewById(R.id.txtJogada);
+        txtChance = itemView.findViewById(R.id.txtChance);
         txtDataJogada = itemView.findViewById(R.id.txtDataJogada);
 
     }

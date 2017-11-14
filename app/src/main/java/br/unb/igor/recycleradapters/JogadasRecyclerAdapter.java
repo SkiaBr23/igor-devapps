@@ -10,9 +10,11 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import br.unb.igor.R;
 import br.unb.igor.helpers.CircleTransform;
+import br.unb.igor.helpers.DiceRoller;
 import br.unb.igor.model.Convite;
 import br.unb.igor.model.Jogada;
 
@@ -57,6 +59,13 @@ public class JogadasRecyclerAdapter extends RecyclerView.Adapter<JogadasViewHold
         holder.txtDataJogada.setText(jogada.getTimeSentMin());
         holder.txtJogada.setText("Rolando " + jogada.getComando() + " = ");
         holder.txtResultado.setText(jogada.getResultado());
+
+        double chance = DiceRoller.probability(Integer.valueOf(jogada.getResultado()),
+                jogada.getFacesRolled(),
+                jogada.getDiceRolled());
+
+        holder.txtChance.setText(String.format(Locale.getDefault(),"%.2f%%", chance));
+
         if (jogada.getUrlFotoAutor() != null) {
             if (!jogada.getUrlFotoAutor().isEmpty()) {
                 Picasso

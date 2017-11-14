@@ -45,24 +45,27 @@ public class FragmentDiceRoller extends Fragment {
     private FirebaseAuth mAuth;
     private User user;
 
+    MediaPlayer mp = null;
 
     public FragmentDiceRoller() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View root = inflater.inflate(R.layout.fragment_dice_roller, container, false);
-        numberPickerqtdDados = (NumberPicker)root.findViewById(R.id.numberPickerQtdDados);
-        numberPickertipoDado = (NumberPicker)root.findViewById(R.id.numberPickerTipoDado);
-        numberPickerqtdAdicional = (NumberPicker)root.findViewById(R.id.numberPickerAdicional);
-        btnRolarDados = (Button)root.findViewById(R.id.btnRolarDados);
-        recyclerViewListaJogadas = (RecyclerView)root.findViewById(R.id.recyclerViewListaJogadas);
-        final MediaPlayer mp = MediaPlayer.create(getActivity(), R.raw.dice1);
+        numberPickerqtdDados = root.findViewById(R.id.numberPickerQtdDados);
+        numberPickertipoDado = root.findViewById(R.id.numberPickerTipoDado);
+        numberPickerqtdAdicional = root.findViewById(R.id.numberPickerAdicional);
+        btnRolarDados = root.findViewById(R.id.btnRolarDados);
+        recyclerViewListaJogadas = root.findViewById(R.id.recyclerViewListaJogadas);
         jogadas = new ArrayList<>();
+
+        if (mp == null) {
+            mp = MediaPlayer.create(getActivity(), R.raw.dice1);
+        }
 
         numberPickerqtdDados.setMinValue(1);
         numberPickerqtdDados.setMaxValue(2);
@@ -114,7 +117,7 @@ public class FragmentDiceRoller extends Fragment {
                         btnRolarDados.setEnabled(true);
                         mp.pause();
                     }
-                }, 2000);
+                }, mp.getDuration() + 100);
             }
         });
 
@@ -122,7 +125,7 @@ public class FragmentDiceRoller extends Fragment {
     }
 
     public int ajustaTipoDado (Integer tipoDado) {
-        switch(tipoDado){
+        switch (tipoDado) {
             case 0:
                 return 4;
             case 1:
