@@ -68,7 +68,7 @@ public class FragmentDiceRoller extends Fragment {
         }
 
         numberPickerqtdDados.setMinValue(1);
-        numberPickerqtdDados.setMaxValue(2);
+        numberPickerqtdDados.setMaxValue(8);
 
         numberPickertipoDado.setMinValue(0);
         numberPickertipoDado.setMaxValue(6);
@@ -98,11 +98,13 @@ public class FragmentDiceRoller extends Fragment {
                 int tipoDado = numberPickertipoDado.getValue();
                 tipoDado = ajustaTipoDado(tipoDado);
                 int modificador = numberPickerqtdAdicional.getValue()+(-6);
-                String resultado = String.valueOf(DiceRoller.roll(tipoDado,qtdDado,modificador));
+                int resultado = DiceRoller.roll(tipoDado,qtdDado,modificador);
+                Double probabilidade = DiceRoller.probability(resultado - modificador,tipoDado,qtdDado);
                 String comando = DiceRoller.diceToText(tipoDado,qtdDado,modificador);
                 newJogada.setComando(comando);
                 newJogada.setNomeAutor(user.getFullName());
-                newJogada.setResultado(resultado);
+                newJogada.setResultado(String.valueOf(resultado));
+                newJogada.setProbabilidade(probabilidade);
                 newJogada.setIdAutor(user.getUserId());
                 newJogada.setUrlFotoAutor(user.getProfilePictureUrl());
                 jogadas.add(newJogada);

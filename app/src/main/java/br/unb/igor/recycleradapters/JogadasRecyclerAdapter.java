@@ -60,11 +60,11 @@ public class JogadasRecyclerAdapter extends RecyclerView.Adapter<JogadasViewHold
         holder.txtJogada.setText("Rolando " + jogada.getComando() + " = ");
         holder.txtResultado.setText(jogada.getResultado());
 
-        double chance = DiceRoller.probability(Integer.valueOf(jogada.getResultado()),
+        /*ouble chance = DiceRoller.probability(Integer.valueOf(jogada.getResultado()),
                 jogada.getFacesRolled(),
-                jogada.getDiceRolled());
+                jogada.getDiceRolled());*/
 
-        holder.txtChance.setText(String.format(Locale.getDefault(),"%.2f%%", chance));
+        holder.txtChance.setText(String.format(Locale.getDefault(),"%.2f%%", jogada.getProbabilidade()));
 
         if (jogada.getUrlFotoAutor() != null) {
             if (!jogada.getUrlFotoAutor().isEmpty()) {

@@ -17,6 +17,7 @@ public class Jogada {
     private String nomePersonagem;
     private String urlFotoAutor;
     private Date timestamp;
+    private Double probabilidade;
     private int tipo;
 
     @Exclude
@@ -45,6 +46,14 @@ public class Jogada {
         this.timestamp = new Date();
 
         setComando(comando);
+    }
+
+    public Double getProbabilidade() {
+        return probabilidade;
+    }
+
+    public void setProbabilidade(Double probabilidade) {
+        this.probabilidade = probabilidade;
     }
 
     public String getTimeSent() {
