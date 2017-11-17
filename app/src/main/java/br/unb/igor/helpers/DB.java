@@ -1,16 +1,24 @@
 package br.unb.igor.helpers;
 
 import android.graphics.Bitmap;
+import android.net.Uri;
+import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -24,6 +32,7 @@ import java.util.List;
 
 import br.unb.igor.model.Aventura;
 import br.unb.igor.model.Convite;
+import br.unb.igor.model.Jogada;
 import br.unb.igor.model.User;
 
 public class DB {
@@ -77,6 +86,32 @@ public class DB {
         String key = ref.child("adventures").push().getKey();
         aventura.setKey(key);
         ref.child("adventures").child(key).setValue(aventura);
+    }
+
+    public static void createRoll(final Jogada jogada) {
+        String key = ref.child("rolls").child(jogada.getKeyAventura()).push().getKey();
+        jogada.setKey(key);
+        ref.child("rolls").child(jogada.getKeyAventura()).child(key).setValue(jogada);
+    }
+
+    public static void getRollsFromAdventure(final String keyAventura, int qtd){
+        Query myTopPostsQuery = ref.child("rolls").child(keyAventura)
+                .orderByChild("timestamp").limitToLast(qtd);
+        myTopPostsQuery.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
+                    // TODO: handle the post
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                // Getting Post failed, log a message
+                Log.w("GetRolls", "loadPost:onCancelled", databaseError.toException());
+                // ...
+            }
+        });
     }
 
     public static void upsertAdventure(final Aventura aventura) {

@@ -1,6 +1,7 @@
 package br.unb.igor.fragments;
 
 
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -22,6 +23,7 @@ import java.util.List;
 
 import br.unb.igor.R;
 import br.unb.igor.activities.ActivityHome;
+import br.unb.igor.helpers.AdventureListener;
 import br.unb.igor.helpers.DiceRoller;
 import br.unb.igor.model.Jogada;
 import br.unb.igor.model.User;
@@ -44,6 +46,7 @@ public class FragmentDiceRoller extends Fragment {
     private List<Jogada> jogadas;
     private FirebaseAuth mAuth;
     private User user;
+    private AdventureListener mListener;
 
     MediaPlayer mp = null;
 
@@ -51,6 +54,22 @@ public class FragmentDiceRoller extends Fragment {
         // Required empty public constructor
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof AdventureListener) {
+            mListener = (AdventureListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -107,6 +126,8 @@ public class FragmentDiceRoller extends Fragment {
                 newJogada.setProbabilidade(probabilidade);
                 newJogada.setIdAutor(user.getUserId());
                 newJogada.setUrlFotoAutor(user.getProfilePictureUrl());
+                newJogada.setKeyAventura(((ActivityHome) getActivity()).getSelectedAdventure().getKey());
+                newJogada.setTipo(Jogada.getTipoRolagem(resultado,qtdDado,tipoDado,modificador));
                 jogadas.add(newJogada);
                 jogadasRecyclerAdapter.setJogadas(jogadas);
                 jogadasRecyclerAdapter.notifyDataSetChanged();
@@ -120,6 +141,8 @@ public class FragmentDiceRoller extends Fragment {
                         mp.pause();
                     }
                 }, mp.getDuration() + 100);
+
+                mListener.onCreateRoll(newJogada);
             }
         });
 

@@ -83,7 +83,7 @@ public class FragmentConvites extends Fragment {
 
                     @Override
                     public void onClickConfirmarConvite(Convite convite, int index) {
-                        mListener.onClickAceitarConvite(convite,index);
+                        mListener.onClickConfirmarConvite(convite,index);
                     }
         });
         recyclerViewListaConvites.setAdapter(convitesRecyclerAdapter);

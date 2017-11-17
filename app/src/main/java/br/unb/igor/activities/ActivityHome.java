@@ -68,6 +68,7 @@ import br.unb.igor.helpers.DB;
 import br.unb.igor.helpers.OnCompleteHandler;
 import br.unb.igor.model.Aventura;
 import br.unb.igor.model.Convite;
+import br.unb.igor.model.Jogada;
 import br.unb.igor.model.Sessao;
 import br.unb.igor.model.User;
 
@@ -131,7 +132,6 @@ public class ActivityHome extends AppCompatActivity implements
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String previousKey) {
             Convite convite = dataSnapshot.getValue(Convite.class);
-            System.out.println("@@ Convite add");
             if (convite != null) {
                 currentUser.setInvitation(convite, true);
                 getScreenFragment(Screen.Home);
@@ -952,7 +952,12 @@ public class ActivityHome extends AppCompatActivity implements
     }
 
     @Override
-    public void onClickAceitarConvite(Convite convite, int index) {
+    public void onCreateRoll(Jogada jogada) {
+        DB.createRoll(jogada);
+    }
+
+    @Override
+    public void onClickConfirmarConvite(Convite convite, int index) {
         if (currentUser != null){
             DB.getAdventureById(convite.getKeyAventura(), new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
                 @Override

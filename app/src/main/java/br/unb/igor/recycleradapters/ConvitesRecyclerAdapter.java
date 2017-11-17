@@ -46,7 +46,6 @@ public class ConvitesRecyclerAdapter extends RecyclerView.Adapter<ConvitesViewHo
         return convitesViewHolder;
     }
 
-
     @Override
     public void onBindViewHolder(final ConvitesViewHolder holder, int position) {
         if (position >= this.convites.size()) {
@@ -125,8 +124,6 @@ public class ConvitesRecyclerAdapter extends RecyclerView.Adapter<ConvitesViewHo
 
     @Override
     public long getItemId(int position) {
-        //return sessoes.get(position).getNumeroSessao();
-        //TODO: isso dá problema? @maximillianfx
         return (long) position;
     }
 }
