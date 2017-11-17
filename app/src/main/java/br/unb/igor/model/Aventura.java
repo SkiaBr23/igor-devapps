@@ -249,6 +249,10 @@ public class Aventura implements Parcelable {
         return jogadoresConvidadosIdsSet.contains(key);
     }
 
+    public boolean isUserInAdventure(String key) {
+        return jogadoresUserIds.contains(key);
+    }
+
     public void addInvitedUser(String key) {
         if (!isUserInvited(key)) {
             jogadoresConvidadosIds.add(key);
@@ -264,8 +268,17 @@ public class Aventura implements Parcelable {
     }
 
     public void kickUser(String key) {
-        removeInvitedUser(key);
-        jogadoresUserIds.remove(key);
+        if(isUserInAdventure(key)) {
+            removeInvitedUser(key);
+            jogadoresUserIds.remove(key);
+        }
+    }
+
+    public void acceptUser(String key){
+        if(!isUserInAdventure(key)) {
+            removeInvitedUser(key);
+            jogadoresUserIds.add(key);
+        }
     }
 
     @Exclude

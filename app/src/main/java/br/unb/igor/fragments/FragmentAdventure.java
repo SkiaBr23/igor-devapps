@@ -284,8 +284,7 @@ public class FragmentAdventure extends Fragment {
     }
 
     public boolean isCurrentUserMaster() {
-        User user = ((ActivityHome)getActivity()).getCurrentUser();
-        return aventura != null && user != null && aventura.getMestreUserId().equals(user.getUserId());
+        return aventura != null && mAuth.getCurrentUser() != null && aventura.getMestreUserId().equals(mAuth.getCurrentUser().getUid());
     }
 
     public void fetchUsers() {

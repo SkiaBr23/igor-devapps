@@ -82,9 +82,8 @@ public class FragmentConvites extends Fragment {
                     }
 
                     @Override
-                    public void onClickConfirmarConvite(int indexConvite) {
-                        //TODO: Colocar aqui a chamada para aceitar o convite no firebase
-                        //TODO: Depois de atualizar no firebase, remover o item da lista e dar um notify
+                    public void onClickConfirmarConvite(Convite convite, int index) {
+                        mListener.onClickAceitarConvite(convite,index);
                     }
         });
         recyclerViewListaConvites.setAdapter(convitesRecyclerAdapter);

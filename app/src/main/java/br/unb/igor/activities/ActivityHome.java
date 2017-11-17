@@ -114,6 +114,7 @@ public class ActivityHome extends AppCompatActivity implements
                 if (!aid.equals(selectedAdventure.getKey())) {
                     return;
                 }
+
                 Aventura adventureChanged = dataSnapshot.getValue(Aventura.class);
                 if (adventureChanged != null) {
                     getScreenFragment(Screen.Home);
@@ -945,6 +946,33 @@ public class ActivityHome extends AppCompatActivity implements
         if (selectedAdventure != null) {
             selectedAdventure.kickUser(user.getUserId());
             DB.upsertAdventure(selectedAdventure);
+            user.removeAventura(selectedAdventure.getKey());
+            DB.upsertUser(user);
+        }
+    }
+
+    @Override
+    public void onClickAceitarConvite(Convite convite, int index) {
+        if (currentUser != null){
+            DB.getAdventureById(convite.getKeyAventura(), new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
+                @Override
+                public void onComplete(boolean cancelled, Object extra, int step) {
+                    if (extra != null && extra instanceof Aventura) {
+                        currentUser.hasBeenFetchedFromDB = true;
+                        ((Aventura) extra).acceptUser(currentUser.getUserId());
+                        adventures.add((Aventura) extra);
+                        DB.upsertAdventure((Aventura) extra);
+                        currentUser.addAdventure((Aventura) extra);
+                        currentUser.removeConvite(((Aventura) extra).getKey());
+                        DB.upsertUser(currentUser);
+                    }
+                }
+            }));
+            getScreenFragment(Screen.Invites);
+            fragmentConvites.notifyInviteRemoved(index);
+            getScreenFragment(Screen.Home);
+            fragmentHome.getRecyclerAdapter().notifyDataSetChanged();
+            fragmentHome.updateView();
         }
     }
 
@@ -958,11 +986,11 @@ public class ActivityHome extends AppCompatActivity implements
                         currentUser.hasBeenFetchedFromDB = true;
                         ((Aventura) extra).removeInvitedUser(currentUser.getUserId());
                         DB.upsertAdventure((Aventura) extra);
+                        currentUser.removeConvite(((Aventura) extra).getKey());
+                        DB.upsertUser(currentUser);
                     }
                 }
             }));
-            currentUser.removeConvite(convite.getKeyAventura());
-            DB.upsertUser(currentUser);
             getScreenFragment(Screen.Invites);
             fragmentConvites.notifyInviteRemoved(index);
         }

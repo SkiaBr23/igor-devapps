@@ -133,8 +133,18 @@ public class User implements Parcelable {
 
     public boolean removeConvite(String keyAventura){
         for (Convite c : this.convites) {
-            if (c.getKeyAventura() == keyAventura){
+            if (c.getKeyAventura().equals(keyAventura)){
                 this.convites.remove(c);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean removeAventura(String keyAventura){
+        for(String key : this.aventuras){
+            if(key.equals(keyAventura)){
+                this.aventuras.remove(key);
                 return true;
             }
         }
