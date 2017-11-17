@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import br.unb.igor.R;
@@ -30,6 +31,7 @@ public class LivrosRecyclerAdapter extends RecyclerView.Adapter<LivrosViewHolder
 
     public LivrosRecyclerAdapter(Context context, ListAdapterListener listAdapterListener) {
         this.context = context;
+        this.livros = new ArrayList<>();
         this.mListener = listAdapterListener;
         setHasStableIds(true);
     }
@@ -79,7 +81,7 @@ public class LivrosRecyclerAdapter extends RecyclerView.Adapter<LivrosViewHolder
     @Override
     public int getItemCount() {
 
-        return this.livros != null ? this.livros.size() : 0;
+        return this.livros.size();
     }
 
     @Override
