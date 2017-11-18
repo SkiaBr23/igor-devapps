@@ -1,4 +1,4 @@
-<resources>
+        <resources>
     <string name="app_name">Igor</string>
     <string name="txtSeparadoLogin">OU</string>
     <string name="btnEntrar">ENTRAR</string>

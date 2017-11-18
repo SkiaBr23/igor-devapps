@@ -79,6 +79,8 @@ public class FragmentAdventure extends Fragment {
     private List<User> users = new ArrayList<>();
     private User master = null;
 
+    JogadoresRecyclerAdapter.DisplayInfo di;
+
     private enum FetchState {
         NotFetched,
         Fetching,
@@ -205,7 +207,7 @@ public class FragmentAdventure extends Fragment {
         sessoesRecyclerAdapter = new SessoesRecyclerAdapter(getActivity(), mListener, sessoes);
         recyclerViewListaSessoes.setAdapter(sessoesRecyclerAdapter);
 
-        JogadoresRecyclerAdapter.DisplayInfo di = new JogadoresRecyclerAdapter.DisplayInfo();
+        di = new JogadoresRecyclerAdapter.DisplayInfo();
 
         di.isMaster = isCurrentUserMaster();
         di.currentUserId = getCurrentUserId();
@@ -224,7 +226,14 @@ public class FragmentAdventure extends Fragment {
             btnFAB.setEnabled(false);
         }
 
-        jogadoresRecyclerAdapter = new JogadoresRecyclerAdapter(mListener, di);
+        jogadoresRecyclerAdapter = new JogadoresRecyclerAdapter(getActivity(),mListener, di, new JogadoresRecyclerAdapter.ListAdapterListener() {
+            @Override
+            public void onClickKickUsuario(User user, int index) {
+                jogadoresRecyclerAdapter.getDisplayInfo().users.remove(index);
+                jogadoresRecyclerAdapter.notifyDataSetChanged();
+                mListener.onUserKickedOut(user);
+            }
+        });
 
         layoutManagerJogadores = new LinearLayoutManager(getActivity());
         recyclerViewListaJogadores.setLayoutManager(layoutManagerJogadores);
@@ -259,8 +268,9 @@ public class FragmentAdventure extends Fragment {
         }
         isInEditMode = b;
         jogadoresRecyclerAdapter.getDisplayInfo().canPerformActions = b;
-        jogadoresRecyclerAdapter.notifyDataSetChanged();
+        di.alreadyJoinedIds = aventura.getJogadoresUserIdsSet();
         if (b) {
+            jogadoresRecyclerAdapter.notifyDataSetChanged();
             txtDescricaoAventura.setVisibility(View.INVISIBLE);
             txtDescricaoAventuraEdit.setVisibility(View.VISIBLE);
             txtTituloAventuraEdicao.setVisibility(View.INVISIBLE);

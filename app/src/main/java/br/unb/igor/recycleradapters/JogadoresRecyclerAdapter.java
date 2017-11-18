@@ -1,6 +1,8 @@
 package br.unb.igor.recycleradapters;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
@@ -24,6 +26,12 @@ public class JogadoresRecyclerAdapter extends RecyclerView.Adapter<JogadoresView
 
     private AdventureListener mListener;
     private DisplayInfo mode;
+    private ListAdapterListener mListenerList;
+    public Context context;
+
+    public interface ListAdapterListener { // create an interface
+        void onClickKickUsuario(User user, int index);
+    }
 
     public static class DisplayInfo {
         public boolean isMaster = false;
@@ -34,9 +42,12 @@ public class JogadoresRecyclerAdapter extends RecyclerView.Adapter<JogadoresView
         public Set<String> alreadyJoinedIds = new ArraySet<>();
     }
 
-    public JogadoresRecyclerAdapter(AdventureListener listener, DisplayInfo mode) {
+    public JogadoresRecyclerAdapter(Context ctx, AdventureListener listener, DisplayInfo mode, ListAdapterListener listAdapterListener) {
         this.mListener = listener;
         this.mode = mode;
+        this.mListenerList = listAdapterListener;
+        this.context = ctx;
+
     }
 
     public DisplayInfo getDisplayInfo() {
@@ -117,7 +128,25 @@ public class JogadoresRecyclerAdapter extends RecyclerView.Adapter<JogadoresView
             @Override
             public void onClick(View view) {
                 if (hasJoined) {
-                    mListener.onUserKickedOut(user);
+                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
+                    alertDialog.setTitle("Expulsar jogador");
+                    alertDialog.setMessage("Deseja realmente expulsar o jogador?");
+                    alertDialog.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mListenerList.onClickKickUsuario(user, holder.getAdapterPosition());
+                            //mListener.onUserKickedOut(user);
+                        }
+                    });
+                    alertDialog.setNegativeButton("Não", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+
+                    AlertDialog dialog = alertDialog.create();
+                    dialog.show();
                 } else {
                     mListener.onUserInvitation(user, !isInvited);
                 }

@@ -149,7 +149,12 @@ public class FragmentAdicionarJogador extends Fragment {
         di.users = users;
         di.canPerformActions = true;
 
-        jogadoresPesquisadosRecyclerAdapter = new JogadoresRecyclerAdapter(mListener, di);
+        jogadoresPesquisadosRecyclerAdapter = new JogadoresRecyclerAdapter(getActivity(),mListener, di, new JogadoresRecyclerAdapter.ListAdapterListener() {
+            @Override
+            public void onClickKickUsuario(User user, int index) {
+
+            }
+        });
         recyclerViewListaPesquisaJogadores.setAdapter(jogadoresPesquisadosRecyclerAdapter);
 
         editTxtPesquisaJogadores.setOnEditorActionListener(new TextView.OnEditorActionListener() {
