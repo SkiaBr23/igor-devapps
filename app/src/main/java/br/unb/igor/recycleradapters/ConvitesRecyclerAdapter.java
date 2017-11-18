@@ -73,7 +73,6 @@ public class ConvitesRecyclerAdapter extends RecyclerView.Adapter<ConvitesViewHo
                 alertDialog.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        convites.remove(convite);
                         mListener.onClickConfirmarConvite(convite,holder.getAdapterPosition());
                     }
                 });
@@ -99,7 +98,6 @@ public class ConvitesRecyclerAdapter extends RecyclerView.Adapter<ConvitesViewHo
                 alertDialog.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        convites.remove(convite);
                         mListener.onClickCancelarConvite(convite, holder.getAdapterPosition());
                     }
                 });

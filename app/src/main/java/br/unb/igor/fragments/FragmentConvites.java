@@ -78,11 +78,13 @@ public class FragmentConvites extends Fragment {
                 new ConvitesRecyclerAdapter.ListAdapterListener() {
                     @Override
                     public void onClickCancelarConvite(Convite convite, int index) {
+                        updateRecycler(index);
                         mListener.onClickCancelarConvite(convite, index);
                     }
 
                     @Override
                     public void onClickConfirmarConvite(Convite convite, int index) {
+                        updateRecycler(index);
                         mListener.onClickConfirmarConvite(convite,index);
                     }
         });
@@ -91,6 +93,11 @@ public class FragmentConvites extends Fragment {
         ((ActivityHome)getActivity()).markInvitationsAsSeen();
 
         return root;
+    }
+
+    public void updateRecycler (int index) {
+        ((ActivityHome) getActivity()).getCurrentUser().getConvites().remove(index);
+        this.convitesRecyclerAdapter.notifyDataSetChanged();
     }
 
     public void notifyInviteRemoved(int index) {

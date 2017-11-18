@@ -985,9 +985,9 @@ public class ActivityHome extends AppCompatActivity implements
                 }
             }));
             getScreenFragment(Screen.Invites);
-            fragmentConvites.notifyInviteRemoved(index);
+            //fragmentConvites.notifyInviteRemoved(index);
             getScreenFragment(Screen.Home);
-            fragmentHome.getRecyclerAdapter().notifyDataSetChanged();
+            //fragmentHome.getRecyclerAdapter().notifyDataSetChanged();
             fragmentHome.updateView();
         }
     }
@@ -1008,7 +1008,7 @@ public class ActivityHome extends AppCompatActivity implements
                 }
             }));
             getScreenFragment(Screen.Invites);
-            fragmentConvites.notifyInviteRemoved(index);
+            //fragmentConvites.notifyInviteRemoved(index);
         }
     }
 
