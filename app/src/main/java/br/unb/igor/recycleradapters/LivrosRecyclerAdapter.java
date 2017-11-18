@@ -69,19 +69,12 @@ public class LivrosRecyclerAdapter extends RecyclerView.Adapter<LivrosViewHolder
                         .into(holder.imgCapaLivro);
             }
         }
-
-        holder.imgCapaLivro.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-            }
-        });
     }
 
     @Override
     public int getItemCount() {
 
-        return this.livros.size();
+        return 5;
     }
 
     @Override

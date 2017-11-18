@@ -56,6 +56,7 @@ import java.util.List;
 import br.unb.igor.R;
 import br.unb.igor.fragments.FragmentAccount;
 import br.unb.igor.fragments.FragmentAdicionarJogador;
+import br.unb.igor.fragments.FragmentBooks;
 import br.unb.igor.fragments.FragmentConvites;
 import br.unb.igor.fragments.FragmentCriarAventura;
 import br.unb.igor.fragments.FragmentCriarSessao;
@@ -87,6 +88,7 @@ public class ActivityHome extends AppCompatActivity implements
     private FragmentConvites fragmentConvites;
     private FragmentCriarAventura fragmentCreateAdventure;
     private FragmentAccount fragmentAccount;
+    private FragmentBooks fragmentBooks;
     private FragmentDiceRoller fragmentDiceRoll;
 
     private ImageView imgHamburguer;
@@ -760,6 +762,13 @@ public class ActivityHome extends AppCompatActivity implements
                 }
                 break;
             case Books:
+                if (fragmentBooks != null && fragmentBooks.getRetainInstance()) {
+                    fragment = fragmentBooks;
+                } else {
+                    fragment = getFragmentByClass(FragmentBooks.class);
+                    fragmentBooks = (FragmentBooks) fragment;
+                }
+                break;
             case Settings:
             case Exit:
             default:
@@ -785,6 +794,8 @@ public class ActivityHome extends AppCompatActivity implements
             return Screen.Account;
         } else if (f instanceof FragmentDiceRoller) {
             return Screen.DiceRoll;
+        } else if (f instanceof FragmentBooks) {
+            return Screen.Books;
         }
         return Screen.Exit;
     }

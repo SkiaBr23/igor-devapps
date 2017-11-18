@@ -11,6 +11,7 @@ public class Livro {
     boolean statusDownload;
 
     public Livro() {
+        this.statusDownload = false;
     }
 
     public String getTitulo() {
