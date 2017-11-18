@@ -31,14 +31,6 @@
         android:layout_height="wrap_content"
         android:text="@string/edit_adventure_title" />
 
-    <Button
-        android:id="@+id/btnRolagemDados"
-        app:layout_constraintTop_toBottomOf="@+id/txtTituloAventuraEdicao"
-        app:layout_constraintLeft_toLeftOf="@+id/txtTituloAventuraEdicao"
-        android:layout_width="150dp"
-        android:text="Rolar dados"
-        android:layout_height="40dp" />
-
     <EditText
         android:id="@+id/txtTituloAventuraEdicaoEdit"
         app:layout_constraintTop_toTopOf="@+id/txtTituloAventuraEdicao"
@@ -330,6 +322,18 @@
 
     </android.support.constraint.ConstraintLayout>
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/btnFABDiceRoller"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginBottom="100dp"
+        android:layout_height="65dp"
+        android:layout_width="65dp"
+        android:backgroundTint="@color/btnEntrar"
+        android:layout_marginRight="25dp"
+        android:src="@drawable/dice"
+        app:borderWidth="0dp"
+        />
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btnAdventureFAB"
         app:layout_constraintRight_toRightOf="parent"

@@ -60,13 +60,13 @@ public class FragmentAdventure extends Fragment {
     private ConstraintLayout boxJogadoresAventura;
     private AdventureListener mListener;
     private FloatingActionButton btnFAB;
+    private FloatingActionButton btnFABDiceRoller;
     private FirebaseAuth mAuth;
     private CircleImageView profileImageMestre;
     private TextView txtNomeMestre;
     private TextView txtIndicadorNenhumaSessao;
     private TextView txtInfoLabel;
     private ProgressBar loadingSpinner;
-    private Button btnRolagemDados;
 
     private RecyclerView recyclerViewListaSessoes;
     private RecyclerView recyclerViewListaJogadores;
@@ -141,7 +141,7 @@ public class FragmentAdventure extends Fragment {
         loadingSpinner = root.findViewById(R.id.loadingSpinner);
         recyclerViewListaSessoes = root.findViewById(R.id.recyclerViewListaSessoes);
         recyclerViewListaJogadores = root.findViewById(R.id.recyclerViewListaJogadores);
-        btnRolagemDados = (Button)root.findViewById(R.id.btnRolagemDados);
+        btnFABDiceRoller = root.findViewById(R.id.btnFABDiceRoller);
 
         mAuth = FirebaseAuth.getInstance();
         boxAndamentoAventura = root.findViewById(R.id.boxAndamentoAventura);
@@ -247,7 +247,7 @@ public class FragmentAdventure extends Fragment {
         loadMasterInfo();
         updateAdventureInfo();
 
-        btnRolagemDados.setOnClickListener(new View.OnClickListener() {
+        btnFABDiceRoller.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mListener.rolagemDados();
