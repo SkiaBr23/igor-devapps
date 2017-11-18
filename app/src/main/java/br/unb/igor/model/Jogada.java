@@ -1,15 +1,14 @@
 package br.unb.igor.model;
 
-import com.google.firebase.database.Exclude;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Jogada {
 
+    private String key;
+    private String keyAventura;
     private String comando;
     private String resultado;
     private String idAutor;
@@ -18,25 +17,19 @@ public class Jogada {
     private String urlFotoAutor;
     private Date timestamp;
     private Double probabilidade;
-    private int tipo;
-
-    @Exclude
-    private int faces;
-
-    @Exclude
-    private int diceCount;
+    private TipoComando tipo;
 
     private static final Pattern regexDiceInfo = Pattern.compile("(\\d+)d(\\d+)");
 
     public enum TipoComando {
-        DADO, DADO_ACERTO_CRITICO, DADO_FALHA_CRITICA, EMOJI, TEXTO;
+        DADO, DADO_MAXIMO, DADO_MINIMO, DADO_CRITICO, DADO_FALHA, EMOJI, TEXTO;
     }
 
     public Jogada() {
         this.timestamp = new Date();
     }
 
-    public Jogada(String comando, String resultado, String idAutor, String nomeAutor, String nomePersonagem, String urlFotoAutor, int tipo) {
+    public Jogada(String comando, String resultado, String idAutor, String nomeAutor, String nomePersonagem, String urlFotoAutor, TipoComando tipo) {
         this.resultado = resultado;
         this.idAutor = idAutor;
         this.nomeAutor = nomeAutor;
@@ -46,6 +39,22 @@ public class Jogada {
         this.timestamp = new Date();
 
         setComando(comando);
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public String getKeyAventura() {
+        return keyAventura;
+    }
+
+    public void setKeyAventura(String keyAventura) {
+        this.keyAventura = keyAventura;
     }
 
     public Double getProbabilidade() {
@@ -87,14 +96,6 @@ public class Jogada {
 
     public void setComando(String comando) {
         this.comando = comando;
-        Matcher m = regexDiceInfo.matcher(comando);
-        if (m.matches()) {
-            diceCount = Integer.valueOf(m.group(1));
-            faces = Integer.valueOf(m.group(2));
-        } else {
-            diceCount = 0;
-            faces = 0;
-        }
     }
 
     public String getResultado() {
@@ -129,21 +130,24 @@ public class Jogada {
         this.urlFotoAutor = urlFotoAutor;
     }
 
-    public int getTipo() {
+    public TipoComando getTipo() {
         return tipo;
     }
 
-    public void setTipo(int tipo) {
+    public void setTipo(TipoComando tipo) {
         this.tipo = tipo;
     }
 
-    @Exclude
-    public int getFacesRolled() {
-        return faces;
-    }
-
-    @Exclude
-    public int getDiceRolled() {
-        return diceCount;
+    public static TipoComando getTipoRolagem(int resultado, int qtdDado, int tipoDado, int modificador){
+        if(tipoDado == 20 && qtdDado == 1 && resultado - modificador == 20){
+            return TipoComando.DADO_CRITICO;
+        } else if(tipoDado == 20 && qtdDado == 1 && resultado - modificador == 1){
+            return TipoComando.DADO_FALHA;
+        } else if(resultado - modificador == qtdDado*tipoDado){
+            return TipoComando.DADO_MAXIMO;
+        } else if(resultado - modificador == qtdDado){
+            return TipoComando.DADO_MINIMO;
+        }
+        return TipoComando.DADO;
     }
 }

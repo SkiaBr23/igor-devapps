@@ -1,11 +1,13 @@
 package br.unb.igor.fragments;
 
 
+import android.content.Context;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,12 +18,18 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import br.unb.igor.R;
 import br.unb.igor.activities.ActivityHome;
+import br.unb.igor.helpers.AdventureListener;
 import br.unb.igor.helpers.DiceRoller;
 import br.unb.igor.model.Jogada;
 import br.unb.igor.model.User;
@@ -44,6 +52,9 @@ public class FragmentDiceRoller extends Fragment {
     private List<Jogada> jogadas;
     private FirebaseAuth mAuth;
     private User user;
+    private AdventureListener mListener;
+    public static DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
+
 
     MediaPlayer mp = null;
 
@@ -51,6 +62,22 @@ public class FragmentDiceRoller extends Fragment {
         // Required empty public constructor
     }
 
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof AdventureListener) {
+            mListener = (AdventureListener) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragmentInteractionListener");
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -89,6 +116,42 @@ public class FragmentDiceRoller extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
         user = ((ActivityHome)getActivity()).getCurrentUser();
+        String keyAventura = ((ActivityHome) getActivity()).getSelectedAdventure().getKey();
+        ref.child("rolls").child(keyAventura).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
+                Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
+
+                Jogada ultimaJogada = dataSnapshot.getValue(Jogada.class);
+                if(!existeJogada(ultimaJogada)){
+                    jogadas.add(ultimaJogada);
+                    limitaJogadas(5);
+                    jogadasRecyclerAdapter.setJogadas(jogadas);
+                    jogadasRecyclerAdapter.notifyDataSetChanged();
+                    recyclerViewListaJogadas.scrollToPosition(jogadas.size()-1);
+                }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
 
         btnRolarDados.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,7 +170,10 @@ public class FragmentDiceRoller extends Fragment {
                 newJogada.setProbabilidade(probabilidade);
                 newJogada.setIdAutor(user.getUserId());
                 newJogada.setUrlFotoAutor(user.getProfilePictureUrl());
+                newJogada.setKeyAventura(((ActivityHome) getActivity()).getSelectedAdventure().getKey());
+                newJogada.setTipo(Jogada.getTipoRolagem(resultado,qtdDado,tipoDado,modificador));
                 jogadas.add(newJogada);
+                limitaJogadas(5);
                 jogadasRecyclerAdapter.setJogadas(jogadas);
                 jogadasRecyclerAdapter.notifyDataSetChanged();
                 recyclerViewListaJogadas.scrollToPosition(jogadas.size()-1);
@@ -120,10 +186,27 @@ public class FragmentDiceRoller extends Fragment {
                         mp.pause();
                     }
                 }, mp.getDuration() + 100);
+
+                mListener.onCreateRoll(newJogada);
             }
         });
 
         return root;
+    }
+
+    public void limitaJogadas(int quantidade){
+        while(jogadas.size() > quantidade){
+            jogadas.remove(0);
+        }
+    }
+
+    public boolean existeJogada(Jogada jogada){
+        for(Jogada j : jogadas){
+            if(j.getKey().equals(jogada.getKey())){
+                return true;
+            }
+        }
+        return false;
     }
 
     public int ajustaTipoDado (Integer tipoDado) {
