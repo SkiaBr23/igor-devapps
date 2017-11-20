@@ -6,6 +6,7 @@
     android:layout_height="wrap_content">
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/cardJogada"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginTop="3dp"
@@ -54,7 +55,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
             android:textSize="20sp"
-            android:text="Rolando 2d6+2: 9 + 2 ="
+            android:text="Rolando 2d6 + 2 ="
             android:textStyle="italic"/>
 
         <TextView

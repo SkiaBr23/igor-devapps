@@ -1,5 +1,6 @@
 package br.unb.igor.recycleradapters;
 
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.TextView;
@@ -15,6 +16,7 @@ public class JogadasViewHolder extends RecyclerView.ViewHolder implements View.O
     public TextView txtJogada;
     public TextView txtChance;
     public TextView txtDataJogada;
+    public ConstraintLayout cardJogada;
 
     public JogadasViewHolder(View itemView) {
         super(itemView);
@@ -25,6 +27,7 @@ public class JogadasViewHolder extends RecyclerView.ViewHolder implements View.O
         txtJogada = itemView.findViewById(R.id.txtJogada);
         txtChance = itemView.findViewById(R.id.txtChance);
         txtDataJogada = itemView.findViewById(R.id.txtDataJogada);
+        cardJogada = itemView.findViewById(R.id.cardJogada);
 
     }
 

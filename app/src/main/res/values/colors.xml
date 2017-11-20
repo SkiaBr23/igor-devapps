@@ -14,6 +14,9 @@
     <color name="toolbarColor">#ff221133</color>
     <color name="brancoSemOpacidade">#82ffffff</color>
     <color name="btnInviteColor">#0f930f</color>
+    <color name="verdeRolagem">#83cf87</color>
+    <color name="vermelhoRolagem">#be5d5d</color>
+
     <color name="btnDisinviteColor">#eb2c27</color>
     <color name="corSeekBarUm">#ff435a</color>
     <color name="corSeekBarDois">#060408</color>

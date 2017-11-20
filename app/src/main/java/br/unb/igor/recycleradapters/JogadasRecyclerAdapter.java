@@ -60,9 +60,7 @@ public class JogadasRecyclerAdapter extends RecyclerView.Adapter<JogadasViewHold
         holder.txtJogada.setText("Rolando " + jogada.getComando() + " = ");
         holder.txtResultado.setText(jogada.getResultado());
 
-        /*ouble chance = DiceRoller.probability(Integer.valueOf(jogada.getResultado()),
-                jogada.getFacesRolled(),
-                jogada.getDiceRolled());*/
+        holder.cardJogada.setBackground(context.getResources().getDrawable(setCardColor(jogada.getTipo())));
 
         holder.txtChance.setText(String.format(Locale.getDefault(),"%.2f%%", jogada.getProbabilidade()));
 
@@ -75,6 +73,20 @@ public class JogadasRecyclerAdapter extends RecyclerView.Adapter<JogadasViewHold
                         .into(holder.profileImage);
             }
         }
+    }
+
+    public int setCardColor(Jogada.TipoComando tipoComando){
+        switch(tipoComando){
+            case DADO:
+                return R.drawable.rectangle_invitation_background;
+            case DADO_CRITICO:
+            case DADO_MAXIMO:
+                return R.drawable.rectangle_invitation_background_green;
+            case DADO_FALHA:
+            case DADO_MINIMO:
+            return R.drawable.rectangle_invitation_background_red;
+        }
+        return R.drawable.rectangle_invitation_background;
     }
 
     @Override
