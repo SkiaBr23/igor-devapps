@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import br.unb.igor.R;
+import br.unb.igor.fragments.FragmentBooks;
 import br.unb.igor.helpers.CircleTransform;
 import br.unb.igor.model.Convite;
 import br.unb.igor.model.Livro;
@@ -61,11 +62,10 @@ public class LivrosRecyclerAdapter extends RecyclerView.Adapter<LivrosViewHolder
             holder.imgIconeStatusLivro.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_download));
         }
         if (livro.getUrlFile() != null) {
-            if (!livro.getUrlFile().isEmpty()) {
+            if (!livro.getUrlThumbnail().isEmpty()) {
                 Picasso
                         .with(holder.imgCapaLivro.getContext())
-                        .load(livro.getUrlFile())
-                        .transform(new CircleTransform())
+                        .load(livro.getUrlThumbnail())
                         .into(holder.imgCapaLivro);
             }
         }

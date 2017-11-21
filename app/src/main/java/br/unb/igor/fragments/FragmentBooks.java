@@ -1,6 +1,8 @@
 package br.unb.igor.fragments;
 
 
+import android.graphics.Bitmap;
+import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.NonNull;
@@ -11,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -22,6 +25,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.tom_roush.pdfbox.pdmodel.PDDocument;
+import com.tom_roush.pdfbox.rendering.PDFRenderer;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,8 +51,6 @@ public class FragmentBooks extends Fragment {
     private List<Livro> livros;
     private File booksPath = Environment.getExternalStoragePublicDirectory(
             "Igor/books");
-
-
 
     public FragmentBooks() {
         // Required empty public constructor
@@ -79,7 +82,7 @@ public class FragmentBooks extends Fragment {
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
                     Livro livro = postSnapshot.getValue(Livro.class);
                     if(!livros.contains(livro)){
-                        //livro.setDownloaded(isBookDownloaded(livro));
+                        livro.setDownloaded(isBookDownloaded(livro));
                         livros.add(livro);
                         updateRecycler();
                     }
@@ -93,11 +96,7 @@ public class FragmentBooks extends Fragment {
                 // ...
             }
         });
-
-
         return root;
-
-
     }
     public void updateRecycler () {
         this.livrosRecyclerAdapter.setLivros(livros);
@@ -105,37 +104,57 @@ public class FragmentBooks extends Fragment {
     }
 
     public boolean isBookDownloaded(Livro livro){
-        File file = null;
-        try {
-            file = File.createTempFile(livro.getTitulo().replace(" ", ""), ".pdf");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if(file.exists()){
-            Log.d(TAG,"FILENAME CREATED: " + file.getAbsolutePath());
-            return true;
-        }else{
-            return false;
-        }
+        File file = getBookFile(livro);
+        return file.exists();
     }
-    public boolean downloadBook(Livro livro){
+    public boolean downloadBook(final Livro livro){
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference httpsReference = storage.getReferenceFromUrl(livro.getUrlFile());
 
-        File localFile = new File(booksPath, livro.getTitulo().replace(" ","") +".pdf");
+        File localFile = getBookFile(livro);
         booksPath.mkdirs();
 
         httpsReference.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
             @Override
             public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                System.out.println("Baixou livro");
+                Toast.makeText(getContext(), "Livro baixado com sucesso!", Toast.LENGTH_SHORT).show();
+                setDownloaded(livro);
+                updateRecycler();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                // Handle any errors
+                Toast.makeText(getContext(), "Erro ao baixar livro.", Toast.LENGTH_SHORT).show();
+
             }
         });
         return false;
+    }
+
+    public void setDownloaded(Livro livro){
+        for(Livro l : livros){
+            if(l.getUrlFile().equals(livro.getUrlFile())){
+                livros.get(livros.indexOf(l)).setDownloaded(true);
+            }
+        }
+    }
+
+    public File getBookFile(Livro livro){
+        return new File(booksPath, livro.getTitulo().replace(" ","") + ".pdf");
+    }
+
+    public Bitmap renderThumbnail(Livro livro) {
+        // Render the page and save it to an image file
+        try {
+            // Load in an already created PDF
+            PDDocument document = PDDocument.load(getBookFile(livro));
+            // Create a renderer for the document
+            PDFRenderer renderer = new PDFRenderer(document);
+            // Render the image to an RGB Bitmap
+            return renderer.renderImage(0, 1, Bitmap.Config.RGB_565);
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

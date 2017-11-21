@@ -9,15 +9,22 @@ public class Livro {
     String titulo;
     String idAddedBy;
     String urlFile;
+    String urlThumbnail;
 
     @Exclude
-    boolean statusDownload;
+    boolean isDownloaded;
 
-    @Exclude
-    Bitmap capaLivro;
 
     public Livro() {
-        this.statusDownload = false;
+        this.isDownloaded = false;
+    }
+
+    public String getUrlThumbnail() {
+        return urlThumbnail;
+    }
+
+    public void setUrlThumbnail(String urlThumbnail) {
+        this.urlThumbnail = urlThumbnail;
     }
 
     public String getTitulo() {
@@ -44,23 +51,11 @@ public class Livro {
         this.urlFile = urlFile;
     }
 
-    public Bitmap getCapaLivro() {
-        return capaLivro;
-    }
-
-    public String getFileName(){
-        return this.urlFile.substring(this.urlFile.lastIndexOf("/") + 2);
-    }
-
-    public void setCapaLivro(Bitmap capaLivro) {
-        this.capaLivro = capaLivro;
-    }
-
     public boolean isDownloaded() {
-        return statusDownload;
+        return isDownloaded;
     }
 
-    public void setDownloaded(boolean statusDownload) {
-        this.statusDownload = statusDownload;
+    public void setDownloaded(boolean isDownloaded) {
+        this.isDownloaded = isDownloaded;
     }
 }
