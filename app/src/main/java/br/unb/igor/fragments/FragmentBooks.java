@@ -9,6 +9,7 @@ import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
@@ -34,11 +35,14 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.shockwave.pdfium.PdfiumCore;
 import com.squareup.picasso.Picasso;
 import com.tom_roush.pdfbox.pdmodel.PDDocument;
 import com.tom_roush.pdfbox.rendering.PDFRenderer;
+import com.tom_roush.pdfbox.util.PDFBoxResourceLoader;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -51,10 +55,12 @@ import br.unb.igor.helpers.CircleTransform;
 import br.unb.igor.helpers.ConvertUriToFilePath;
 import br.unb.igor.helpers.DB;
 import br.unb.igor.helpers.OnCompleteHandler;
+import br.unb.igor.helpers.Utils;
 import br.unb.igor.model.Livro;
 import br.unb.igor.recycleradapters.LivrosRecyclerAdapter;
 
 import static android.app.Activity.RESULT_OK;
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -268,22 +274,45 @@ public class FragmentBooks extends Fragment {
     }
 
     public File getBookFile(Livro livro){
-        return new File(booksPath, livro.getTitulo().replace(" ","") + ".pdf");
+        return new File(booksPath, livro.getTitulo() + ".pdf");
     }
 
 
     public Bitmap renderThumbnail(File file) {
-        // Render the page and save it to an image file
+        int pageNum = 0;
+        ParcelFileDescriptor pfd = new ParcelFileDescriptor(openFile(file));
+        PdfiumCore pdfiumCore = new PdfiumCore(getContext());
         try {
-            // Load in an already created PDF
-            PDDocument document = PDDocument.load(file);
-            // Create a renderer for the document
-            PDFRenderer renderer = new PDFRenderer(document);
-            // Render the image to an RGB Bitmap
-            return renderer.renderImage(0, 1, Bitmap.Config.RGB_565);
-        } catch(Exception e) {
-            e.printStackTrace();
+            com.shockwave.pdfium.PdfDocument pdfDocument = pdfiumCore.newDocument(pfd);
+
+            pdfiumCore.openPage(pdfDocument, pageNum);
+
+            int width = pdfiumCore.getPageWidthPoint(pdfDocument, pageNum);
+            int height = pdfiumCore.getPageHeightPoint(pdfDocument, pageNum);
+
+            // ARGB_8888 - best quality, high memory usage, higher possibility of OutOfMemoryError
+            // RGB_565 - little worse quality, twice less memory usage
+            Bitmap bitmap = Bitmap.createBitmap(width, height,
+                    Bitmap.Config.RGB_565);
+            pdfiumCore.renderPageBitmap(pdfDocument, bitmap, pageNum, 0, 0,
+                    width, height);
+            return bitmap;
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
         }
-        return null;
+    }
+
+
+    public ParcelFileDescriptor openFile(File file){
+        ParcelFileDescriptor pfd;
+        try {
+            pfd=ParcelFileDescriptor.open(file,ParcelFileDescriptor.MODE_READ_ONLY);
+        }
+        catch (  FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return pfd;
     }
 }
