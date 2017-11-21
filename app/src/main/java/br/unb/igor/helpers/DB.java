@@ -25,6 +25,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import java.util.List;
 import br.unb.igor.model.Aventura;
 import br.unb.igor.model.Convite;
 import br.unb.igor.model.Jogada;
+import br.unb.igor.model.Livro;
 import br.unb.igor.model.User;
 
 public class DB {
@@ -170,6 +172,14 @@ public class DB {
         ref.child("users").child(user.getUserId()).setValue(user);
     }
 
+    public static void pushBook(final Livro livro) {
+        if (livro.getIdAddedBy().isEmpty()) {
+            return;
+        }
+        String key = ref.child("books").push().getKey();
+        ref.child("books").child(key).setValue(livro);
+    }
+
     public static void setUserInvitation(final User invitedUser, User whoInvited, final Aventura aventura, boolean isInvited) {
         String uid = invitedUser.getUserId();
         if (aventura.getKey().isEmpty() || uid.isEmpty()) {
@@ -272,4 +282,44 @@ public class DB {
 
     }
 
+
+    public static void uploadBookFile(File file, final OnCompleteHandler handler) {
+        UploadTask task = store
+                .child("books-test")
+                .child(file.getName().replace(".pdf",""))
+                .putFile(Uri.fromFile(file));
+        task.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                handler.cancel();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                handler.setExtra(taskSnapshot.getDownloadUrl());
+                handler.advance();
+            }
+        });
+    }
+
+    public static void uploadBookThumbnail(File file, Bitmap thumbnail, final OnCompleteHandler handler) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        thumbnail.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        UploadTask task = store
+                .child("books-test")
+                .child(file.getName().replace(".pdf",""))
+                .putBytes(baos.toByteArray());
+        task.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                handler.cancel();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                handler.setExtra(taskSnapshot.getDownloadUrl());
+                handler.advance();
+            }
+        });
+    }
 }

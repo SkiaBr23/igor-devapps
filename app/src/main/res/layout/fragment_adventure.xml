@@ -330,6 +330,7 @@
         android:layout_height="65dp"
         android:layout_width="65dp"
         android:backgroundTint="@color/btnEntrar"
+
         android:layout_marginEnd="25dp"
         android:src="@drawable/dice"
         app:borderWidth="1dp"
