@@ -100,4 +100,5 @@
     <string name="label_birthday">Data de nascimento:</string>
     <string name="label_pick_a_date">Escolha uma data</string>
             <string name="new_account_placeholder_password_confirm">Confirmar Senha</string>
+            <string name="msg_please_login_again">Por favor, refaça o login</string>
         </resources>

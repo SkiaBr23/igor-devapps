@@ -275,6 +275,7 @@ public class FragmentAdventure extends Fragment {
             txtDescricaoAventuraEdit.setVisibility(View.VISIBLE);
             txtTituloAventuraEdicao.setVisibility(View.INVISIBLE);
             txtTituloAventuraEdicaoEdit.setVisibility(View.VISIBLE);
+            btnFABDiceRoller.setVisibility(View.GONE);
             btnFAB.setImageResource(R.drawable.botao_confirmar);
             txtDescricaoContainer.setBackgroundResource(R.drawable.rectangle_outline);
             txtDescricaoAventuraEdit.setText(txtDescricaoAventura.getText().toString());
@@ -284,6 +285,7 @@ public class FragmentAdventure extends Fragment {
             txtDescricaoAventuraEdit.setVisibility(View.GONE);
             txtTituloAventuraEdicao.setVisibility(View.VISIBLE);
             txtTituloAventuraEdicaoEdit.setVisibility(View.GONE);
+            btnFABDiceRoller.setVisibility(View.VISIBLE);
             btnFAB.setImageResource(isOnTabPlayers ? R.drawable.botao_adicionar_jogadores : R.drawable.botao_adicionar_sessao);
             txtDescricaoContainer.setBackgroundResource(0);
         }

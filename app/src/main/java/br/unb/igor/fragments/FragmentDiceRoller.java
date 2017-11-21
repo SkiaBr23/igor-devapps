@@ -27,6 +27,7 @@ import java.util.List;
 import br.unb.igor.R;
 import br.unb.igor.activities.ActivityHome;
 import br.unb.igor.helpers.AdventureListener;
+import br.unb.igor.helpers.ChildEventListenerAdapter;
 import br.unb.igor.helpers.DiceRoller;
 import br.unb.igor.model.Jogada;
 import br.unb.igor.model.User;
@@ -54,7 +55,7 @@ public class FragmentDiceRoller extends Fragment {
 
     final int ROLLS_LIMIT = 10;
 
-    private final ChildEventListener rollsListener = new ChildEventListener() {
+    private final ChildEventListener rollsListener = new ChildEventListenerAdapter() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String previousChildName) {
             Log.d(TAG, "onChildAdded:" + dataSnapshot.getKey());
@@ -66,26 +67,6 @@ public class FragmentDiceRoller extends Fragment {
                 recyclerViewListaJogadas.scrollToPosition(jogadas.size() - 1);
                 limitaJogadas(ROLLS_LIMIT);
             }
-        }
-
-        @Override
-        public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-        }
-
-        @Override
-        public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-        }
-
-        @Override
-        public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-        }
-
-        @Override
-        public void onCancelled(DatabaseError databaseError) {
-
         }
     };
 
@@ -167,9 +148,9 @@ public class FragmentDiceRoller extends Fragment {
                 int qtdDado = numberPickerqtdDados.getValue();
                 int tipoDado = numberPickertipoDado.getValue();
                 tipoDado = ajustaTipoDado(tipoDado);
-                int modificador = numberPickerqtdAdicional.getValue()+(-6);
-                int resultado = DiceRoller.roll(tipoDado,qtdDado,modificador);
-                Double probabilidade = DiceRoller.probability(resultado - modificador,tipoDado,qtdDado);
+                int modificador = numberPickerqtdAdicional.getValue()  -6;
+                int resultado = DiceRoller.roll(tipoDado, qtdDado, modificador);
+                Double probabilidade = DiceRoller.probability(resultado - modificador, tipoDado, qtdDado);
                 String comando = DiceRoller.diceToText(tipoDado,qtdDado,modificador);
                 newJogada.setComando(comando);
                 newJogada.setNomeAutor(user.getFullName());

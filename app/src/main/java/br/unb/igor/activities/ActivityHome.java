@@ -16,7 +16,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -28,6 +27,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
@@ -38,13 +38,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.lang.reflect.Field;
@@ -66,6 +59,7 @@ import br.unb.igor.fragments.FragmentHome;
 import br.unb.igor.helpers.AdventureListener;
 import br.unb.igor.helpers.ChildEventListenerAdapter;
 import br.unb.igor.helpers.DB;
+import br.unb.igor.helpers.DBFeedListener;
 import br.unb.igor.helpers.OnCompleteHandler;
 import br.unb.igor.model.Aventura;
 import br.unb.igor.model.Convite;
@@ -104,8 +98,9 @@ public class ActivityHome extends AppCompatActivity implements
     private User currentUser = null;
     private ArrayList<Aventura> adventures;
 
+    private ArrayList<DBFeedListener> feedListeners = new ArrayList<>();
+
     public static FirebaseAuth auth = FirebaseAuth.getInstance();
-    public static DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
 
     private boolean drawerNeedsUpdate = false;
 
@@ -124,6 +119,9 @@ public class ActivityHome extends AppCompatActivity implements
                     fragmentAdventure.onAdventureChange(adventureChanged, mCurrentScreen == Screen.Adventure);
                     getScreenFragment(Screen.AddPlayer);
                     fragmentAdicionarJogador.onAdventureChange(adventureChanged);
+                    for (DBFeedListener listener : feedListeners) {
+                        listener.onSelectedAdventureChange(adventureChanged, selectedAdventure);
+                    }
                     selectedAdventure.assignInternal(adventureChanged);
                 }
             }
@@ -135,26 +133,9 @@ public class ActivityHome extends AppCompatActivity implements
         public void onChildAdded(DataSnapshot dataSnapshot, String previousKey) {
             Convite convite = dataSnapshot.getValue(Convite.class);
             if (convite != null) {
-                currentUser.setInvitation(convite, true);
-                getScreenFragment(Screen.Home);
-                fragmentHome.checkInvites();
-            }
-        }
-
-        @Override
-        public void onChildChanged(DataSnapshot dataSnapshot, String previousKey) {
-            Convite convite = dataSnapshot.getValue(Convite.class);
-            if (convite != null) {
-                System.out.println("@@ Convite change");
-                String aid = convite.getKeyAventura();
-                List<Convite> convites = currentUser.getConvites();
-                for (int index = convites.size() - 1; index >= 0; index--) {
-                    if (convites.get(index).getKeyAventura().equals(aid)) {
-                        convites.set(index, convite);
-                        getScreenFragment(Screen.Home);
-                        fragmentHome.checkInvites();
-                        break;
-                    }
+                int index = currentUser.setInvitation(convite, true);
+                for (DBFeedListener listener : feedListeners) {
+                    listener.onInvitationAdded(convite, index);
                 }
             }
         }
@@ -163,10 +144,10 @@ public class ActivityHome extends AppCompatActivity implements
         public void onChildRemoved(DataSnapshot dataSnapshot) {
             Convite convite = dataSnapshot.getValue(Convite.class);
             if (convite != null) {
-                System.out.println("@@ Convite remove");
-                currentUser.setInvitation(convite, false);
-                getScreenFragment(Screen.Home);
-                fragmentHome.checkInvites();
+                int index = currentUser.setInvitation(convite, false);
+                for (DBFeedListener listener : feedListeners) {
+                    listener.onInvitationRemoved(convite, index);
+                }
             }
         }
     };
@@ -353,6 +334,7 @@ public class ActivityHome extends AppCompatActivity implements
 
         Parcelable selectedAdventure;
         Parcelable currentUser;
+
         if (savedInstanceState != null) {
             selectedAdventure = savedInstanceState.getParcelable(BUNDLE_SELECTED_ADVENTURE);
             currentUser = savedInstanceState.getParcelable(BUNDLE_CURRENT_USER);
@@ -468,6 +450,14 @@ public class ActivityHome extends AppCompatActivity implements
         outState.putParcelable(BUNDLE_CURRENT_USER, currentUser);
     }
 
+    public void addDBFeedListener(DBFeedListener listener) {
+        feedListeners.add(listener);
+    }
+
+    public void removeDBFeedListener(DBFeedListener listener) {
+        while (feedListeners.remove(listener)) {}
+    }
+
     public void setSelectedAdventure(Aventura aventura) {
         if (aventura == null) {
             selectedAdventure = null;
@@ -499,6 +489,9 @@ public class ActivityHome extends AppCompatActivity implements
                     if (currentFrag instanceof FragmentAccount) {
                         ((FragmentAccount)currentFrag).onUserChanged();
                     }
+                } else {
+                    Toast.makeText(ActivityHome.this, R.string.msg_please_login_again, Toast.LENGTH_SHORT).show();
+                    signOut();
                 }
             }
         }));
@@ -975,7 +968,6 @@ public class ActivityHome extends AppCompatActivity implements
                 @Override
                 public void onComplete(boolean cancelled, Object extra, int step) {
                     if (extra != null && extra instanceof Aventura) {
-                        currentUser.hasBeenFetchedFromDB = true;
                         ((Aventura) extra).acceptUser(currentUser.getUserId());
                         adventures.add((Aventura) extra);
                         DB.upsertAdventure((Aventura) extra);
@@ -985,11 +977,6 @@ public class ActivityHome extends AppCompatActivity implements
                     }
                 }
             }));
-            getScreenFragment(Screen.Invites);
-            //fragmentConvites.notifyInviteRemoved(index);
-            getScreenFragment(Screen.Home);
-            //fragmentHome.getRecyclerAdapter().notifyDataSetChanged();
-            fragmentHome.updateView();
         }
     }
 
@@ -1000,7 +987,6 @@ public class ActivityHome extends AppCompatActivity implements
                 @Override
                 public void onComplete(boolean cancelled, Object extra, int step) {
                     if (extra != null && extra instanceof Aventura) {
-                        currentUser.hasBeenFetchedFromDB = true;
                         ((Aventura) extra).removeInvitedUser(currentUser.getUserId());
                         DB.upsertAdventure((Aventura) extra);
                         currentUser.removeConvite(((Aventura) extra).getKey());
@@ -1008,8 +994,6 @@ public class ActivityHome extends AppCompatActivity implements
                     }
                 }
             }));
-            getScreenFragment(Screen.Invites);
-            //fragmentConvites.notifyInviteRemoved(index);
         }
     }
 

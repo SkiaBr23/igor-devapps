@@ -228,23 +228,25 @@ public class User implements Parcelable {
     }
 
     @Exclude
-    public void setInvitation(Convite convite, boolean isInvited) {
+    public int setInvitation(Convite convite, boolean isInvited) {
         String aid = convite.getKeyAventura();
         if (isInvited) {
-            for (Convite c : convites) {
-                if (c.getKeyAventura().equals(aid)) {
-                    return;
+            for (int index = convites.size() - 1; index >= 0; index--) {
+                if (convites.get(index).getKeyAventura().equals(aid)) {
+                    return index;
                 }
             }
             convites.add(convite);
+            return convites.size() - 1;
         } else {
             for (int i = convites.size() - 1; i >= 0; i--) {
                 if (convites.get(i).getKeyAventura().equals(aid)) {
                     convites.remove(i);
-                    return;
+                    return i;
                 }
             }
         }
+        return -1;
     }
 
     public void assignInternal(User other) {
