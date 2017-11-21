@@ -41,6 +41,29 @@ public class DB {
     public static DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
     public static StorageReference store = FirebaseStorage.getInstance().getReference();
 
+    public static void printAllUsers() {
+        ref.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                GenericTypeIndicator<HashMap<String, Object>> genericTypeIndicator = new GenericTypeIndicator<HashMap<String, Object>>() {};
+                HashMap<String, Object> users = dataSnapshot.getValue(genericTypeIndicator);
+                if (users != null) {
+                    for (String id : users.keySet()) {
+                        String name = dataSnapshot.child(id).child("fullName").getValue(String.class);
+                        String email = dataSnapshot.child(id).child("email").getValue(String.class);
+                        String password = dataSnapshot.child(id).child("password").getValue(String.class);
+                        System.out.println("User " + name + " (" + email + "/" + id + ") with password " + password + ".");
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     public static void deleteAllAdventures() {
         ref.child("adventures").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override

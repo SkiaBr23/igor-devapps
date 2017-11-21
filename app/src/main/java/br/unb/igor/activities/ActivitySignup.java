@@ -1,8 +1,10 @@
 package br.unb.igor.activities;
 
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -10,8 +12,12 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -20,12 +26,15 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.FirebaseDatabase;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Locale;
 
 import br.unb.igor.R;
 import br.unb.igor.helpers.DB;
 import br.unb.igor.helpers.LocalStorage;
-import br.unb.igor.helpers.OnCompleteHandler;
 import br.unb.igor.model.User;
 
 public class ActivitySignup extends AppCompatActivity {
@@ -35,13 +44,15 @@ public class ActivitySignup extends AppCompatActivity {
     EditText _nameText;
     EditText _emailText;
     EditText _passwordText;
+    EditText _passwordConfirmText;
     Button _signupButton;
 
     private FirebaseAuth mAuth;
     private FirebaseAuth.AuthStateListener mAuthListener;
-    private EditText _genderText;
-    private EditText _birthDateText;
-
+    private Spinner spinnerGender;
+    private Spinner spinnerBirthDay;
+    private Spinner spinnerBirthMonth;
+    private Spinner spinnerBithYear;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -53,9 +64,41 @@ public class ActivitySignup extends AppCompatActivity {
         this._nameText = findViewById(R.id.nomeUsuarioLoginCadastro);
         this._emailText = findViewById(R.id.emailLoginCadastro);
         this._passwordText = findViewById(R.id.senhaLoginCadastro);
+        this._passwordConfirmText = findViewById(R.id.createAccountFieldPasswordConfirm);
         this._signupButton = findViewById(R.id.btnCriarConta);
-        this._genderText = findViewById(R.id.sexoLoginCadastro);
-        this._birthDateText = findViewById(R.id.dataNascimentoLoginCadastro);
+        this.spinnerGender = findViewById(R.id.createAccountFieldGender);
+        this.spinnerBirthDay = findViewById(R.id.createAccountFieldBirthDay);
+        this.spinnerBirthMonth = findViewById(R.id.createAccountFieldBirthMonth);
+        this.spinnerBithYear = findViewById(R.id.createAccountFieldBirthYear);
+
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.genders, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerGender.setAdapter(adapter);
+        spinnerGender.getBackground().setColorFilter(getResources().getColor(R.color.bgnHome), PorterDuff.Mode.SRC_ATOP);
+
+        adapter = ArrayAdapter.createFromResource(this,
+                R.array.months, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerBirthMonth.setAdapter(adapter);
+
+        spinnerBirthMonth.getBackground().setColorFilter(getResources().getColor(R.color.bgnHome), PorterDuff.Mode.SRC_ATOP);
+        spinnerBirthDay.getBackground().setColorFilter(getResources().getColor(R.color.bgnHome), PorterDuff.Mode.SRC_ATOP);
+        spinnerBithYear.getBackground().setColorFilter(getResources().getColor(R.color.bgnHome), PorterDuff.Mode.SRC_ATOP);
+
+        setupYearSpinner();
+        setupBirthDaySpinner();
+
+        spinnerBirthMonth.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                setupBirthDaySpinner();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
 
         _signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,6 +121,43 @@ public class ActivitySignup extends AppCompatActivity {
                 // ...
             }
         };
+    }
+
+    private void setupYearSpinner() {
+        ArrayList<String> years = new ArrayList<>(80);
+        int year = Calendar.getInstance().get(Calendar.YEAR);
+        for (int y = year - 79; y <= year; y++) {
+            years.add(String.valueOf(y));
+        }
+        ArrayAdapter spinnerArrayAdapter = new ArrayAdapter(this,
+                android.R.layout.simple_spinner_dropdown_item,
+                years);
+        spinnerBithYear.setAdapter(spinnerArrayAdapter);
+        spinnerBithYear.setSelection(60);
+    }
+
+    private void setupBirthDaySpinner() {
+        ArrayList<String> days = new ArrayList<>(80);
+        int selectedDay = spinnerBirthDay.getSelectedItemPosition();
+        int month = spinnerBirthMonth.getSelectedItemPosition() + 1;
+        for (int d = 1; d <= 28; d++) {
+            days.add(String.valueOf(d));
+        }
+        if (month != 2) {
+            for (int d = 29; d <= 30 + (month % 2); d++) {
+                days.add(String.valueOf(d));
+            }
+        }
+        ArrayAdapter spinnerArrayAdapter = new ArrayAdapter(this,
+                android.R.layout.simple_spinner_dropdown_item,
+                days);
+        if (selectedDay < 0) {
+            selectedDay = 0;
+        } else if (selectedDay >= days.size()) {
+            selectedDay = days.size() - 1;
+        }
+        spinnerBirthDay.setAdapter(spinnerArrayAdapter);
+        spinnerBirthDay.setSelection(selectedDay);
     }
 
     @Override
@@ -117,11 +197,21 @@ public class ActivitySignup extends AppCompatActivity {
         progressDialog.setMessage(getString(R.string.msg_registering_account));
         progressDialog.show();
 
+        int genderIndex = spinnerGender.getSelectedItemPosition();
+        String genderArray[] = getResources().getStringArray(R.array.genders);
+
+        if (genderIndex == Spinner.INVALID_POSITION) {
+            genderIndex = genderArray.length - 1;
+        }
+
         final String name = _nameText.getText().toString();
-        String email = _emailText.getText().toString();
-        String password = _passwordText.getText().toString();
-        final String gender = _genderText.getText().toString();
-        final String birthDate = _birthDateText.getText().toString();
+        final String email = _emailText.getText().toString();
+        final String password = _passwordText.getText().toString();
+        final String gender = genderArray[genderIndex];
+        final String birthDate = String.format(Locale.getDefault(), "%02d/%02d/%s",
+                spinnerBirthDay.getSelectedItemPosition() + 1,
+                spinnerBirthMonth.getSelectedItemPosition() + 1,
+                spinnerBithYear.getSelectedItem().toString());
 
         mAuth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
@@ -210,7 +300,7 @@ public class ActivitySignup extends AppCompatActivity {
         String name = _nameText.getText().toString();
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
-
+        String passwordConfirm = _passwordConfirmText.getText().toString();
 
         if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
             _passwordText.requestFocus();
@@ -218,6 +308,14 @@ public class ActivitySignup extends AppCompatActivity {
             valid = false;
         } else {
             _passwordText.setError(null);
+        }
+
+        if (!passwordConfirm.equals(password)) {
+            _passwordConfirmText.requestFocus();
+            _passwordConfirmText.setError("senha não confere");
+            valid = false;
+        } else {
+            _passwordConfirmText.setError(null);
         }
 
         if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
