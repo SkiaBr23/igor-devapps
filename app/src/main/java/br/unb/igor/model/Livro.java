@@ -2,13 +2,19 @@ package br.unb.igor.model;
 
 import android.graphics.Bitmap;
 
+import com.google.firebase.database.Exclude;
+
 public class Livro {
 
     String titulo;
     String idAddedBy;
     String urlFile;
-    Bitmap capaLivro;
+
+    @Exclude
     boolean statusDownload;
+
+    @Exclude
+    Bitmap capaLivro;
 
     public Livro() {
         this.statusDownload = false;
@@ -40,6 +46,10 @@ public class Livro {
 
     public Bitmap getCapaLivro() {
         return capaLivro;
+    }
+
+    public String getFileName(){
+        return this.urlFile.substring(this.urlFile.lastIndexOf("/") + 2);
     }
 
     public void setCapaLivro(Bitmap capaLivro) {

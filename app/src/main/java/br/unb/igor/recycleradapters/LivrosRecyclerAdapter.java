@@ -26,7 +26,7 @@ public class LivrosRecyclerAdapter extends RecyclerView.Adapter<LivrosViewHolder
     private ListAdapterListener mListener;
 
     public interface ListAdapterListener { // create an interface
-
+        void onClickBaixarLivro(Livro livro, int index);
     }
 
     public LivrosRecyclerAdapter(Context context, ListAdapterListener listAdapterListener) {
@@ -36,7 +36,7 @@ public class LivrosRecyclerAdapter extends RecyclerView.Adapter<LivrosViewHolder
         setHasStableIds(true);
     }
 
-    public void setLivros (List<Livro> thumbnails) {
+    public void setLivros (List<Livro> livros) {
         this.livros = livros;
     }
 
@@ -54,11 +54,11 @@ public class LivrosRecyclerAdapter extends RecyclerView.Adapter<LivrosViewHolder
             return;
         }
         final Livro livro = this.livros.get(holder.getAdapterPosition());
-
+        holder.txtTituloLivro.setText(livro.getTitulo());
         if (livro.isDownloaded()) {
-            holder.imgIconeStatusLivro.setBackgroundResource(R.drawable.ic_confirmar);
+            holder.imgIconeStatusLivro.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_confirmar));
         } else {
-            holder.imgIconeStatusLivro.setBackgroundResource(R.drawable.ic_download);
+            holder.imgIconeStatusLivro.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_download));
         }
         if (livro.getUrlFile() != null) {
             if (!livro.getUrlFile().isEmpty()) {
@@ -69,18 +69,45 @@ public class LivrosRecyclerAdapter extends RecyclerView.Adapter<LivrosViewHolder
                         .into(holder.imgCapaLivro);
             }
         }
+
+        holder.imgCapaLivro.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(!livro.isDownloaded()) {
+                    AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
+                    alertDialog.setTitle(livro.getTitulo());
+                    alertDialog.setMessage("Deseja fazer o download do livro?");
+                    alertDialog.setPositiveButton("Sim", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mListener.onClickBaixarLivro(livro, holder.getAdapterPosition());
+                        }
+                    });
+                    alertDialog.setNegativeButton("Não", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+
+                    AlertDialog dialog = alertDialog.create();
+                    dialog.show();
+                }
+
+            }
+
+        });
     }
 
     @Override
     public int getItemCount() {
 
-        return 5;
+        return this.livros != null ? this.livros.size() : 0;
     }
 
     @Override
     public long getItemId(int position) {
-        //return sessoes.get(position).getNumeroSessao();
-        //TODO: isso dá problema? @maximillianfx
         return (long) position;
     }
 }
