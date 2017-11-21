@@ -28,6 +28,8 @@ public class LivrosRecyclerAdapter extends RecyclerView.Adapter<LivrosViewHolder
 
     public interface ListAdapterListener { // create an interface
         void onClickBaixarLivro(Livro livro, int index);
+
+        void onClickAbrirLivro(Livro livro, int adapterPosition);
     }
 
     public LivrosRecyclerAdapter(Context context, ListAdapterListener listAdapterListener) {
@@ -57,9 +59,9 @@ public class LivrosRecyclerAdapter extends RecyclerView.Adapter<LivrosViewHolder
         final Livro livro = this.livros.get(holder.getAdapterPosition());
         holder.txtTituloLivro.setText(livro.getTitulo());
         if (livro.isDownloaded()) {
-            holder.imgIconeStatusLivro.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_confirmar));
+            holder.imgIconeStatusLivro.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_confirmar_2));
         } else {
-            holder.imgIconeStatusLivro.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_download));
+            holder.imgIconeStatusLivro.setImageDrawable(context.getResources().getDrawable(R.drawable.ic_download_2));
         }
         if (livro.getUrlFile() != null) {
             if (!livro.getUrlThumbnail().isEmpty()) {
@@ -93,6 +95,8 @@ public class LivrosRecyclerAdapter extends RecyclerView.Adapter<LivrosViewHolder
 
                     AlertDialog dialog = alertDialog.create();
                     dialog.show();
+                } else {
+                    mListener.onClickAbrirLivro(livro,holder.getAdapterPosition());
                 }
 
             }

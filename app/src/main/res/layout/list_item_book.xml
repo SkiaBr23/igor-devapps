@@ -36,9 +36,9 @@
 
             <ImageView
                 android:id="@+id/imgIconeStatusLivro"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:src="@drawable/ic_download"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@drawable/ic_download_2"
                 app:layout_constraintBottom_toBottomOf="@+id/imgCapaLivro"
                 app:layout_constraintRight_toRightOf="parent" />
 

@@ -1,7 +1,9 @@
 package br.unb.igor.fragments;
 
 
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.nfc.Tag;
 import android.os.Bundle;
 import android.os.Environment;
@@ -66,6 +68,11 @@ public class FragmentBooks extends Fragment {
             public void onClickBaixarLivro(Livro livro, int index) {
                 downloadBook(livro);
             }
+
+            @Override
+            public void onClickAbrirLivro(Livro livro, int adapterPosition) {
+                readBook(livro);
+            }
         });
         this.livros = new ArrayList<>();
 
@@ -129,6 +136,14 @@ public class FragmentBooks extends Fragment {
             }
         });
         return false;
+    }
+
+    public void readBook(Livro livro){
+        Uri path = Uri.fromFile(getBookFile(livro));
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(path, "application/pdf");
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 
     public void setDownloaded(Livro livro){
