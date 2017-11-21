@@ -833,8 +833,9 @@ public class ActivityHome extends AppCompatActivity implements
     }
 
     @Override
-    public void onCreateAdventure(String title) {
+    public void onCreateAdventure(String title, int backgroundIndex) {
         Aventura aventura = new Aventura(title, currentUser.getUserId());
+        aventura.setImagemFundo(backgroundIndex);
         DB.createAdventure(aventura);
         currentUser.addAdventure(aventura);
         adventures.add(aventura);

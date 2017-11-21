@@ -1,7 +1,10 @@
 package br.unb.igor.fragments;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.annotation.Nullable;
@@ -14,13 +17,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
+import java.util.Random;
+
 import br.unb.igor.R;
 import br.unb.igor.helpers.AdventureListener;
+import br.unb.igor.helpers.ImageAssets;
 
 public class FragmentCriarAventura extends Fragment {
 
     public static final String TAG = FragmentCriarAventura.class.getName();
 
+    private ImageView imgBackground;
     private ImageView imgFecharAventura;
     private EditText editTituloAventura;
     private Button btnConfirmarAventura;
@@ -61,10 +68,17 @@ public class FragmentCriarAventura extends Fragment {
                              Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.fragment_create_adventure, container, false);
 
+        imgBackground = root.findViewById(R.id.bkgEditarAventura);
         imgFecharAventura = root.findViewById(R.id.btnCloseAventura);
         editTituloAventura = root.findViewById(R.id.editTituloAventura);
         btnFloatCloseAdventure = root.findViewById((R.id.btnCriarAventura));
         btnConfirmarAventura = root.findViewById(R.id.btnConfirmarAventura);
+
+        final int randomBackground = new Random().nextInt(ImageAssets.getBuiltInBackgroundCount());
+        int backgroundResource = ImageAssets.getBackgroundResource(randomBackground);
+
+        imgBackground.setImageResource(backgroundResource);
+
         btnConfirmarAventura.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -83,7 +97,7 @@ public class FragmentCriarAventura extends Fragment {
                 }
 
                 clearEditTextOnCreate = true;
-                mListener.onCreateAdventure(adventureTitle);
+                mListener.onCreateAdventure(adventureTitle, randomBackground);
             }
         });
 
@@ -101,11 +115,6 @@ public class FragmentCriarAventura extends Fragment {
                 getActivity().onBackPressed();
             }
         });
-
-
-//        editTituloAventura.requestFocus();
-//        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-//        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
 
         return root;
     }

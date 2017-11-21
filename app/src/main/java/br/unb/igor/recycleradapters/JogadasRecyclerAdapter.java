@@ -26,7 +26,6 @@ public class JogadasRecyclerAdapter extends RecyclerView.Adapter<JogadasViewHold
     public JogadasRecyclerAdapter(Context context) {
         this.context = context;
         this.jogadas = new ArrayList<>();
-        setHasStableIds(true);
     }
 
     public void setJogadas (List<Jogada> jogadas) {
@@ -92,12 +91,5 @@ public class JogadasRecyclerAdapter extends RecyclerView.Adapter<JogadasViewHold
     @Override
     public int getItemCount() {
         return this.jogadas.size();
-    }
-
-    @Override
-    public long getItemId(int position) {
-        //return sessoes.get(position).getNumeroSessao();
-        //TODO: isso dá problema? @maximillianfx
-        return (long) position;
     }
 }

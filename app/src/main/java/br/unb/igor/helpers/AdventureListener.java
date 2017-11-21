@@ -9,7 +9,7 @@ import br.unb.igor.model.User;
 public interface AdventureListener {
     void onRemoveAdventure(Aventura aventura, int index);
     void onSelectAdventure(Aventura aventura, int index);
-    void onCreateAdventure(String title);
+    void onCreateAdventure(String title, int backgroundIndex);
     void onClickAddSessionFAB();
     void onSelectSessao (Sessao sessao, int index);
     void onClickInviteUsersFAB();

@@ -330,10 +330,11 @@
         android:layout_height="65dp"
         android:layout_width="65dp"
         android:backgroundTint="@color/btnEntrar"
-        android:layout_marginRight="25dp"
+        android:layout_marginEnd="25dp"
         android:src="@drawable/dice"
-        app:borderWidth="0dp"
+        app:borderWidth="1dp"
         />
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/btnAdventureFAB"
         app:layout_constraintRight_toRightOf="parent"
@@ -341,7 +342,7 @@
         android:layout_height="100dp"
         android:layout_width="100dp"
         android:layout_marginEnd="10dp"
-        app:borderWidth="0dp"
+        app:borderWidth="1dp"
         app:backgroundTint="@android:color/transparent"
         app:elevation="0dp"
         android:src="@drawable/botao_adicionar_sessao" />

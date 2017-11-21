@@ -1,4 +1,4 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -6,11 +6,26 @@
     android:background="@color/fundoCriarAventura"
     tools:context="br.unb.igor.fragments.FragmentCriarAventura">
 
+    <ImageView
+        android:id="@+id/bkgEditarAventura"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="centerCrop"/>
+
     <android.support.constraint.ConstraintLayout
         android:id="@+id/boxCriarAventura"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@drawable/fundo_criar_conta"
+        android:alpha="0.9"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
         android:layout_marginTop="40dp"
         android:layout_marginBottom="40dp"
         android:layout_marginStart="20dp"
@@ -92,7 +107,9 @@
         android:layout_marginEnd="10dp"
         android:layout_marginTop="10dp"
         android:src="@drawable/botao_criar_nova_aventura_verde"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
         />
 
 
-</FrameLayout>
+</android.support.constraint.ConstraintLayout>
