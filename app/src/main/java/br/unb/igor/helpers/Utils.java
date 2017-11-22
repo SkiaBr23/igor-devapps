@@ -4,11 +4,15 @@ import android.annotation.TargetApi;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
@@ -17,6 +21,12 @@ import android.view.animation.AnimationSet;
 import android.view.animation.ScaleAnimation;
 import android.view.animation.Transformation;
 
+import com.shockwave.pdfium.PdfiumCore;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Comparator;
@@ -134,4 +144,62 @@ public class Utils {
         set.addAnimation(scaleUp);
         v.startAnimation(set);
     }
+
+    public static Bitmap generateThumbCover(Context context,File file) {
+        int pageNum = 0;
+        PdfiumCore pdfiumCore = new PdfiumCore(context);
+        try {
+            com.shockwave.pdfium.PdfDocument pdfDocument = pdfiumCore.newDocument(fullyReadFileToBytes(file));
+
+            pdfiumCore.openPage(pdfDocument, pageNum);
+
+            int width = pdfiumCore.getPageWidthPoint(pdfDocument, pageNum);
+            int height = pdfiumCore.getPageHeightPoint(pdfDocument, pageNum);
+
+            // ARGB_8888 - best quality, high memory usage, higher possibility of OutOfMemoryError
+            // RGB_565 - little worse quality, twice less memory usage
+            Bitmap bitmap = Bitmap.createBitmap(width, height,
+                    Bitmap.Config.RGB_565);
+            pdfiumCore.renderPageBitmap(pdfDocument, bitmap, pageNum, 0, 0,
+                    width, height);
+            return bitmap;
+        } catch(IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+    }
+    public static byte[] fullyReadFileToBytes(File f) {
+        int size = (int) f.length();
+        byte bytes[] = new byte[size];
+        byte tmpBuff[] = new byte[size];
+        FileInputStream fis= null;
+        try {
+            fis = new FileInputStream(f);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        ;
+        try {
+            int read = fis.read(bytes, 0, size);
+            if (read < size) {
+                int remain = size - read;
+                while (remain > 0) {
+                    read = fis.read(tmpBuff, 0, remain);
+                    System.arraycopy(tmpBuff, 0, bytes, size - remain, read);
+                    remain -= read;
+                }
+            }
+        }  catch (IOException e){
+            e.printStackTrace();
+        } finally {
+            try {
+                fis.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return bytes;
+    }
+
 }

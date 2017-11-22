@@ -2,16 +2,23 @@ package br.unb.igor.fragments;
 
 
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.nfc.Tag;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.annotation.RequiresApi;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +26,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,18 +35,33 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.shockwave.pdfium.PdfDocument;
+import com.shockwave.pdfium.PdfiumCore;
+import com.squareup.picasso.Picasso;
 import com.tom_roush.pdfbox.pdmodel.PDDocument;
 import com.tom_roush.pdfbox.rendering.PDFRenderer;
+import com.tom_roush.pdfbox.util.PDFBoxResourceLoader;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
 import br.unb.igor.R;
 import br.unb.igor.activities.ActivityHome;
+import br.unb.igor.helpers.CircleTransform;
+import br.unb.igor.helpers.ConvertUriToFilePath;
+import br.unb.igor.helpers.DB;
+import br.unb.igor.helpers.OnCompleteHandler;
+import br.unb.igor.helpers.Utils;
 import br.unb.igor.model.Livro;
 import br.unb.igor.recycleradapters.LivrosRecyclerAdapter;
+
+import static android.app.Activity.RESULT_OK;
+import static com.facebook.FacebookSdk.getApplicationContext;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -50,7 +73,9 @@ public class FragmentBooks extends Fragment {
     private RecyclerView recyclerViewListaLivros;
     private LivrosRecyclerAdapter livrosRecyclerAdapter;
     private GridLayoutManager gridLayoutManager;
+    private FloatingActionButton btnFABaddBooks;
     private List<Livro> livros;
+    private Livro livroAdd;
     private File booksPath = Environment.getExternalStoragePublicDirectory(
             "Igor/books");
 
@@ -78,17 +103,24 @@ public class FragmentBooks extends Fragment {
 
         gridLayoutManager = new GridLayoutManager(getActivity(),3);
         recyclerViewListaLivros = root.findViewById(R.id.recyclerViewListaLivros);
+        btnFABaddBooks = root.findViewById(R.id.btnFABaddBooks);
         recyclerViewListaLivros.setLayoutManager(gridLayoutManager);
         livrosRecyclerAdapter.setLivros(this.livros);
         recyclerViewListaLivros.setAdapter(livrosRecyclerAdapter);
 
+        btnFABaddBooks.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getBookFromDevice();
+            }
+        });
         FirebaseDatabase ref = FirebaseDatabase.getInstance();
         ref.getReference().child("books").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
                     Livro livro = postSnapshot.getValue(Livro.class);
-                    if(!livros.contains(livro)){
+                    if(!containsBook(livros,livro.getTitulo())){
                         livro.setDownloaded(isBookDownloaded(livro));
                         livros.add(livro);
                         updateRecycler();
@@ -146,6 +178,99 @@ public class FragmentBooks extends Fragment {
         startActivity(intent);
     }
 
+    public void getBookFromDevice(){
+        Intent intent = new Intent()
+                .setType("application/pdf")
+                .putExtra(Intent.EXTRA_LOCAL_ONLY, true)
+                .setAction(Intent.ACTION_OPEN_DOCUMENT);
+        startActivityForResult(Intent.createChooser(intent, "Select a file"), 123);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 123 && resultCode == RESULT_OK) {
+            Uri selectedfile = data.getData();//The uri with the location of the file
+            final File file = new File(ConvertUriToFilePath.getPathFromURI(getContext(),selectedfile));
+            String titulo = file.getName().replace(".pdf","");
+            if (containsBook(livros,titulo)) {
+                Toast.makeText(getContext(), "Livro já está na estante!", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            FirebaseAuth mAuth = FirebaseAuth.getInstance();
+            livroAdd = new Livro();
+            livroAdd.setTitulo(titulo);
+            livroAdd.setIdAddedBy(mAuth.getCurrentUser().getUid());
+
+
+
+            DB.uploadBookFile(file, new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
+                @Override
+                public void onComplete(boolean cancelled, Object extra, int step) {
+                    if (cancelled || extra == null || !(extra instanceof Uri)) {
+                        Toast toast = Toast.makeText(getActivity(),
+                                "Erro ao enviar livro!", Toast.LENGTH_LONG);
+                        toast.setGravity(Gravity.TOP, 0, 0);
+                        toast.show();
+                    } else {
+                        Uri fileUrl = (Uri) extra;
+                        livroAdd.setUrlFile(fileUrl.toString());
+                        setBookThumbnail(file);
+                    }
+                }
+            }));
+        }
+    }
+
+
+    private void setBookThumbnail(final File file){
+        final Bitmap thumbnail = renderThumbnail(file);
+        System.out.println("teste");
+        DB.uploadBookThumbnail(file, thumbnail, new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
+            @Override
+            public void onComplete(boolean cancelled, Object extra, int step) {
+                thumbnail.recycle();
+                if (cancelled || extra == null || !(extra instanceof Uri)) {
+                    Toast toast = Toast.makeText(getActivity(),
+                            R.string.msg_failed_to_upload_picture, Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.TOP, 0, 0);
+                    toast.show();
+                    System.out.println("nao passou thumb");
+                } else {
+                    System.out.println("PASSOU thumb");
+                    Uri thumbnailUrl = (Uri) extra;
+                    livroAdd.setUrlThumbnail(thumbnailUrl.toString());
+                    DB.pushBook(livroAdd);
+                }
+            }
+        }));
+    }
+
+    private boolean containsBook(List<Livro> livros, String titulo) {
+        for(Livro l : livros){
+            if(l.getTitulo().equals(titulo)){
+                return true;
+            }
+        }
+        return false;
+    }
+    private String getRealPathFromURI(Uri contentURI) {
+        String filePath;
+        Cursor cursor = getActivity().getContentResolver().query(contentURI, null, null, null, null);
+        if (cursor == null) {
+            filePath = contentURI.getPath();
+        } else {
+            cursor.moveToFirst();
+            int idx = cursor.getColumnIndex(MediaStore.Images.ImageColumns.DATA);
+            filePath = cursor.getString(idx);
+            cursor.close();
+        }
+        return filePath;
+    }
+
+
     public void setDownloaded(Livro livro){
         for(Livro l : livros){
             if(l.getUrlFile().equals(livro.getUrlFile())){
@@ -155,21 +280,45 @@ public class FragmentBooks extends Fragment {
     }
 
     public File getBookFile(Livro livro){
-        return new File(booksPath, livro.getTitulo().replace(" ","") + ".pdf");
+        return new File(booksPath, livro.getTitulo() + ".pdf");
     }
 
-    public Bitmap renderThumbnail(Livro livro) {
-        // Render the page and save it to an image file
+
+    public Bitmap renderThumbnail(File file) {
+        int pageNum = 0;
+        ParcelFileDescriptor pfd = new ParcelFileDescriptor(openFile(file));
+        PdfiumCore pdfiumCore = new PdfiumCore(getContext());
         try {
-            // Load in an already created PDF
-            PDDocument document = PDDocument.load(getBookFile(livro));
-            // Create a renderer for the document
-            PDFRenderer renderer = new PDFRenderer(document);
-            // Render the image to an RGB Bitmap
-            return renderer.renderImage(0, 1, Bitmap.Config.RGB_565);
-        } catch(Exception e) {
-            e.printStackTrace();
+            PdfDocument pdfDocument = pdfiumCore.newDocument(pfd);
+
+            pdfiumCore.openPage(pdfDocument, pageNum);
+
+            int width = pdfiumCore.getPageWidthPoint(pdfDocument, pageNum);
+            int height = pdfiumCore.getPageHeightPoint(pdfDocument, pageNum);
+
+            // ARGB_8888 - best quality, high memory usage, higher possibility of OutOfMemoryError
+            // RGB_565 - little worse quality, twice less memory usage
+            Bitmap bitmap = Bitmap.createBitmap(width, height,
+                    Bitmap.Config.RGB_565);
+            pdfiumCore.renderPageBitmap(pdfDocument, bitmap, pageNum, 0, 0,
+                    width, height);
+            return bitmap;
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
         }
-        return null;
+    }
+
+
+    public ParcelFileDescriptor openFile(File file){
+        ParcelFileDescriptor pfd;
+        try {
+            pfd=ParcelFileDescriptor.open(file,ParcelFileDescriptor.MODE_READ_ONLY);
+        }
+        catch (  FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return pfd;
     }
 }

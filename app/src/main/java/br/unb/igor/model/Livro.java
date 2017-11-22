@@ -51,10 +51,12 @@ public class Livro {
         this.urlFile = urlFile;
     }
 
+    @Exclude
     public boolean isDownloaded() {
         return isDownloaded;
     }
 
+    @Exclude
     public void setDownloaded(boolean isDownloaded) {
         this.isDownloaded = isDownloaded;
     }

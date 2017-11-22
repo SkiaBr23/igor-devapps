@@ -68,6 +68,8 @@ public class LivrosRecyclerAdapter extends RecyclerView.Adapter<LivrosViewHolder
                 Picasso
                         .with(holder.imgCapaLivro.getContext())
                         .load(livro.getUrlThumbnail())
+                        .fit()
+                        .centerCrop()
                         .into(holder.imgCapaLivro);
             }
         }

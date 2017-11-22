@@ -24,10 +24,10 @@
         android:id="@+id/txtTituloAventuraEdicao"
         android:layout_width="0dp"
         android:layout_marginTop="20dp"
-        android:layout_marginStart="50dp"
+        android:layout_marginStart="30dp"
         android:layout_marginEnd="50dp"
         android:textColor="@color/branco"
-        android:textSize="18sp"
+        android:textSize="20sp"
         android:layout_height="wrap_content"
         android:text="@string/edit_adventure_title" />
 
@@ -329,7 +329,6 @@
         android:layout_marginBottom="8dp"
         android:layout_height="65dp"
         android:layout_width="65dp"
-        android:backgroundTint="@color/btnEntrar"
         android:layout_marginEnd="25dp"
         android:src="@drawable/dice"
         app:borderWidth="1dp"

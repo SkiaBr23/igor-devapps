@@ -45,6 +45,10 @@ dependencies {
     compile 'com.facebook.android:facebook-android-sdk:4.22.1'
     compile 'com.android.support:support-v4:26.0.1'
     compile 'com.tom_roush:pdfbox-android:1.8.9.1'
+    compile 'com.github.barteksc:pdfium-android:1.8.1'
+
+
+
 
     testCompile 'junit:junit:4.12'
 }
