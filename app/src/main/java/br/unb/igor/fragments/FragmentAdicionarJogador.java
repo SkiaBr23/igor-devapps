@@ -31,6 +31,7 @@ import java.util.List;
 import br.unb.igor.R;
 import br.unb.igor.activities.ActivityHome;
 import br.unb.igor.helpers.AdventureListener;
+import br.unb.igor.helpers.DBFeedListener;
 import br.unb.igor.helpers.Utils;
 import br.unb.igor.model.Aventura;
 import br.unb.igor.model.User;
@@ -93,6 +94,13 @@ public class FragmentAdicionarJogador extends Fragment {
         }
     };
 
+    private DBFeedListener feedListener = new DBFeedListener() {
+        @Override
+        public void onSelectedAdventureChange(Aventura adventure, Aventura old) {
+            onAdventureChange(adventure, old);
+        }
+    };
+
     public FragmentAdicionarJogador() {
     }
 
@@ -114,10 +122,18 @@ public class FragmentAdicionarJogador extends Fragment {
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ((ActivityHome)getActivity()).removeDBFeedListener(feedListener);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         final View root = inflater.inflate(R.layout.fragment_adicionar_jogador, container, false);
+
+        ((ActivityHome)getActivity()).addDBFeedListener(feedListener);
 
         recyclerViewListaPesquisaJogadores = root.findViewById(R.id.recyclerViewListaPesquisaJogadores);
         editTxtPesquisaJogadores = root.findViewById(R.id.editTextPesquisaUsuario);
@@ -177,10 +193,6 @@ public class FragmentAdicionarJogador extends Fragment {
         txtInfoLabel.setText(R.string.msg_no_users_to_show);
         editTxtPesquisaJogadores.setText("");
         users.clear();
-        User u = new User();
-        u.setFullName("test locouo");
-        u.setEmail("aehua");
-        users.add(u);
         jogadoresPesquisadosRecyclerAdapter.notifyDataSetChanged();
         isQueryingUsers = false;
 
@@ -237,20 +249,13 @@ public class FragmentAdicionarJogador extends Fragment {
         in.hideSoftInputFromWindow(editTxtPesquisaJogadores.getWindowToken(),0);
     }
 
-    public void onAdventureChange(Aventura newAdventure) {
-        ActivityHome actHome = (ActivityHome)getActivity();
-        if (actHome == null) {
-            // this can happen if an adventure is changed while this
-            // fragment isn't being displayed
-            return;
-        }
-        Aventura currentAdventure = actHome.getSelectedAdventure();
-        if (currentAdventure != null) {
+    public void onAdventureChange(Aventura newAdventure, Aventura oldAdventure) {
+        if (newAdventure != null) {
             int index = 0;
             for (User u : users) {
                 String uid = u.getUserId();
-                boolean joined = currentAdventure.getJogadoresUserIdsSet().contains(uid);
-                boolean invited = currentAdventure.getJogadoresConvidadosIdsSet().contains(uid);
+                boolean joined = oldAdventure.getJogadoresUserIdsSet().contains(uid);
+                boolean invited = oldAdventure.getJogadoresConvidadosIdsSet().contains(uid);
                 boolean shouldBeJoined = newAdventure.getJogadoresUserIdsSet().contains(uid);
                 boolean shouldBeInvited = newAdventure.getJogadoresConvidadosIdsSet().contains(uid);
                 if (joined != shouldBeJoined || invited != shouldBeInvited) {
