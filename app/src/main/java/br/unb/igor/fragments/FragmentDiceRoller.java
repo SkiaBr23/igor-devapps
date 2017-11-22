@@ -51,6 +51,7 @@ public class FragmentDiceRoller extends Fragment {
     private FirebaseAuth mAuth;
     private User user;
     private AdventureListener mListener;
+    private String selectedAdventureKey;
     public static DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
 
     final int ROLLS_LIMIT = 10;
@@ -94,10 +95,9 @@ public class FragmentDiceRoller extends Fragment {
     }
 
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        String keyAventura = ((ActivityHome) getActivity()).getSelectedAdventure().getKey();
-        ref.child("rolls").child(keyAventura).removeEventListener(rollsListener);
+    public void onDestroyView() {
+        super.onDestroyView();
+        ref.child("rolls").child(selectedAdventureKey).removeEventListener(rollsListener);
     }
 
     @Override
@@ -138,8 +138,8 @@ public class FragmentDiceRoller extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
         user = ((ActivityHome)getActivity()).getCurrentUser();
-        String keyAventura = ((ActivityHome) getActivity()).getSelectedAdventure().getKey();
-        ref.child("rolls").child(keyAventura).addChildEventListener(rollsListener);
+        selectedAdventureKey = ((ActivityHome) getActivity()).getSelectedAdventure().getKey();
+        ref.child("rolls").child(selectedAdventureKey).addChildEventListener(rollsListener);
 
         btnRolarDados.setOnClickListener(new View.OnClickListener() {
             @Override
