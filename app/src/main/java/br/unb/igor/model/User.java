@@ -141,14 +141,21 @@ public class User implements Parcelable {
         return false;
     }
 
-    public boolean removeAventura(String keyAventura){
-        for(String key : this.aventuras){
-            if(key.equals(keyAventura)){
+    public boolean removeAventura(String keyAventura) {
+        boolean removed = false;
+        for (String key : this.aventuras){
+            if (key.equals(keyAventura)){
                 this.aventuras.remove(key);
-                return true;
+                removed = true;
+                break;
             }
         }
-        return false;
+        for (int index = this.convites.size() - 1; index >= 0; index--) {
+            if (this.convites.get(index).getKeyAventura().equals(keyAventura)) {
+                this.convites.remove(index);
+            }
+        }
+        return removed;
     }
 
     public void setConvites(List<Convite> convites) {

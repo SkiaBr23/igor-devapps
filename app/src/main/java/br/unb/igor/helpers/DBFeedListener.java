@@ -7,7 +7,7 @@ import br.unb.igor.model.Sessao;
 import br.unb.igor.model.User;
 
 public class DBFeedListener {
-    public void onUserChanged(User newUser) {}
+    public void onUserChanged(User newUser, User oldUser) {}
     public void onSelectedAdventureChange(Aventura newAdventure, Aventura oldAdventure) {}
     public void onInvitationAdded(Convite invitation, int index) {}
     public void onInvitationRemoved(Convite invitation, int index) {}

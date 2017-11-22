@@ -7,6 +7,7 @@ import br.unb.igor.model.Sessao;
 import br.unb.igor.model.User;
 
 public interface AdventureListener {
+    void onClickLeaveAdventure(Aventura aventura, int index);
     void onRemoveAdventure(Aventura aventura, int index);
     void onSelectAdventure(Aventura aventura, int index);
     void onCreateAdventure(String title, int backgroundIndex);

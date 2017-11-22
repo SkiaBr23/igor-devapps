@@ -3,6 +3,7 @@ package br.unb.igor.recycleradapters;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
@@ -23,6 +24,7 @@ public class AventurasViewHolder extends RecyclerView.ViewHolder {
     public LinearLayout containerDelete;
     public ConstraintLayout constraintLayoutBackground;
     public View overlayBlack;
+    public Button btnLeaveAdventure;
 
     public AventurasViewHolder(View itemView) {
         super(itemView);
@@ -33,5 +35,6 @@ public class AventurasViewHolder extends RecyclerView.ViewHolder {
         imgTrashBin = itemView.findViewById(R.id.imgTrashBin);
         overlayBlack = itemView.findViewById(R.id.overlayBlack);
         constraintLayoutBackground = itemView.findViewById(R.id.layoutBackground);
+        btnLeaveAdventure = itemView.findViewById(R.id.btnLeaveAdventure);
     }
 }

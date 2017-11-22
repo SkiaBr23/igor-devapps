@@ -119,10 +119,19 @@ public class AventurasRecyclerAdapter extends RecyclerView.Adapter<AventurasView
                 holder.imgTrashBin.startAnimation(wobble);
             } else {
                 holder.overlayBlack.setVisibility(View.VISIBLE);
+                holder.btnLeaveAdventure.setVisibility(View.VISIBLE);
+                holder.btnLeaveAdventure.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        int index = holder.getAdapterPosition();
+                        mListener.onClickLeaveAdventure(aventuras.get(index), index);
+                    }
+                });
             }
         } else {
             holder.containerDelete.setVisibility(View.GONE);
             holder.imgTrashBin.clearAnimation();
+            holder.btnLeaveAdventure.setVisibility(View.GONE);
         }
     }
 

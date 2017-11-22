@@ -44,6 +44,9 @@ public class Aventura implements Parcelable {
     @Exclude
     Set<String> jogadoresConvidadosIdsSet = new ArraySet<>();
 
+    @Exclude
+    Set<String> jogadoresUserIdsSet = new ArraySet<>();
+
     public Aventura() {
     }
 
@@ -115,6 +118,8 @@ public class Aventura implements Parcelable {
     public void setJogadoresUserIds(List<String> ids) {
         jogadoresUserIds.clear();
         jogadoresUserIds.addAll(ids);
+        jogadoresUserIdsSet.clear();
+        jogadoresUserIdsSet.addAll(ids);
     }
 
     public List<String> getJogadoresConvidadosIds() {
@@ -211,11 +216,12 @@ public class Aventura implements Parcelable {
             a.mestreUserId = parcel.readString();
             a.livroReferencia = parcel.readString();
             parcel.readStringList(a.jogadoresUserIds);
-            parcel.readStringList(a.anotacoes);
+            a.jogadoresUserIdsSet.addAll(a.jogadoresUserIds);
             parcel.readStringList(a.jogadoresConvidadosIds);
+            a.jogadoresConvidadosIdsSet.addAll(a.jogadoresConvidadosIds);
+            parcel.readStringList(a.anotacoes);
             // ler FichaJogador
             parcel.readList(a.sessoes, Sessao.class.getClassLoader());
-            a.jogadoresConvidadosIdsSet.addAll(a.jogadoresConvidadosIds);
             return a;
         }
 
@@ -230,16 +236,6 @@ public class Aventura implements Parcelable {
         return sessoes;
     }
 
-    @Exclude
-    public int getIndexOf(List<Aventura> aventuras, String key){
-        for(Aventura aventura : aventuras){
-            if(aventura.getKey().equals(key)){
-                return aventuras.indexOf(aventura);
-            }
-        }
-        return -1;
-    }
-
     public void addSessao(Sessao s) {
         sessoes.add(s);
         Collections.sort(sessoes, Utils.ComparatorSessionByDateDesc);
@@ -250,7 +246,7 @@ public class Aventura implements Parcelable {
     }
 
     public boolean isUserInAdventure(String key) {
-        return jogadoresUserIds.contains(key);
+        return (mestreUserId != null && mestreUserId.equals(key)) || jogadoresUserIdsSet.contains(key);
     }
 
     public void addInvitedUser(String key) {
@@ -267,23 +263,29 @@ public class Aventura implements Parcelable {
         }
     }
 
-    public void kickUser(String key) {
-        if(isUserInAdventure(key)) {
+    public boolean kickUser(String key) {
+        if (isUserInAdventure(key)) {
             removeInvitedUser(key);
             jogadoresUserIds.remove(key);
+            jogadoresUserIdsSet.remove(key);
+            return true;
         }
+        return false;
     }
 
-    public void acceptUser(String key){
-        if(!isUserInAdventure(key)) {
+    public boolean acceptUser(String key){
+        if (!isUserInAdventure(key) && isUserInvited(key)) {
             removeInvitedUser(key);
             jogadoresUserIds.add(key);
+            jogadoresUserIdsSet.add(key);
+            return true;
         }
+        return false;
     }
 
     @Exclude
     public Set<String> getJogadoresUserIdsSet() {
-        return new ArraySet<>(jogadoresUserIds);
+        return jogadoresUserIdsSet;
     }
 
     @Exclude

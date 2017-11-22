@@ -92,7 +92,7 @@
     <string name="msg_you_havent_invited_players_yet">Você ainda não convidou jogadores</string>
     <string name="label_you">VOCÊ</string>
     <string name="msg_no_adventures_to_show">Você ainda não participa de nenhuma aventura</string>
-    <string name="msg_authenticating">Autenticando...</string>
+    <string name="msg_authenticating">Autenticando…</string>
     <string name="label_username">Nome de usuário</string>
     <string name="label_invitation_sent">Convite\nEnviado</string>
     <string name="msg_failed_to_upload_picture">Não foi possível enviar a imagem</string>
@@ -101,4 +101,8 @@
     <string name="label_pick_a_date">Escolha uma data</string>
             <string name="new_account_placeholder_password_confirm">Confirmar Senha</string>
             <string name="msg_please_login_again">Por favor, refaça o login</string>
+            <string name="label_leave">SAIR</string>
+            <string name="msg_do_you_want_to_leave_the_adventure">Você deseja sair da aventura?</string>
+            <string name="msg_no_adventures_to_edit">Nenhuma aventura para editar!</string>
+            <string name="label_non_participant">Não\nparticipa</string>
         </resources>

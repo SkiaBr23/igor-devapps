@@ -60,6 +60,14 @@ public class FragmentHome extends Fragment {
         public void onInvitationRemoved(Convite invitation, int index) {
             checkInvites();
         }
+
+        @Override
+        public void onUserChanged(User user, User old) {
+            if (user.getAventuras().size() != old.getAventuras().size() ||
+                !user.getAventuras().containsAll(old.getAventuras())) {
+                ((ActivityHome)getActivity()).updateCurrentUserAdventures(user.getAventuras());
+            }
+        }
     };
 
     @Override
@@ -117,9 +125,6 @@ public class FragmentHome extends Fragment {
             Utils.collapseView(cardInfoConvites, 0);
         }
 
-        setIsLoading(isLoading);
-        checkInvites();
-
         fabActionHome = root.findViewById(R.id.fabHomeAction);
 
         // Set Fira Sans (Regular) font
@@ -142,6 +147,10 @@ public class FragmentHome extends Fragment {
         recyclerViewAventurasHome.setLayoutManager(layoutManager);
         aventurasRecyclerAdapter = new AventurasRecyclerAdapter(mListener, aventuras, currentUser.getUserId());
         recyclerViewAventurasHome.setAdapter(aventurasRecyclerAdapter);
+
+        setIsLoading(isLoading);
+        setEditMode(false);
+        checkInvites();
 
         return root;
     }
@@ -198,6 +207,7 @@ public class FragmentHome extends Fragment {
             } else if (aventuras == null || aventuras.isEmpty()) {
                 txtFloatingMessage.setText(R.string.msg_no_adventures_to_show);
                 txtFloatingMessage.setVisibility(View.VISIBLE);
+                setEditMode(false);
             } else {
                 txtFloatingMessage.setVisibility(View.GONE);
             }

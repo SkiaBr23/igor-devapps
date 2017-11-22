@@ -71,19 +71,26 @@ public class JogadoresRecyclerAdapter extends RecyclerView.Adapter<JogadoresView
         holder.txtNomeJogador.setText(user.getEmail());
         holder.txtNomePersonagem.setTextColor(ColorStateList.valueOf(Color.WHITE));
         holder.txtNomePersonagem.setText(user.getFullName());
+
         if (mode.currentUserId != null && mode.currentUserId.equals(user.getUserId())) {
             holder.txtYouIndicator.setVisibility(View.VISIBLE);
         }
+
+        holder.txtNonParticipant.setVisibility(View.GONE);
+        holder.txtInvitationSent.setVisibility(View.GONE);
+
         if (mode.isMaster && mode.canPerformActions) {
             updateInviteButton(holder, user);
             holder.btnInvite.setVisibility(View.VISIBLE);
             holder.txtInvitationSent.setVisibility(View.GONE);
         } else {
             holder.btnInvite.setVisibility(View.GONE);
-            if (mode.alreadyInvitedIds.contains(user.getUserId())) {
+            boolean isInvited = mode.alreadyInvitedIds.contains(user.getUserId());
+            boolean hasJoined = mode.alreadyJoinedIds.contains(user.getUserId());
+            if (isInvited) {
                 holder.txtInvitationSent.setVisibility(View.VISIBLE);
-            } else {
-                holder.txtInvitationSent.setVisibility(View.GONE);
+            } else if (!hasJoined) {
+                holder.txtNonParticipant.setVisibility(View.VISIBLE);
             }
         }
         holder.itemView.setOnClickListener(new View.OnClickListener() {
@@ -135,7 +142,6 @@ public class JogadoresRecyclerAdapter extends RecyclerView.Adapter<JogadoresView
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             mListenerList.onClickKickUsuario(user, holder.getAdapterPosition());
-                            //mListener.onUserKickedOut(user);
                         }
                     });
                     alertDialog.setNegativeButton("Não", new DialogInterface.OnClickListener() {
