@@ -35,6 +35,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.shockwave.pdfium.PdfDocument;
 import com.shockwave.pdfium.PdfiumCore;
 import com.squareup.picasso.Picasso;
 import com.tom_roush.pdfbox.pdmodel.PDDocument;
@@ -119,7 +120,7 @@ public class FragmentBooks extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
                     Livro livro = postSnapshot.getValue(Livro.class);
-                    if(!livros.contains(livro)){
+                    if(!containsBook(livros,livro.getTitulo())){
                         livro.setDownloaded(isBookDownloaded(livro));
                         livros.add(livro);
                         updateRecycler();
@@ -180,6 +181,7 @@ public class FragmentBooks extends Fragment {
     public void getBookFromDevice(){
         Intent intent = new Intent()
                 .setType("application/pdf")
+                .putExtra(Intent.EXTRA_LOCAL_ONLY, true)
                 .setAction(Intent.ACTION_OPEN_DOCUMENT);
         startActivityForResult(Intent.createChooser(intent, "Select a file"), 123);
     }
@@ -190,10 +192,10 @@ public class FragmentBooks extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 123 && resultCode == RESULT_OK) {
             Uri selectedfile = data.getData();//The uri with the location of the file
-            File file = new File(ConvertUriToFilePath.getPathFromURI(getContext(),selectedfile));
+            final File file = new File(ConvertUriToFilePath.getPathFromURI(getContext(),selectedfile));
             String titulo = file.getName().replace(".pdf","");
             if (containsBook(livros,titulo)) {
-                Toast.makeText(getContext(), "Livro já está na estante!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Livro já está na estante!", Toast.LENGTH_LONG).show();
                 return;
             }
 
@@ -201,25 +203,7 @@ public class FragmentBooks extends Fragment {
             livroAdd = new Livro();
             livroAdd.setTitulo(titulo);
             livroAdd.setIdAddedBy(mAuth.getCurrentUser().getUid());
-            final Bitmap thumbnail = renderThumbnail(file);
-            System.out.println("teste");
-            DB.uploadBookThumbnail(file, thumbnail, new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
-                @Override
-                public void onComplete(boolean cancelled, Object extra, int step) {
-                    thumbnail.recycle();
-                    if (cancelled || extra == null || !(extra instanceof Uri)) {
-                        Toast toast = Toast.makeText(getActivity(),
-                                R.string.msg_failed_to_upload_picture, Toast.LENGTH_LONG);
-                        toast.setGravity(Gravity.TOP, 0, 0);
-                        toast.show();
-                        System.out.println("nao passou thumb");
-                    } else {
-                        System.out.println("PASSOU thumb");
-                        Uri thumbnailUrl = (Uri) extra;
-                        livroAdd.setUrlThumbnail(thumbnailUrl.toString());
-                    }
-                }
-            }));
+
 
 
             DB.uploadBookFile(file, new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
@@ -233,13 +217,35 @@ public class FragmentBooks extends Fragment {
                     } else {
                         Uri fileUrl = (Uri) extra;
                         livroAdd.setUrlFile(fileUrl.toString());
-                        if(livroAdd.getUrlThumbnail() != null){
-                            DB.pushBook(livroAdd);
-                        }
+                        setBookThumbnail(file);
                     }
                 }
             }));
         }
+    }
+
+
+    private void setBookThumbnail(final File file){
+        final Bitmap thumbnail = renderThumbnail(file);
+        System.out.println("teste");
+        DB.uploadBookThumbnail(file, thumbnail, new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
+            @Override
+            public void onComplete(boolean cancelled, Object extra, int step) {
+                thumbnail.recycle();
+                if (cancelled || extra == null || !(extra instanceof Uri)) {
+                    Toast toast = Toast.makeText(getActivity(),
+                            R.string.msg_failed_to_upload_picture, Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.TOP, 0, 0);
+                    toast.show();
+                    System.out.println("nao passou thumb");
+                } else {
+                    System.out.println("PASSOU thumb");
+                    Uri thumbnailUrl = (Uri) extra;
+                    livroAdd.setUrlThumbnail(thumbnailUrl.toString());
+                    DB.pushBook(livroAdd);
+                }
+            }
+        }));
     }
 
     private boolean containsBook(List<Livro> livros, String titulo) {
@@ -283,7 +289,7 @@ public class FragmentBooks extends Fragment {
         ParcelFileDescriptor pfd = new ParcelFileDescriptor(openFile(file));
         PdfiumCore pdfiumCore = new PdfiumCore(getContext());
         try {
-            com.shockwave.pdfium.PdfDocument pdfDocument = pdfiumCore.newDocument(pfd);
+            PdfDocument pdfDocument = pdfiumCore.newDocument(pfd);
 
             pdfiumCore.openPage(pdfDocument, pageNum);
 

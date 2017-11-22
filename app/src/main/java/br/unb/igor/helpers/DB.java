@@ -283,10 +283,11 @@ public class DB {
     }
 
 
-    public static void uploadBookFile(File file, final OnCompleteHandler handler) {
+    public static void uploadBookFile(final File file, final OnCompleteHandler handler) {
         UploadTask task = store
                 .child("books-test")
-                .child(file.getName().replace(".pdf",""))
+                .child(file.getName().replace(" ","").replace(".pdf",""))
+                .child(file.getName())
                 .putFile(Uri.fromFile(file));
         task.addOnFailureListener(new OnFailureListener() {
             @Override
@@ -307,7 +308,8 @@ public class DB {
         thumbnail.compress(Bitmap.CompressFormat.PNG, 100, baos);
         UploadTask task = store
                 .child("books-test")
-                .child(file.getName().replace(".pdf",""))
+                .child(file.getName().replace(" ","").replace(".pdf",""))
+                .child(file.getName().replace(".pdf",".png"))
                 .putBytes(baos.toByteArray());
         task.addOnFailureListener(new OnFailureListener() {
             @Override
