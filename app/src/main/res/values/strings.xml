@@ -105,4 +105,6 @@
             <string name="msg_do_you_want_to_leave_the_adventure">Você deseja sair da aventura?</string>
             <string name="msg_no_adventures_to_edit">Nenhuma aventura para editar!</string>
             <string name="label_non_participant">Não\nparticipa</string>
+            <string name="msg_failed_to_register">Não foi possível realizar o cadastro</string>
+            <string name="msg_failed_to_login_with_facebook">Falha ao realizar login com Facebook</string>
         </resources>
