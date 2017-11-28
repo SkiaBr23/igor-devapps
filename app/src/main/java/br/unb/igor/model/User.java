@@ -1,5 +1,6 @@
 package br.unb.igor.model;
 
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -11,6 +12,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import br.unb.igor.helpers.DB;
 
 public class User implements Parcelable {
 
@@ -95,7 +98,25 @@ public class User implements Parcelable {
         this.password = password;
     }
 
+    public boolean isLoggedWithFacebookOrGoogle() {
+        FirebaseUser firebaseUser = DB.auth.getCurrentUser();
+        if (firebaseUser != null) {
+            List<String> providers = firebaseUser.getProviders();
+            if (providers != null &&
+                    (providers.contains("google.com") || providers.contains("facebook.com"))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public String getProfilePictureUrl() {
+        if (isLoggedWithFacebookOrGoogle()) {
+            Uri photoUrl = DB.auth.getCurrentUser().getPhotoUrl();
+            if (photoUrl != null) {
+                return photoUrl.toString();
+            }
+        }
         return profilePictureUrl;
     }
 

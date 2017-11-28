@@ -107,4 +107,5 @@
             <string name="label_non_participant">Não\nparticipa</string>
             <string name="msg_failed_to_register">Não foi possível realizar o cadastro</string>
             <string name="msg_failed_to_login_with_facebook">Falha ao realizar login com Facebook</string>
+            <string name="msg_logging_in">Entrando...</string>
         </resources>

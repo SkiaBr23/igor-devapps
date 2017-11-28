@@ -172,6 +172,23 @@ public class DB {
         ref.child("users").child(user.getUserId()).setValue(user);
     }
 
+    public static void upsertUser(final User user, final OnCompleteHandler handler) {
+        if (user.getUserId().isEmpty()) {
+            handler.advance();
+            return;
+        }
+        ref.child("users")
+                .child(user.getUserId())
+                .setValue(user)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        handler.setExtra(task.isSuccessful());
+                        handler.advance();
+                    }
+                });
+    }
+
     public static void pushBook(final Livro livro) {
         if (livro.getIdAddedBy().isEmpty()) {
             return;
