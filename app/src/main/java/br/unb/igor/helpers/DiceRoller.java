@@ -21,14 +21,21 @@ public class DiceRoller {
         return result;
     }
 
-    public static int binomial(int n, int k) {
-        int result = 1;
+    public static double binomial(int n, int k) {
+        double result = 1;
         k = Math.max(k, n - k);
-        for (int i = n; i > k; i--) {
-            result *= i;
-        }
-        for (int i = n - k; i > 1; i--) {
-            result /= i;
+        int multiply = n;
+        int divide = n - k;
+
+        while (multiply > k || divide > 1) {
+            if (multiply > k) {
+                result *= multiply;
+                multiply--;
+            }
+            if (divide > 1) {
+                result /= divide;
+                divide--;
+            }
         }
         return result;
     }

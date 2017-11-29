@@ -162,7 +162,7 @@ public class FragmentCriarAventura extends Fragment {
         int backgroundResource = ImageAssets.getBackgroundResource(backgroundIndex);
         imgBackground.setImageResource(backgroundResource);
         imgBackgroundChoose.setImageResource(backgroundResource);
-        txtBackgroundIndex.setText(String.valueOf(backgroundIndex));
+        txtBackgroundIndex.setText(String.valueOf(backgroundIndex + 1));
     }
 
 }
