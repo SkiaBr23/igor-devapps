@@ -699,7 +699,6 @@ public class ActivityHome extends AppCompatActivity implements
                 txtNotificationCount.setText("+");
             }
         }
-        System.out.println("Notif count: " + unseenCount);
     }
 
     public void markInvitationsAsSeen() {

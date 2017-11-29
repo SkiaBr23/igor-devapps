@@ -16,6 +16,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import java.util.Random;
 
@@ -31,10 +32,15 @@ public class FragmentCriarAventura extends Fragment {
     private ImageView imgFecharAventura;
     private EditText editTituloAventura;
     private Button btnConfirmarAventura;
+    private Button btnBackgroundLeft;
+    private Button btnBackgroundRight;
+    private ImageView imgBackgroundChoose;
+    private TextView txtBackgroundIndex;
     private FloatingActionButton btnFloatCloseAdventure;
     private AdventureListener mListener;
 
     private boolean clearEditTextOnCreate = false;
+    private int backgroundIndex;
 
     public FragmentCriarAventura() {
         // Required empty public constructor
@@ -73,11 +79,29 @@ public class FragmentCriarAventura extends Fragment {
         editTituloAventura = root.findViewById(R.id.editTituloAventura);
         btnFloatCloseAdventure = root.findViewById((R.id.btnCriarAventura));
         btnConfirmarAventura = root.findViewById(R.id.btnConfirmarAventura);
+        btnBackgroundLeft = root.findViewById(R.id.btnBackgroundLeft);
+        btnBackgroundRight = root.findViewById(R.id.btnBackgroundRight);
+        imgBackgroundChoose = root.findViewById(R.id.imgBackground);
+        txtBackgroundIndex = root.findViewById(R.id.txtBackgroundIndex);
 
-        final int randomBackground = new Random().nextInt(ImageAssets.getBuiltInBackgroundCount());
-        int backgroundResource = ImageAssets.getBackgroundResource(randomBackground);
+        backgroundIndex = new Random().nextInt(ImageAssets.getBuiltInBackgroundCount());
+        updateBackground();
 
-        imgBackground.setImageResource(backgroundResource);
+        btnBackgroundLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                backgroundIndex--;
+                updateBackground();
+            }
+        });
+
+        btnBackgroundRight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                backgroundIndex++;
+                updateBackground();
+            }
+        });
 
         btnConfirmarAventura.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,7 +121,7 @@ public class FragmentCriarAventura extends Fragment {
                 }
 
                 clearEditTextOnCreate = true;
-                mListener.onCreateAdventure(adventureTitle, randomBackground);
+                mListener.onCreateAdventure(adventureTitle, backgroundIndex);
             }
         });
 
@@ -126,6 +150,19 @@ public class FragmentCriarAventura extends Fragment {
             editTituloAventura.setText("");
             clearEditTextOnCreate = false;
         }
+    }
+
+    private void updateBackground() {
+        int limit = ImageAssets.getBuiltInBackgroundCount();
+        if (backgroundIndex < 0) {
+            backgroundIndex = limit - 1;
+        } else if (backgroundIndex >= limit) {
+            backgroundIndex %= limit;
+        }
+        int backgroundResource = ImageAssets.getBackgroundResource(backgroundIndex);
+        imgBackground.setImageResource(backgroundResource);
+        imgBackgroundChoose.setImageResource(backgroundResource);
+        txtBackgroundIndex.setText(String.valueOf(backgroundIndex));
     }
 
 }
