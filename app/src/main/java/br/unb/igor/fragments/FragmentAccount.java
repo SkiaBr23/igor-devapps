@@ -79,7 +79,7 @@ public class FragmentAccount extends Fragment {
             }
         });
 
-        if (user.isLoggedWithFacebookOrGoogle()) {
+        if (user.isCurrentUserAndLoggedInWithFacebookOrGoogle()) {
             profileImgChanger.setVisibility(View.GONE);
         } else {
             profileImgChanger.setOnClickListener(new View.OnClickListener() {

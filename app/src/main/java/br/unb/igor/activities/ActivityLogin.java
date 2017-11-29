@@ -317,7 +317,7 @@ public class ActivityLogin extends AppCompatActivity implements
                     }
                 }, 200);
             } else {
-                Toast.makeText(this, R.string.msg_failed_to_register, Toast.LENGTH_SHORT).show();
+//                Toast.makeText(this, R.string.msg_failed_to_register, Toast.LENGTH_SHORT).show();
             }
         } else {
             mCallbackManager.onActivityResult(requestCode, resultCode, data);

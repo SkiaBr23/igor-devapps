@@ -229,7 +229,7 @@ public class FragmentAdventure extends Fragment {
         if (di.isMaster) {
             root.findViewById(R.id.boxYouIndicator).setVisibility(View.VISIBLE);
         } else {
-            btnFAB.setVisibility(View.GONE);
+            btnFAB.setVisibility(View.INVISIBLE);
             btnFAB.setEnabled(false);
         }
 

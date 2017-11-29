@@ -98,11 +98,11 @@ public class User implements Parcelable {
         this.password = password;
     }
 
-    public boolean isLoggedWithFacebookOrGoogle() {
+    public boolean isCurrentUserAndLoggedInWithFacebookOrGoogle() {
         FirebaseUser firebaseUser = DB.auth.getCurrentUser();
         if (firebaseUser != null) {
             List<String> providers = firebaseUser.getProviders();
-            if (providers != null &&
+            if (providers != null && firebaseUser.getUid().equals(this.userId) &&
                     (providers.contains("google.com") || providers.contains("facebook.com"))) {
                 return true;
             }
@@ -111,7 +111,7 @@ public class User implements Parcelable {
     }
 
     public String getProfilePictureUrl() {
-        if (isLoggedWithFacebookOrGoogle()) {
+        if (isCurrentUserAndLoggedInWithFacebookOrGoogle()) {
             Uri photoUrl = DB.auth.getCurrentUser().getPhotoUrl();
             if (photoUrl != null) {
                 return photoUrl.toString();

@@ -90,6 +90,7 @@ public class ActivityHome extends AppCompatActivity implements
     private FragmentDiceRoller fragmentDiceRoll;
 
     private ImageView imgHamburguer;
+    private TextView txtNotificationCount;
     private ImageView imgOptionsMenu;
     private DrawerLayout mDrawerLayout;
     private DrawerListAdapter mDrawerAdapter;
@@ -164,6 +165,7 @@ public class ActivityHome extends AppCompatActivity implements
                 for (DBFeedListener listener : feedListeners) {
                     listener.onUserChanged(currentUser, oldUser);
                 }
+                updateNotificationCount();
             }
         }
     };
@@ -316,6 +318,7 @@ public class ActivityHome extends AppCompatActivity implements
             }
         });
 
+        txtNotificationCount = findViewById(R.id.txtNotif);
         imgHamburguer = findViewById(R.id.btnMenuLateral);
         imgHamburguer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -370,6 +373,8 @@ public class ActivityHome extends AppCompatActivity implements
         if (this.currentUser == null) {
             this.currentUser = new User(mAuth.getCurrentUser());
             fetchCurrentUser();
+        } else {
+            updateNotificationCount();
         }
 
         if (this.adventures == null) {
@@ -509,6 +514,7 @@ public class ActivityHome extends AppCompatActivity implements
                 if (extra != null && extra instanceof User) {
                     currentUser.assignInternal((User)extra);
                     currentUser.hasBeenFetchedFromDB = true;
+                    updateNotificationCount();
                     fetchInitialAdventures();
                     Picasso
                         .with(ActivityHome.this)
@@ -676,11 +682,32 @@ public class ActivityHome extends AppCompatActivity implements
         setSelectedAdventure(null);
     }
 
+    public void updateNotificationCount() {
+        int unseenCount = 0;
+        for (Convite c : currentUser.getConvites()) {
+            if (c.getUnseen()) {
+                unseenCount++;
+            }
+        }
+        if (unseenCount == 0) {
+            txtNotificationCount.setVisibility(View.GONE);
+        } else {
+            txtNotificationCount.setVisibility(View.VISIBLE);
+            if (unseenCount < 10) {
+                txtNotificationCount.setText(String.valueOf(unseenCount));
+            } else {
+                txtNotificationCount.setText("+");
+            }
+        }
+        System.out.println("Notif count: " + unseenCount);
+    }
+
     public void markInvitationsAsSeen() {
         for (Convite c : currentUser.getConvites()) {
             c.setUnseen(false);
         }
         DB.upsertUser(currentUser);
+        updateNotificationCount();
         getScreenFragment(Screen.Home);
         fragmentHome.checkInvites();
     }
