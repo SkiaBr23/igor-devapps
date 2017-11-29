@@ -62,6 +62,7 @@ public class JogadasRecyclerAdapter extends RecyclerView.Adapter<JogadasViewHold
         holder.cardJogada.setBackground(context.getResources().getDrawable(setCardColor(jogada.getTipo())));
 
         holder.txtChance.setText(String.format(Locale.getDefault(),"%.2f%%", jogada.getProbabilidade()));
+        holder.txtChancePeloMenos.setText(String.format(Locale.getDefault(),"%.2f%%", jogada.getProbabilidadePeloMenos()));
 
         if (jogada.getUrlFotoAutor() != null) {
             if (!jogada.getUrlFotoAutor().isEmpty()) {

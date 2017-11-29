@@ -87,6 +87,19 @@
             android:textSize="13sp" />
 
         <TextView
+            android:id="@+id/txtChancePeloMenos"
+            app:layout_constraintRight_toLeftOf="@+id/txtChance"
+            app:layout_constraintTop_toBottomOf="@id/txtResultado"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:text="10%"
+            android:textColor="@color/bgnHome"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="4dp"
+            android:textSize="13sp" />
+
+        <TextView
             android:id="@+id/txtDataJogada"
             app:layout_constraintRight_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="parent"

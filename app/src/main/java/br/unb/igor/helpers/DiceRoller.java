@@ -68,7 +68,7 @@ public class DiceRoller {
             return result;
         }
         double p = 100.;
-        for (int i = faces; i < value; i++) {
+        for (int i = dice; i < value; i++) {
             p -= probability(i, faces, dice);
         }
         memoTableProbabilitiesAtLeast.put(key, p);

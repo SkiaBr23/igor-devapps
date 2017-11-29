@@ -151,11 +151,13 @@ public class FragmentDiceRoller extends Fragment {
                 int modificador = numberPickerqtdAdicional.getValue()  -6;
                 int resultado = DiceRoller.roll(tipoDado, qtdDado, modificador);
                 Double probabilidade = DiceRoller.probability(resultado - modificador, tipoDado, qtdDado);
+                Double probabilidadePeloMenos = DiceRoller.probabilityAtLeast(resultado - modificador, tipoDado, qtdDado);
                 String comando = DiceRoller.diceToText(tipoDado,qtdDado,modificador);
                 newJogada.setComando(comando);
                 newJogada.setNomeAutor(user.getFullName());
                 newJogada.setResultado(String.valueOf(resultado));
                 newJogada.setProbabilidade(probabilidade);
+                newJogada.setProbabilidadePeloMenos(probabilidadePeloMenos);
                 newJogada.setIdAutor(user.getUserId());
                 newJogada.setUrlFotoAutor(user.getProfilePictureUrl());
                 newJogada.setKeyAventura(((ActivityHome) getActivity()).getSelectedAdventure().getKey());

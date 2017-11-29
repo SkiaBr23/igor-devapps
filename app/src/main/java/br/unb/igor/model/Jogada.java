@@ -17,9 +17,8 @@ public class Jogada {
     private String urlFotoAutor;
     private Date timestamp;
     private Double probabilidade;
+    private Double probabilidadePeloMenos;
     private TipoComando tipo;
-
-    private static final Pattern regexDiceInfo = Pattern.compile("(\\d+)d(\\d+)");
 
     public enum TipoComando {
         DADO, DADO_MAXIMO, DADO_MINIMO, DADO_CRITICO, DADO_FALHA, EMOJI, TEXTO;
@@ -63,6 +62,14 @@ public class Jogada {
 
     public void setProbabilidade(Double probabilidade) {
         this.probabilidade = probabilidade;
+    }
+
+    public Double getProbabilidadePeloMenos() {
+        return probabilidadePeloMenos;
+    }
+
+    public void setProbabilidadePeloMenos(Double probabilidade) {
+        this.probabilidadePeloMenos = probabilidade;
     }
 
     public String getTimeSent() {
