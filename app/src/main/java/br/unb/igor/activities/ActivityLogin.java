@@ -4,7 +4,6 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -45,8 +44,6 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.auth.UserProfileChangeRequest;
-import com.google.firebase.database.FirebaseDatabase;
 
 import br.unb.igor.R;
 import br.unb.igor.helpers.DB;
@@ -145,8 +142,8 @@ public class ActivityLogin extends AppCompatActivity implements
             @Override
             public void onClick(View v) {
                 if (isLoggedIn()) {
-                    btnEntrar.setEnabled(false);
-                    onLoginSuccess(null);
+//                    btnEntrar.setEnabled(false);
+//                    onLoginSuccess(null);
                 } else if (validate()) {
                     sharedPreferences
                         .edit()
@@ -227,13 +224,13 @@ public class ActivityLogin extends AppCompatActivity implements
             @Override
             public void onCancel() {
                 Log.d(TAG, "facebook:onCancel");
-                // ...
+                Toast.makeText(ActivityLogin.this, R.string.msg_failed_to_login_with_facebook, Toast.LENGTH_LONG).show();
             }
 
             @Override
             public void onError(FacebookException error) {
                 Log.d(TAG, "facebook:onError", error);
-                // ...
+                Toast.makeText(ActivityLogin.this, R.string.msg_failed_to_login_with_facebook, Toast.LENGTH_LONG).show();
             }
         });
 
@@ -264,8 +261,6 @@ public class ActivityLogin extends AppCompatActivity implements
         super.onStart();
         mAuth.addAuthStateListener(mAuthListener);
         OptionalPendingResult<GoogleSignInResult> opr = Auth.GoogleSignInApi.silentSignIn(mGoogleApiClient);
-
-
         if (opr.isDone()) {
             // If the user's cached credentials are valid, the OptionalPendingResult will be "done"
             // and the GoogleSignInResult will be available instantly.
@@ -276,12 +271,10 @@ public class ActivityLogin extends AppCompatActivity implements
             // If the user has not previously signed in on this device or the sign-in has expired,
             // this asynchronous branch will attempt to sign in the user silently.  Cross-device
             // single sign-on will occur in this branch.
-            showProgressDialog();
             opr.setResultCallback(new ResultCallback<GoogleSignInResult>() {
                 @Override
                 public void onResult(GoogleSignInResult googleSignInResult) {
-                hideProgressDialog();
-                handleSignInResult(googleSignInResult);
+                    handleSignInResult(googleSignInResult);
                 }
             });
         }
@@ -290,61 +283,57 @@ public class ActivityLogin extends AppCompatActivity implements
     @Override
     public void onResume() {
         super.onResume();
-        hideProgressDialog();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            Toast.makeText(this, R.string.msg_successfully_registered, Toast.LENGTH_SHORT).show();
-        }
-        // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
-            handleSignInResult(result);
+            if (resultCode == RESULT_OK) {
+                showProgressDialog(getString(R.string.msg_logging_in));
+                handleSignInResult(result);
+            } else {
+                if (resultCode != RESULT_CANCELED) {
+                    Toast.makeText(this, "Falha ao realizar login com Google", Toast.LENGTH_SHORT).show();
+                    System.out.println(result.getStatus().toString());
+                }
+            }
         } else  if (requestCode == REQUEST_SIGNUP) {
             if (resultCode == RESULT_OK) {
-                // TODO: Implement successful signup logic here
-                // By default we just finish the Activity and log them in automatically
-                //this.finish();
+                if (data != null) {
+                    String email = data.getStringExtra(User.PARCEL_KEY_EMAIL);
+                    if (email != null && !email.isEmpty()) {
+                        editTextEmail.setText(data.getStringExtra(User.PARCEL_KEY_EMAIL));
+                        editTextSenha.setText("");
+                        editTextSenha.requestFocus();
+                    }
+                }
+                Toast.makeText(this, R.string.msg_successfully_registered, Toast.LENGTH_SHORT).show();
+                new Handler().postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        signOut();
+                    }
+                }, 200);
+            } else {
+//                Toast.makeText(this, R.string.msg_failed_to_register, Toast.LENGTH_SHORT).show();
             }
         } else {
             mCallbackManager.onActivityResult(requestCode, resultCode, data);
         }
-
-        if (data != null) {
-            String email = data.getStringExtra(User.PARCEL_KEY_EMAIL);
-            if (email != null && !email.isEmpty()) {
-                editTextEmail.setText(data.getStringExtra(User.PARCEL_KEY_EMAIL));
-                editTextSenha.setText("");
-                editTextSenha.requestFocus();
-            }
-        }
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                signOut();
-            }
-        }, 200);
     }
 
 
     private void handleSignInResult(GoogleSignInResult result) {
         Log.d(TAG, "handleSignInResult:" + result.isSuccess());
         if (result.isSuccess()) {
-            // Signed in successfully, show authenticated UI.
+            loggedGoogle = true;
             GoogleSignInAccount acct = result.getSignInAccount();
             firebaseAuthWithGoogle(acct);
-            loggedGoogle = true;
-            // mStatusTextView.setText(getString(R.string.signed_in_fmt, acct.getDisplayName()));
-            //  registerGoogleUserFirebase(acct);
-            updateUI(true);
         } else {
-            // Signed out, show unauthenticated UI.
             loggedGoogle = false;
-            updateUI(false);
+            hideProgressDialog();
         }
     }
 
@@ -355,17 +344,13 @@ public class ActivityLogin extends AppCompatActivity implements
 
     private void signOut() {
         FirebaseAuth.getInstance().signOut();
-        updateUI(false);
 
         if (loggedGoogle) {
             Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
                 new ResultCallback<Status>() {
                     @Override
                     public void onResult(Status status) {
-                        // [START_EXCLUDE]
-                        updateUI(false);
                         loggedGoogle = false;
-                        // [END_EXCLUDE]
                     }
                 });
         }
@@ -377,23 +362,6 @@ public class ActivityLogin extends AppCompatActivity implements
 
         loggedEmail = false;
     }
-    // [END signOut]
-
-
-    // [START revokeAccess]
-    private void revokeAccess() {
-        Auth.GoogleSignInApi.revokeAccess(mGoogleApiClient).setResultCallback(
-            new ResultCallback<Status>() {
-                @Override
-                public void onResult(Status status) {
-                    // [START_EXCLUDE]
-                    updateUI(false);
-                    // [END_EXCLUDE]
-                }
-            }
-        );
-    }
-    // [END revokeAccess]
 
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
@@ -413,12 +381,16 @@ public class ActivityLogin extends AppCompatActivity implements
         }
     }
 
-    private void showProgressDialog() {
+    private void showProgressDialog(String text) {
         if (mProgressDialog == null) {
-            mProgressDialog = new ProgressDialog(this);
-            mProgressDialog.setMessage(getString(R.string.label_loading));
+            mProgressDialog = new ProgressDialog(this, R.style.Theme_AppCompat_Light_Dialog);
             mProgressDialog.setIndeterminate(true);
         }
+
+        if (text != null)
+            mProgressDialog.setMessage(text);
+        else
+            mProgressDialog.setMessage(getString(R.string.label_loading));
 
         mProgressDialog.show();
     }
@@ -426,18 +398,6 @@ public class ActivityLogin extends AppCompatActivity implements
     private void hideProgressDialog() {
         if (mProgressDialog != null && mProgressDialog.isShowing()) {
             mProgressDialog.hide();
-        }
-    }
-
-    private void updateUI(boolean signedIn) {
-        if (signedIn) {
-            //findViewById(R.id.sign_in_button).setVisibility(View.GONE);
-            //this.getActivity().findViewById(R.id.sign_out_button).setVisibility(View.VISIBLE);
-        } else {
-            //mStatusTextView.setText(R.string.signed_out);
-
-            //findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
-            //this.getActivity().findViewById(R.id.sign_out_button).setVisibility(View.GONE);
         }
     }
 
@@ -452,35 +412,14 @@ public class ActivityLogin extends AppCompatActivity implements
                 break;
             case R.id.btnEntrar:
                 if (isLoggedIn()) {
-                    btnEntrar.setEnabled(false);
-                    onLoginSuccess(null);
+//                    btnEntrar.setEnabled(false);
+//                    onLoginSuccess(null);
                 } else {
                     loginWithPassword();
                 }
                 break;
-           /* case R.id.sign_out_button:
-                signOut();
-                break;*/
-            //  case R.id.disconnect_button:
-            //    revokeAccess();
-            //    break;
         }
     }
-
-//    private void setDefaultPhoto(FirebaseUser user){
-//        UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-//            .setPhotoUri(Uri.parse(DEFAULT_PROFILE_PHOTO_URL))
-//            .build();
-//        user.updateProfile(profileUpdates)
-//            .addOnCompleteListener(new OnCompleteListener<Void>() {
-//                @Override
-//                public void onComplete(@NonNull Task<Void> task) {
-//                    if (task.isSuccessful()) {
-//                        Log.d(TAG, "User profile updated.");
-//                    }
-//                }
-//            });
-//    }
 
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
         Log.d(TAG, "firebaseAuthWithGoogle:" + acct.getId());
@@ -495,12 +434,12 @@ public class ActivityLogin extends AppCompatActivity implements
                     // signed in user can be handled in the listener.
                     if (!task.isSuccessful()) {
                         Log.w(TAG, "signInWithCredential", task.getException());
+                        hideProgressDialog();
                         Toast.makeText(ActivityLogin.this, R.string.msg_google_login_failed,
                                 Toast.LENGTH_SHORT).show();
                     } else {
                         onLoginSuccess(task.getResult().getUser());
                     }
-                    // ...
                 }
             });
     }
@@ -544,8 +483,9 @@ public class ActivityLogin extends AppCompatActivity implements
 
     public void onLoginSuccess(final FirebaseUser gmailOrFacebookUser) {
         if (gmailOrFacebookUser != null) {
-            setupGoogleOrFacebookUser(gmailOrFacebookUser);
+            insertGoogleOrFacebookUserAndLogin(gmailOrFacebookUser);
         } else {
+            hideProgressDialog();
             Intent intent = new Intent(ActivityLogin.this, ActivityHome.class);
             startActivity(intent);
             finish();
@@ -564,9 +504,19 @@ public class ActivityLogin extends AppCompatActivity implements
         this.btnEntrar.setEnabled(true);
     }
 
-    private void setupGoogleOrFacebookUser(FirebaseUser user) {
+    private void insertGoogleOrFacebookUserAndLogin(FirebaseUser user) {
         String photoUrl = user.getPhotoUrl() != null ? user.getPhotoUrl().toString() : User.DEFAULT_PROFILE_PHOTO_URL;
         final User newUser = new User(user.getUid(), user.getDisplayName(), user.getEmail(), photoUrl);
+        final OnCompleteHandler handler = new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
+            @Override
+            public void onComplete(boolean cancelled, Object extra, int step) {
+                hideProgressDialog();
+                Intent intent = new Intent(ActivityLogin.this, ActivityHome.class);
+                startActivity(intent);
+                finish();
+                overridePendingTransition(R.anim.fade_in_320ms, R.anim.fade_out_320ms);
+            }
+        });
         DB.getUserInfoById(user.getUid(), new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
             @Override
             public void onComplete(boolean cancelled, Object extra, int step) {
@@ -574,12 +524,10 @@ public class ActivityLogin extends AppCompatActivity implements
                     return;
                 }
                 if (extra == null) {
-                    DB.upsertUser(newUser);
+                    DB.upsertUser(newUser, handler);
+                } else {
+                    handler.advance();
                 }
-                Intent intent = new Intent(ActivityLogin.this, ActivityHome.class);
-                startActivity(intent);
-                finish();
-                overridePendingTransition(R.anim.fade_in_320ms, R.anim.fade_out_320ms);
             }
         }));
     }
@@ -599,8 +547,8 @@ public class ActivityLogin extends AppCompatActivity implements
                     // signed in user can be handled in the listener.
                     if (!task.isSuccessful()) {
                         Log.w(TAG, "signInWithCredential", task.getException());
-                        Toast.makeText(ActivityLogin.this, "Authentication failed.",
-                                Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ActivityLogin.this, R.string.msg_failed_to_login_with_facebook,
+                                Toast.LENGTH_LONG).show();
                         loggedFacebook = false;
                     } else {
                         loggedFacebook = true;

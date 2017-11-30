@@ -25,6 +25,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +34,7 @@ import java.util.List;
 import br.unb.igor.model.Aventura;
 import br.unb.igor.model.Convite;
 import br.unb.igor.model.Jogada;
+import br.unb.igor.model.Livro;
 import br.unb.igor.model.User;
 
 public class DB {
@@ -40,6 +42,29 @@ public class DB {
     public static FirebaseAuth auth = FirebaseAuth.getInstance();
     public static DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
     public static StorageReference store = FirebaseStorage.getInstance().getReference();
+
+    public static void printAllUsers() {
+        ref.child("users").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                GenericTypeIndicator<HashMap<String, Object>> genericTypeIndicator = new GenericTypeIndicator<HashMap<String, Object>>() {};
+                HashMap<String, Object> users = dataSnapshot.getValue(genericTypeIndicator);
+                if (users != null) {
+                    for (String id : users.keySet()) {
+                        String name = dataSnapshot.child(id).child("fullName").getValue(String.class);
+                        String email = dataSnapshot.child(id).child("email").getValue(String.class);
+                        String password = dataSnapshot.child(id).child("password").getValue(String.class);
+                        System.out.println("User " + name + " (" + email + "/" + id + ") with password " + password + ".");
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
 
     public static void deleteAllAdventures() {
         ref.child("adventures").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -147,6 +172,31 @@ public class DB {
         ref.child("users").child(user.getUserId()).setValue(user);
     }
 
+    public static void upsertUser(final User user, final OnCompleteHandler handler) {
+        if (user.getUserId().isEmpty()) {
+            handler.advance();
+            return;
+        }
+        ref.child("users")
+                .child(user.getUserId())
+                .setValue(user)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        handler.setExtra(task.isSuccessful());
+                        handler.advance();
+                    }
+                });
+    }
+
+    public static void pushBook(final Livro livro) {
+        if (livro.getIdAddedBy().isEmpty()) {
+            return;
+        }
+        String key = ref.child("books").push().getKey();
+        ref.child("books").child(key).setValue(livro);
+    }
+
     public static void setUserInvitation(final User invitedUser, User whoInvited, final Aventura aventura, boolean isInvited) {
         String uid = invitedUser.getUserId();
         if (aventura.getKey().isEmpty() || uid.isEmpty()) {
@@ -249,4 +299,46 @@ public class DB {
 
     }
 
+
+    public static void uploadBookFile(final File file, final OnCompleteHandler handler) {
+        UploadTask task = store
+                .child("books-test")
+                .child(file.getName().replace(" ","").replace(".pdf",""))
+                .child(file.getName())
+                .putFile(Uri.fromFile(file));
+        task.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                handler.cancel();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                handler.setExtra(taskSnapshot.getDownloadUrl());
+                handler.advance();
+            }
+        });
+    }
+
+    public static void uploadBookThumbnail(File file, Bitmap thumbnail, final OnCompleteHandler handler) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        thumbnail.compress(Bitmap.CompressFormat.PNG, 100, baos);
+        UploadTask task = store
+                .child("books-test")
+                .child(file.getName().replace(" ","").replace(".pdf",""))
+                .child(file.getName().replace(".pdf",".png"))
+                .putBytes(baos.toByteArray());
+        task.addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                handler.cancel();
+            }
+        }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                handler.setExtra(taskSnapshot.getDownloadUrl());
+                handler.advance();
+            }
+        });
+    }
 }

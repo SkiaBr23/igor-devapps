@@ -21,6 +21,7 @@ import java.util.List;
 import br.unb.igor.R;
 import br.unb.igor.activities.ActivityHome;
 import br.unb.igor.helpers.AdventureListener;
+import br.unb.igor.helpers.DBFeedListener;
 import br.unb.igor.helpers.Utils;
 import br.unb.igor.model.Aventura;
 import br.unb.igor.model.Convite;
@@ -49,6 +50,26 @@ public class FragmentHome extends Fragment {
 
     private User currentUser = null;
 
+    private DBFeedListener feedListener = new DBFeedListener() {
+        @Override
+        public void onInvitationAdded(Convite invitation, int index) {
+            checkInvites();
+        }
+
+        @Override
+        public void onInvitationRemoved(Convite invitation, int index) {
+            checkInvites();
+        }
+
+        @Override
+        public void onUserChanged(User user, User old) {
+            if (user.getAventuras().size() != old.getAventuras().size() ||
+                !user.getAventuras().containsAll(old.getAventuras())) {
+                ((ActivityHome)getActivity()).updateCurrentUserAdventures(user.getAventuras());
+            }
+        }
+    };
+
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -67,6 +88,12 @@ public class FragmentHome extends Fragment {
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ((ActivityHome)getActivity()).removeDBFeedListener(feedListener);
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.fragment_home, container, false);
@@ -75,6 +102,8 @@ public class FragmentHome extends Fragment {
         currentUser = ((ActivityHome)getActivity()).getCurrentUser();
 
         setRetainInstance(true);
+
+        ((ActivityHome)getActivity()).addDBFeedListener(feedListener);
 
         txtFloatingMessage = root.findViewById(R.id.floatingText);
         txtFloatingMessage.setText(R.string.msg_loading_adventures);
@@ -95,9 +124,6 @@ public class FragmentHome extends Fragment {
             isNotificationsExpanded = false;
             Utils.collapseView(cardInfoConvites, 0);
         }
-
-        setIsLoading(isLoading);
-        checkInvites();
 
         fabActionHome = root.findViewById(R.id.fabHomeAction);
 
@@ -121,6 +147,10 @@ public class FragmentHome extends Fragment {
         recyclerViewAventurasHome.setLayoutManager(layoutManager);
         aventurasRecyclerAdapter = new AventurasRecyclerAdapter(mListener, aventuras, currentUser.getUserId());
         recyclerViewAventurasHome.setAdapter(aventurasRecyclerAdapter);
+
+        setIsLoading(isLoading);
+        setEditMode(false);
+        checkInvites();
 
         return root;
     }
@@ -177,6 +207,7 @@ public class FragmentHome extends Fragment {
             } else if (aventuras == null || aventuras.isEmpty()) {
                 txtFloatingMessage.setText(R.string.msg_no_adventures_to_show);
                 txtFloatingMessage.setVisibility(View.VISIBLE);
+                setEditMode(false);
             } else {
                 txtFloatingMessage.setVisibility(View.GONE);
             }

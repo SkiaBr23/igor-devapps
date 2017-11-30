@@ -1,7 +1,10 @@
 package br.unb.igor.fragments;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.annotation.Nullable;
@@ -13,21 +16,31 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.TextView;
+
+import java.util.Random;
 
 import br.unb.igor.R;
 import br.unb.igor.helpers.AdventureListener;
+import br.unb.igor.helpers.ImageAssets;
 
 public class FragmentCriarAventura extends Fragment {
 
     public static final String TAG = FragmentCriarAventura.class.getName();
 
+    private ImageView imgBackground;
     private ImageView imgFecharAventura;
     private EditText editTituloAventura;
     private Button btnConfirmarAventura;
+    private Button btnBackgroundLeft;
+    private Button btnBackgroundRight;
+    private ImageView imgBackgroundChoose;
+    private TextView txtBackgroundIndex;
     private FloatingActionButton btnFloatCloseAdventure;
     private AdventureListener mListener;
 
     private boolean clearEditTextOnCreate = false;
+    private int backgroundIndex;
 
     public FragmentCriarAventura() {
         // Required empty public constructor
@@ -61,10 +74,35 @@ public class FragmentCriarAventura extends Fragment {
                              Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.fragment_create_adventure, container, false);
 
+        imgBackground = root.findViewById(R.id.bkgEditarAventura);
         imgFecharAventura = root.findViewById(R.id.btnCloseAventura);
         editTituloAventura = root.findViewById(R.id.editTituloAventura);
         btnFloatCloseAdventure = root.findViewById((R.id.btnCriarAventura));
         btnConfirmarAventura = root.findViewById(R.id.btnConfirmarAventura);
+        btnBackgroundLeft = root.findViewById(R.id.btnBackgroundLeft);
+        btnBackgroundRight = root.findViewById(R.id.btnBackgroundRight);
+        imgBackgroundChoose = root.findViewById(R.id.imgBackground);
+        txtBackgroundIndex = root.findViewById(R.id.txtBackgroundIndex);
+
+        backgroundIndex = new Random().nextInt(ImageAssets.getBuiltInBackgroundCount());
+        updateBackground();
+
+        btnBackgroundLeft.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                backgroundIndex--;
+                updateBackground();
+            }
+        });
+
+        btnBackgroundRight.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                backgroundIndex++;
+                updateBackground();
+            }
+        });
+
         btnConfirmarAventura.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -83,7 +121,7 @@ public class FragmentCriarAventura extends Fragment {
                 }
 
                 clearEditTextOnCreate = true;
-                mListener.onCreateAdventure(adventureTitle);
+                mListener.onCreateAdventure(adventureTitle, backgroundIndex);
             }
         });
 
@@ -102,11 +140,6 @@ public class FragmentCriarAventura extends Fragment {
             }
         });
 
-
-//        editTituloAventura.requestFocus();
-//        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
-//        imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
-
         return root;
     }
 
@@ -117,6 +150,19 @@ public class FragmentCriarAventura extends Fragment {
             editTituloAventura.setText("");
             clearEditTextOnCreate = false;
         }
+    }
+
+    private void updateBackground() {
+        int limit = ImageAssets.getBuiltInBackgroundCount();
+        if (backgroundIndex < 0) {
+            backgroundIndex = limit - 1;
+        } else if (backgroundIndex >= limit) {
+            backgroundIndex %= limit;
+        }
+        int backgroundResource = ImageAssets.getBackgroundResource(backgroundIndex);
+        imgBackground.setImageResource(backgroundResource);
+        imgBackgroundChoose.setImageResource(backgroundResource);
+        txtBackgroundIndex.setText(String.valueOf(backgroundIndex + 1));
     }
 
 }

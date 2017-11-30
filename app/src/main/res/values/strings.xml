@@ -26,9 +26,26 @@
     <string name="menu_exit">Sair</string>
     <string name="strLonga">&#8230;</string>
     <string name="msg_loading_adventures">Carregando aventuras…</string>
-
     <string name="txtDescricaoPersonagem">Mestre impiedoso que não se importa em matar personagens</string>
-
+    <string-array name="genders">
+        <item>Masculino</item>
+        <item>Feminino</item>
+        <item>Outro</item>
+    </string-array>
+    <string-array name="months">
+        <item>Janeiro</item>
+        <item>Fevereiro</item>
+        <item>Março</item>
+        <item>Abril</item>
+        <item>Maio</item>
+        <item>Junho</item>
+        <item>Julho</item>
+        <item>Agosto</item>
+        <item>Setembro</item>
+        <item>Outubro</item>
+        <item>Novembro</item>
+        <item>Dezembro</item>
+    </string-array>
     <string name="textoDescricaoAventura">Após o misteriosos desaparecimento do príncipe conhecido como Senhor dos Espinhos, um grupo de embaixadores deve impedir que ast tensões entre os reinos cause uma guerra. O futuro do mundo será decidido na corte do Rei.</string>
     <string name="adventure_label_no_description_yet">Essa aventura ainda não possui uma sinopse!</string>
     <string name="new_account_username_placeholder">Nome de usuário</string>
@@ -75,8 +92,20 @@
     <string name="msg_you_havent_invited_players_yet">Você ainda não convidou jogadores</string>
     <string name="label_you">VOCÊ</string>
     <string name="msg_no_adventures_to_show">Você ainda não participa de nenhuma aventura</string>
-    <string name="msg_authenticating">Autenticando...</string>
+    <string name="msg_authenticating">Autenticando…</string>
     <string name="label_username">Nome de usuário</string>
     <string name="label_invitation_sent">Convite\nEnviado</string>
     <string name="msg_failed_to_upload_picture">Não foi possível enviar a imagem</string>
-</resources>
+    <string name="label_gender">Gênero:</string>
+    <string name="label_birthday">Data de nascimento:</string>
+    <string name="label_pick_a_date">Escolha uma data</string>
+            <string name="new_account_placeholder_password_confirm">Confirmar Senha</string>
+            <string name="msg_please_login_again">Por favor, refaça o login</string>
+            <string name="label_leave">SAIR</string>
+            <string name="msg_do_you_want_to_leave_the_adventure">Você deseja sair da aventura?</string>
+            <string name="msg_no_adventures_to_edit">Nenhuma aventura para editar!</string>
+            <string name="label_non_participant">Não\nparticipa</string>
+            <string name="msg_failed_to_register">Não foi possível realizar o cadastro</string>
+            <string name="msg_failed_to_login_with_facebook">Falha ao realizar login com Facebook</string>
+            <string name="msg_logging_in">Entrando...</string>
+        </resources>

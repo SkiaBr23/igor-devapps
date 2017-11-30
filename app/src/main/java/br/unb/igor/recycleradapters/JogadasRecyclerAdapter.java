@@ -26,7 +26,6 @@ public class JogadasRecyclerAdapter extends RecyclerView.Adapter<JogadasViewHold
     public JogadasRecyclerAdapter(Context context) {
         this.context = context;
         this.jogadas = new ArrayList<>();
-        setHasStableIds(true);
     }
 
     public void setJogadas (List<Jogada> jogadas) {
@@ -63,6 +62,7 @@ public class JogadasRecyclerAdapter extends RecyclerView.Adapter<JogadasViewHold
         holder.cardJogada.setBackground(context.getResources().getDrawable(setCardColor(jogada.getTipo())));
 
         holder.txtChance.setText(String.format(Locale.getDefault(),"%.2f%%", jogada.getProbabilidade()));
+        holder.txtChancePeloMenos.setText(String.format(Locale.getDefault(),"%.2f%%", jogada.getProbabilidadePeloMenos()));
 
         if (jogada.getUrlFotoAutor() != null) {
             if (!jogada.getUrlFotoAutor().isEmpty()) {
@@ -92,12 +92,5 @@ public class JogadasRecyclerAdapter extends RecyclerView.Adapter<JogadasViewHold
     @Override
     public int getItemCount() {
         return this.jogadas.size();
-    }
-
-    @Override
-    public long getItemId(int position) {
-        //return sessoes.get(position).getNumeroSessao();
-        //TODO: isso dá problema? @maximillianfx
-        return (long) position;
     }
 }

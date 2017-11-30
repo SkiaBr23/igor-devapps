@@ -1,14 +1,13 @@
 package br.unb.igor.helpers;
 
+import java.util.HashMap;
 import java.util.Random;
-
-/**
- * Created by @skiabr23 on 05/11/17.
- */
 
 public class DiceRoller {
 
     private static Random rand = new Random();
+    private static final HashMap<Integer, Double> memoTableProbabilities = new HashMap<>();
+    private static final HashMap<Integer, Double> memoTableProbabilitiesAtLeast = new HashMap<>();
 
     public static int roll(int faces){
         return 1 + rand.nextInt(faces);
@@ -22,19 +21,31 @@ public class DiceRoller {
         return result;
     }
 
-    public static int binomial(int n, int k) {
-        int result = 1;
+    public static double binomial(int n, int k) {
+        double result = 1;
         k = Math.max(k, n - k);
-        for (int i = n; i > k; i--) {
-            result *= i;
-        }
-        for (int i = n - k; i > 1; i--) {
-            result /= i;
+        int multiply = n;
+        int divide = n - k;
+
+        while (multiply > k || divide > 1) {
+            if (multiply > k) {
+                result *= multiply;
+                multiply--;
+            }
+            if (divide > 1) {
+                result /= divide;
+                divide--;
+            }
         }
         return result;
     }
 
     public static double probability(int value, int faces, int dice) {
+        int key = (value << 20) | ((faces & 0x3FF) << 10) | (dice & 0x3FF);
+        Double result = memoTableProbabilities.get(key);
+        if (result != null) {
+            return result;
+        }
         double p = 0.0;
         int iterations = (value - dice) / faces;
         for (int i = 0; i <= iterations; i++) {
@@ -45,7 +56,23 @@ public class DiceRoller {
                 p -= v;
             }
         }
-        return 100 * p * Math.pow(faces, -dice);
+        p = 100 * p * Math.pow(faces, -dice);
+        memoTableProbabilities.put(key, p);
+        return p;
+    }
+
+    public static double probabilityAtLeast(int value, int faces, int dice) {
+        int key = (value << 20) | ((faces & 0x3FF) << 10) | (dice & 0x3FF);
+        Double result = memoTableProbabilitiesAtLeast.get(key);
+        if (result != null) {
+            return result;
+        }
+        double p = 100.;
+        for (int i = dice; i < value; i++) {
+            p -= probability(i, faces, dice);
+        }
+        memoTableProbabilitiesAtLeast.put(key, p);
+        return p;
     }
 
     public static int roll(int faces, int dices, int modifier){

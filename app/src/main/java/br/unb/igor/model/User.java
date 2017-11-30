@@ -1,5 +1,6 @@
 package br.unb.igor.model;
 
+import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -11,6 +12,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import br.unb.igor.helpers.DB;
 
 public class User implements Parcelable {
 
@@ -95,7 +98,25 @@ public class User implements Parcelable {
         this.password = password;
     }
 
+    public boolean isCurrentUserAndLoggedInWithFacebookOrGoogle() {
+        FirebaseUser firebaseUser = DB.auth.getCurrentUser();
+        if (firebaseUser != null) {
+            List<String> providers = firebaseUser.getProviders();
+            if (providers != null && firebaseUser.getUid().equals(this.userId) &&
+                    (providers.contains("google.com") || providers.contains("facebook.com"))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public String getProfilePictureUrl() {
+        if (isCurrentUserAndLoggedInWithFacebookOrGoogle()) {
+            Uri photoUrl = DB.auth.getCurrentUser().getPhotoUrl();
+            if (photoUrl != null) {
+                return photoUrl.toString();
+            }
+        }
         return profilePictureUrl;
     }
 
@@ -141,14 +162,21 @@ public class User implements Parcelable {
         return false;
     }
 
-    public boolean removeAventura(String keyAventura){
-        for(String key : this.aventuras){
-            if(key.equals(keyAventura)){
+    public boolean removeAventura(String keyAventura) {
+        boolean removed = false;
+        for (String key : this.aventuras){
+            if (key.equals(keyAventura)){
                 this.aventuras.remove(key);
-                return true;
+                removed = true;
+                break;
             }
         }
-        return false;
+        for (int index = this.convites.size() - 1; index >= 0; index--) {
+            if (this.convites.get(index).getKeyAventura().equals(keyAventura)) {
+                this.convites.remove(index);
+            }
+        }
+        return removed;
     }
 
     public void setConvites(List<Convite> convites) {
@@ -228,23 +256,25 @@ public class User implements Parcelable {
     }
 
     @Exclude
-    public void setInvitation(Convite convite, boolean isInvited) {
+    public int setInvitation(Convite convite, boolean isInvited) {
         String aid = convite.getKeyAventura();
         if (isInvited) {
-            for (Convite c : convites) {
-                if (c.getKeyAventura().equals(aid)) {
-                    return;
+            for (int index = convites.size() - 1; index >= 0; index--) {
+                if (convites.get(index).getKeyAventura().equals(aid)) {
+                    return index;
                 }
             }
             convites.add(convite);
+            return convites.size() - 1;
         } else {
             for (int i = convites.size() - 1; i >= 0; i--) {
                 if (convites.get(i).getKeyAventura().equals(aid)) {
                     convites.remove(i);
-                    return;
+                    return i;
                 }
             }
         }
+        return -1;
     }
 
     public void assignInternal(User other) {

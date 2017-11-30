@@ -113,15 +113,13 @@
                     />
 
                 <EditText
-                    android:id="@+id/dataNascimentoLoginCadastro"
+                    android:id="@+id/createAccountFieldPasswordConfirm"
                     android:layout_width="0dp"
-                    android:hint="@string/new_account_placeholder_birthday"
+                    android:hint="@string/new_account_placeholder_password_confirm"
                     android:maxLines="1"
                     android:textColor="@color/preto"
                     android:textColorHint="@color/cinzaCriarConta"
-                    android:ems="10"
-                    android:maxLength="10"
-                    android:inputType="date"
+                    android:inputType="textPassword"
                     android:layout_height="wrap_content"
                     android:backgroundTint="@color/cinzaCriarConta"
                     app:layout_constraintLeft_toLeftOf="parent"
@@ -131,25 +129,145 @@
                     android:layout_marginLeft="20dp"
                     />
 
-                <EditText
-                    android:id="@+id/sexoLoginCadastro"
-                    android:layout_width="0dp"
-                    android:hint="@string/new_account_placeholder_gender"
-                    android:maxLines="1"
-                    android:textColor="@color/preto"
-                    android:textColorHint="@color/cinzaCriarConta"
-                    android:inputType="text"
+                <TextView
+                    android:id="@+id/labelBirthday"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:backgroundTint="@color/cinzaCriarConta"
+                    android:textColor="@color/cinzaCriarConta"
+                    android:text="@string/label_birthday"
+                    android:textSize="17sp"
                     app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/createAccountFieldPasswordConfirm"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="12dp" />
+
+                <LinearLayout
+                    android:id="@+id/containerBirthdaySpinners"
                     app:layout_constraintRight_toRightOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/dataNascimentoLoginCadastro"
-                    android:layout_marginRight="20dp"
-                    android:layout_marginLeft="20dp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/labelBirthday"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_width="0dp"
+                    android:layout_height="25dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_weight="4"
+                        android:layout_height="fill_parent"
+                        android:background="@drawable/rectangle_outline_black"
+                        android:paddingBottom="3dp"
+                        android:paddingTop="3dp">
+
+                        <Spinner
+                            android:id="@+id/createAccountFieldBirthDay"
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:paddingStart="1dp"
+                            android:paddingEnd="1dp"
+                            android:layout_marginEnd="-15dp" />
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textSize="20sp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_marginRight="4dp"
+                        android:layout_marginBottom="4dp"
+                        android:text="/"/>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent"
+                        android:background="@drawable/rectangle_outline_black"
+                        android:layout_weight="10"
+                        android:paddingBottom="3dp"
+                        android:paddingTop="3dp">
+
+                        <Spinner
+                            android:id="@+id/createAccountFieldBirthMonth"
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:paddingStart="1dp"
+                            android:paddingEnd="1dp"
+                            android:translationY="-1dp"
+                            android:layout_marginEnd="-15dp"/>
+
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textSize="20sp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_marginRight="4dp"
+                        android:layout_marginBottom="4dp"
+                        android:text="/"/>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="fill_parent"
+                        android:background="@drawable/rectangle_outline_black"
+                        android:layout_weight="6"
+                        android:paddingBottom="3dp"
+                        android:paddingTop="3dp">
+
+                        <Spinner
+                            android:id="@+id/createAccountFieldBirthYear"
+                            android:layout_width="wrap_content"
+                            android:layout_height="fill_parent"
+                            android:paddingStart="1dp"
+                            android:paddingEnd="1dp"
+                            android:layout_marginEnd="-15dp"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/labelGender"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/cinzaCriarConta"
+                    android:text="@string/label_gender"
+                    android:textSize="17sp"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/containerBirthdaySpinners"
+                    android:layout_marginStart="24dp"
+                    android:layout_marginTop="24dp"
                     />
 
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="22dp"
+                    app:layout_constraintRight_toRightOf="parent"
+                    app:layout_constraintLeft_toRightOf="@+id/labelGender"
+                    app:layout_constraintTop_toTopOf="@+id/labelGender"
+                    app:layout_constraintBottom_toBottomOf="@+id/labelGender"
+                    app:layout_constraintHorizontal_bias="1.00"
+                    android:background="@drawable/rectangle_outline_black"
+                    android:paddingBottom="3dp"
+                    android:paddingTop="3dp">
+
+                    <Spinner
+                        android:id="@+id/createAccountFieldGender"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"/>
+
+                </LinearLayout>
+
                 <Button
-                    app:layout_constraintTop_toBottomOf="@+id/sexoLoginCadastro"
+                    app:layout_constraintTop_toBottomOf="@+id/labelGender"
                     app:layout_constraintRight_toRightOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     android:id="@+id/btnCriarConta"
@@ -157,7 +275,7 @@
                     android:background="@color/btnEntrar"
                     android:text="@string/new_account_button_create"
                     android:textStyle="bold"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="24dp"
                     android:layout_marginEnd="20dp"
                     android:layout_marginBottom="12dp"
                     android:layout_height="40dp"

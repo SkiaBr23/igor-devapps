@@ -14,7 +14,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -34,6 +33,7 @@ import br.unb.igor.activities.ActivityHome;
 import br.unb.igor.helpers.AdventureListener;
 import br.unb.igor.helpers.CircleTransform;
 import br.unb.igor.helpers.DB;
+import br.unb.igor.helpers.DBFeedListener;
 import br.unb.igor.helpers.ImageAssets;
 import br.unb.igor.helpers.OnCompleteHandler;
 import br.unb.igor.model.Aventura;
@@ -97,6 +97,12 @@ public class FragmentAdventure extends Fragment {
     private boolean isInEditMode = false;
     private boolean isOnTabPlayers = false;
 
+    private final DBFeedListener feedListener = new DBFeedListener() {
+        @Override
+        public void onSelectedAdventureChange(Aventura adventure, Aventura old) {
+            onAdventureChange(adventure, old, ((ActivityHome)getActivity()).getCurrentScreen() == ActivityHome.Screen.Adventure);
+        }
+    };
 
     @Override
     public void onAttach(Context context) {
@@ -107,17 +113,18 @@ public class FragmentAdventure extends Fragment {
             throw new RuntimeException(context.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+        ((ActivityHome)getActivity()).addDBFeedListener(feedListener);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
+        ((ActivityHome)getActivity()).removeDBFeedListener(feedListener);
     }
 
     public FragmentAdventure() {
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -224,16 +231,15 @@ public class FragmentAdventure extends Fragment {
         if (di.isMaster) {
             root.findViewById(R.id.boxYouIndicator).setVisibility(View.VISIBLE);
         } else {
-            btnFAB.setVisibility(View.GONE);
+            btnFAB.setVisibility(View.INVISIBLE);
             btnFAB.setEnabled(false);
         }
 
-        jogadoresRecyclerAdapter = new JogadoresRecyclerAdapter(getActivity(),mListener, di, new JogadoresRecyclerAdapter.ListAdapterListener() {
+        jogadoresRecyclerAdapter = new JogadoresRecyclerAdapter(getActivity(), mListener, di, new JogadoresRecyclerAdapter.ListAdapterListener() {
             @Override
             public void onClickKickUsuario(User user, int index) {
-                jogadoresRecyclerAdapter.getDisplayInfo().users.remove(index);
-                jogadoresRecyclerAdapter.notifyDataSetChanged();
                 mListener.onUserKickedOut(user);
+                jogadoresRecyclerAdapter.notifyItemChanged(index);
             }
         });
 
@@ -270,13 +276,13 @@ public class FragmentAdventure extends Fragment {
         }
         isInEditMode = b;
         jogadoresRecyclerAdapter.getDisplayInfo().canPerformActions = b;
-        di.alreadyJoinedIds = aventura.getJogadoresUserIdsSet();
+
         if (b) {
-            jogadoresRecyclerAdapter.notifyDataSetChanged();
             txtDescricaoAventura.setVisibility(View.INVISIBLE);
             txtDescricaoAventuraEdit.setVisibility(View.VISIBLE);
             txtTituloAventuraEdicao.setVisibility(View.INVISIBLE);
             txtTituloAventuraEdicaoEdit.setVisibility(View.VISIBLE);
+            btnFABDiceRoller.setVisibility(View.GONE);
             btnFAB.setImageResource(R.drawable.botao_confirmar);
             txtDescricaoContainer.setBackgroundResource(R.drawable.rectangle_outline);
             txtDescricaoAventuraEdit.setText(txtDescricaoAventura.getText().toString());
@@ -286,9 +292,12 @@ public class FragmentAdventure extends Fragment {
             txtDescricaoAventuraEdit.setVisibility(View.GONE);
             txtTituloAventuraEdicao.setVisibility(View.VISIBLE);
             txtTituloAventuraEdicaoEdit.setVisibility(View.GONE);
+            btnFABDiceRoller.setVisibility(View.VISIBLE);
             btnFAB.setImageResource(isOnTabPlayers ? R.drawable.botao_adicionar_jogadores : R.drawable.botao_adicionar_sessao);
             txtDescricaoContainer.setBackgroundResource(0);
         }
+
+        jogadoresRecyclerAdapter.notifyDataSetChanged();
     }
 
     public boolean isInEditMode() {
@@ -401,10 +410,8 @@ public class FragmentAdventure extends Fragment {
         }
     }
 
-    public void onAdventureChange(Aventura newAdventure, boolean isThisFragmentVisible) {
-        Aventura old = aventura;
-        aventura = newAdventure;
-        if (old != null && newAdventure != null) {
+    public void onAdventureChange(Aventura newAdventure, Aventura old, boolean isThisFragmentVisible) {
+        if (newAdventure != null && old != null) {
             if (!old.getMestreUserId().equals(newAdventure.getMestreUserId())) {
                 masterUserFetchState = FetchState.NotFetched;
                 loadMasterInfo();
@@ -414,14 +421,12 @@ public class FragmentAdventure extends Fragment {
             Set<String> oldJoinedPlayers = old.getJogadoresUserIdsSet();
             Set<String> oldInvitedPlayers = old.getJogadoresConvidadosIdsSet();
             Set<String> oldUIDs = new ArraySet<>(users.size());
-            JogadoresRecyclerAdapter.DisplayInfo di = jogadoresRecyclerAdapter.getDisplayInfo();
-            di.alreadyInvitedIds = invitedPlayers;
-            di.alreadyJoinedIds = joinedPlayers;
             boolean isMaster = isCurrentUserMaster();
             for (int userIndex = users.size() - 1; userIndex >= 0; userIndex--) {
                 User u = users.get(userIndex);
                 String uid = u.getUserId();
                 oldUIDs.add(uid);
+                final int index = userIndex;
                 boolean hasJoined = oldJoinedPlayers.contains(uid);
                 boolean isInvited = oldInvitedPlayers.contains(uid);
                 boolean shouldBeJoined = joinedPlayers.contains(uid);
@@ -429,10 +434,11 @@ public class FragmentAdventure extends Fragment {
                 if ((hasJoined != shouldBeJoined) || (isInvited != shouldBeInvited)) {
                     if (!shouldBeInvited && !shouldBeJoined) {
                         if (isThisFragmentVisible && isMaster) {
-                            jogadoresRecyclerAdapter.notifyItemChanged(userIndex);
+                            jogadoresRecyclerAdapter.notifyItemChanged(index);
                         } else {
                             users.remove(userIndex);
                             jogadoresRecyclerAdapter.notifyItemRemoved(userIndex);
+                            userIndex--;
                         }
                     } else {
                         jogadoresRecyclerAdapter.notifyItemChanged(userIndex);
@@ -440,6 +446,7 @@ public class FragmentAdventure extends Fragment {
                 } else if (!shouldBeInvited && !shouldBeJoined && !isThisFragmentVisible) {
                     users.remove(userIndex);
                     jogadoresRecyclerAdapter.notifyItemRemoved(userIndex);
+                    userIndex--;
                 }
             }
             List<String> newUIDs = new ArrayList<>();
@@ -467,10 +474,7 @@ public class FragmentAdventure extends Fragment {
                     }
                 }
             }));
-            di.alreadyInvitedIds = oldInvitedPlayers;
-            di.alreadyJoinedIds = oldJoinedPlayers;
         }
         updateAdventureInfo();
-        aventura = old;
     }
 }

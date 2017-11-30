@@ -32,11 +32,6 @@ public class ConvitesRecyclerAdapter extends RecyclerView.Adapter<ConvitesViewHo
         this.context = context;
         this.convites = convites;
         this.mListener = listAdapterListener;
-        setHasStableIds(true);
-    }
-
-    public void setConvites (List<Convite> convites) {
-        this.convites = convites;
     }
 
     @Override
@@ -118,10 +113,5 @@ public class ConvitesRecyclerAdapter extends RecyclerView.Adapter<ConvitesViewHo
     public int getItemCount() {
 
         return this.convites != null ? this.convites.size() : 0;
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return (long) position;
     }
 }

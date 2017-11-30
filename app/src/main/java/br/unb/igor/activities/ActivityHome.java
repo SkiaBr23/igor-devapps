@@ -12,11 +12,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.util.ArraySet;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -28,6 +28,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
@@ -38,13 +39,6 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.lang.reflect.Field;
@@ -52,6 +46,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import br.unb.igor.R;
 import br.unb.igor.fragments.FragmentAccount;
@@ -66,12 +61,14 @@ import br.unb.igor.fragments.FragmentHome;
 import br.unb.igor.helpers.AdventureListener;
 import br.unb.igor.helpers.ChildEventListenerAdapter;
 import br.unb.igor.helpers.DB;
+import br.unb.igor.helpers.DBFeedListener;
 import br.unb.igor.helpers.OnCompleteHandler;
 import br.unb.igor.model.Aventura;
 import br.unb.igor.model.Convite;
 import br.unb.igor.model.Jogada;
 import br.unb.igor.model.Sessao;
 import br.unb.igor.model.User;
+import br.unb.igor.recycleradapters.AventurasRecyclerAdapter;
 
 public class ActivityHome extends AppCompatActivity implements
         AdventureListener, GoogleApiClient.OnConnectionFailedListener,
@@ -93,6 +90,7 @@ public class ActivityHome extends AppCompatActivity implements
     private FragmentDiceRoller fragmentDiceRoll;
 
     private ImageView imgHamburguer;
+    private TextView txtNotificationCount;
     private ImageView imgOptionsMenu;
     private DrawerLayout mDrawerLayout;
     private DrawerListAdapter mDrawerAdapter;
@@ -104,12 +102,13 @@ public class ActivityHome extends AppCompatActivity implements
     private User currentUser = null;
     private ArrayList<Aventura> adventures;
 
+    private ArrayList<DBFeedListener> feedListeners = new ArrayList<>();
+
     public static FirebaseAuth auth = FirebaseAuth.getInstance();
-    public static DatabaseReference ref = FirebaseDatabase.getInstance().getReference();
 
     private boolean drawerNeedsUpdate = false;
 
-    private ChildEventListener AdventureChangeFeedListener = new ChildEventListenerAdapter() {
+    private ChildEventListener SelectedAdventureChangeFeedListener = new ChildEventListenerAdapter() {
         @Override
         public void onChildChanged(DataSnapshot dataSnapshot, String s) {
             if (selectedAdventure != null) {
@@ -118,13 +117,14 @@ public class ActivityHome extends AppCompatActivity implements
                     return;
                 }
 
-                Aventura adventureChanged = dataSnapshot.getValue(Aventura.class);
+                final Aventura adventureChanged = dataSnapshot.getValue(Aventura.class);
                 if (adventureChanged != null) {
-                    getScreenFragment(Screen.Home);
-                    fragmentAdventure.onAdventureChange(adventureChanged, mCurrentScreen == Screen.Adventure);
-                    getScreenFragment(Screen.AddPlayer);
-                    fragmentAdicionarJogador.onAdventureChange(adventureChanged);
+                    final Aventura oldAdventure = new Aventura();
+                    oldAdventure.assignInternal(selectedAdventure);
                     selectedAdventure.assignInternal(adventureChanged);
+                    for (DBFeedListener listener : feedListeners) {
+                        listener.onSelectedAdventureChange(selectedAdventure, oldAdventure);
+                    }
                 }
             }
         }
@@ -133,40 +133,39 @@ public class ActivityHome extends AppCompatActivity implements
     private ChildEventListener InviteChangeFeedListener = new ChildEventListenerAdapter() {
         @Override
         public void onChildAdded(DataSnapshot dataSnapshot, String previousKey) {
-            Convite convite = dataSnapshot.getValue(Convite.class);
+            final Convite convite = dataSnapshot.getValue(Convite.class);
             if (convite != null) {
-                currentUser.setInvitation(convite, true);
-                getScreenFragment(Screen.Home);
-                fragmentHome.checkInvites();
-            }
-        }
-
-        @Override
-        public void onChildChanged(DataSnapshot dataSnapshot, String previousKey) {
-            Convite convite = dataSnapshot.getValue(Convite.class);
-            if (convite != null) {
-                System.out.println("@@ Convite change");
-                String aid = convite.getKeyAventura();
-                List<Convite> convites = currentUser.getConvites();
-                for (int index = convites.size() - 1; index >= 0; index--) {
-                    if (convites.get(index).getKeyAventura().equals(aid)) {
-                        convites.set(index, convite);
-                        getScreenFragment(Screen.Home);
-                        fragmentHome.checkInvites();
-                        break;
-                    }
+                final int index = currentUser.setInvitation(convite, true);
+                for (DBFeedListener listener : feedListeners) {
+                    listener.onInvitationAdded(convite, index);
                 }
             }
         }
 
         @Override
         public void onChildRemoved(DataSnapshot dataSnapshot) {
-            Convite convite = dataSnapshot.getValue(Convite.class);
+            final Convite convite = dataSnapshot.getValue(Convite.class);
             if (convite != null) {
-                System.out.println("@@ Convite remove");
-                currentUser.setInvitation(convite, false);
-                getScreenFragment(Screen.Home);
-                fragmentHome.checkInvites();
+                final int index = currentUser.setInvitation(convite, false);
+                for (DBFeedListener listener : feedListeners) {
+                    listener.onInvitationRemoved(convite, index);
+                }
+            }
+        }
+    };
+
+    private ChildEventListener UserChangeFeedListener = new ChildEventListenerAdapter() {
+        @Override
+        public void onChildChanged(DataSnapshot dataSnapshot, String previousKey) {
+            final User user = dataSnapshot.getValue(User.class);
+            if (user != null && user.getUserId().equals(currentUser.getUserId())) {
+                User oldUser = new User();
+                oldUser.assignInternal(currentUser);
+                currentUser.assignInternal(user);
+                for (DBFeedListener listener : feedListeners) {
+                    listener.onUserChanged(currentUser, oldUser);
+                }
+                updateNotificationCount();
             }
         }
     };
@@ -319,6 +318,7 @@ public class ActivityHome extends AppCompatActivity implements
             }
         });
 
+        txtNotificationCount = findViewById(R.id.txtNotif);
         imgHamburguer = findViewById(R.id.btnMenuLateral);
         imgHamburguer.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -353,6 +353,7 @@ public class ActivityHome extends AppCompatActivity implements
 
         Parcelable selectedAdventure;
         Parcelable currentUser;
+
         if (savedInstanceState != null) {
             selectedAdventure = savedInstanceState.getParcelable(BUNDLE_SELECTED_ADVENTURE);
             currentUser = savedInstanceState.getParcelable(BUNDLE_CURRENT_USER);
@@ -372,10 +373,14 @@ public class ActivityHome extends AppCompatActivity implements
         if (this.currentUser == null) {
             this.currentUser = new User(mAuth.getCurrentUser());
             fetchCurrentUser();
+        } else {
+            updateNotificationCount();
         }
 
         if (this.adventures == null) {
             this.adventures = new ArrayList<>();
+        } else {
+
         }
 
         final FragmentManager fragmentManager = getSupportFragmentManager();
@@ -441,8 +446,12 @@ public class ActivityHome extends AppCompatActivity implements
             .addChildEventListener(InviteChangeFeedListener);
 
         DB.ref
+            .child("users")
+            .addChildEventListener(UserChangeFeedListener);
+
+        DB.ref
             .child("adventures")
-            .addChildEventListener(AdventureChangeFeedListener);
+            .addChildEventListener(SelectedAdventureChangeFeedListener);
     }
 
     @Override
@@ -456,8 +465,12 @@ public class ActivityHome extends AppCompatActivity implements
             .removeEventListener(InviteChangeFeedListener);
 
         DB.ref
+            .child("users")
+            .removeEventListener(UserChangeFeedListener);
+
+        DB.ref
             .child("adventures")
-            .removeEventListener(AdventureChangeFeedListener);
+            .removeEventListener(SelectedAdventureChangeFeedListener);
     }
 
     @Override
@@ -468,12 +481,24 @@ public class ActivityHome extends AppCompatActivity implements
         outState.putParcelable(BUNDLE_CURRENT_USER, currentUser);
     }
 
+    public void addDBFeedListener(DBFeedListener listener) {
+        feedListeners.add(listener);
+    }
+
+    public void removeDBFeedListener(DBFeedListener listener) {
+        while (feedListeners.remove(listener)) {}
+    }
+
+    public Screen getCurrentScreen() {
+        return mCurrentScreen;
+    }
+
     public void setSelectedAdventure(Aventura aventura) {
         if (aventura == null) {
-            selectedAdventure = null;
-            if (fragmentAdventure != null) {
-                fragmentAdventure.onAdventureChange(null, false);
+            for (DBFeedListener listener : feedListeners) {
+                listener.onSelectedAdventureChange(null, selectedAdventure);
             }
+            selectedAdventure = null;
         } else {
             selectedAdventure = aventura;
         }
@@ -489,6 +514,7 @@ public class ActivityHome extends AppCompatActivity implements
                 if (extra != null && extra instanceof User) {
                     currentUser.assignInternal((User)extra);
                     currentUser.hasBeenFetchedFromDB = true;
+                    updateNotificationCount();
                     fetchInitialAdventures();
                     Picasso
                         .with(ActivityHome.this)
@@ -499,6 +525,9 @@ public class ActivityHome extends AppCompatActivity implements
                     if (currentFrag instanceof FragmentAccount) {
                         ((FragmentAccount)currentFrag).onUserChanged();
                     }
+                } else {
+                    Toast.makeText(ActivityHome.this, R.string.msg_please_login_again, Toast.LENGTH_SHORT).show();
+                    signOut();
                 }
             }
         }));
@@ -526,18 +555,70 @@ public class ActivityHome extends AppCompatActivity implements
             DB.getAdventureById(adventureKey, new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
                 @Override
                 public void onComplete(boolean cancelled, Object extra, int step) {
+                    boolean isInvalid = false;
                     if (extra != null && extra instanceof Aventura) {
-                        if (adventures.size() <= adventureIndex) {
-                            adventures.add((Aventura) extra);
-                            fragmentHome.getRecyclerAdapter().notifyItemInserted(adventures.size() - 1);
+                        Aventura adventure = (Aventura)extra;
+                        if (adventure.isUserInAdventure(currentUser.getUserId())) {
+                            if (adventures.size() <= adventureIndex) {
+                                adventures.add(adventure);
+                                fragmentHome.getRecyclerAdapter().notifyItemInserted(adventures.size() - 1);
+                            } else {
+                                adventures.add(adventureIndex, adventure);
+                                fragmentHome.getRecyclerAdapter().notifyItemInserted(adventureIndex);
+                            }
                         } else {
-                            adventures.add(adventureIndex, (Aventura) extra);
-                            fragmentHome.getRecyclerAdapter().notifyItemInserted(adventureIndex);
+                            isInvalid = true;
                         }
                     } else {
+                        isInvalid = true;
+                    }
+                    if (isInvalid) {
                         invalidAdventureIDs.add(adventureKeys.get(adventureIndex));
                     }
                     handler.advance();
+                }
+            }));
+        }
+    }
+
+    public void updateCurrentUserAdventures(final List<String> adventuresKeys) {
+        Set<String> newKeys = new ArraySet<>(adventuresKeys);
+        Set<String> oldKeys = new ArraySet<>();
+        AventurasRecyclerAdapter adapter = fragmentHome.getRecyclerAdapter();
+
+        for (int adventureIndex = adventures.size() - 1; adventureIndex >= 0; adventureIndex--) {
+            String key = adventures.get(adventureIndex).getKey();
+            if (!newKeys.contains(key)) {
+                adventures.remove(adventureIndex);
+                adapter.notifyItemRemoved(adventureIndex);
+            } else {
+                oldKeys.add(key);
+            }
+        }
+
+        newKeys.removeAll(oldKeys);
+
+        int index = 0;
+        for (String adventureKey : adventuresKeys) {
+            final int adventureIndex = index++;
+            if (!newKeys.contains(adventureKey)) {
+                continue;
+            }
+            DB.getAdventureById(adventureKey, new OnCompleteHandler(new OnCompleteHandler.OnCompleteCallback() {
+                @Override
+                public void onComplete(boolean cancelled, Object extra, int step) {
+                    if (extra != null && extra instanceof Aventura) {
+                        Aventura adventure = (Aventura)extra;
+                        if (adventure.isUserInAdventure(currentUser.getUserId())) {
+                            if (adventures.size() <= adventureIndex) {
+                                adventures.add(adventure);
+                                fragmentHome.getRecyclerAdapter().notifyItemInserted(adventures.size() - 1);
+                            } else {
+                                adventures.add(adventureIndex, adventure);
+                                fragmentHome.getRecyclerAdapter().notifyItemInserted(adventureIndex);
+                            }
+                        }
+                    }
                 }
             }));
         }
@@ -548,7 +629,11 @@ public class ActivityHome extends AppCompatActivity implements
         switch (item.getItemId()) {
             case R.id.action_editar:
                 if (mCurrentScreen == Screen.Home) {
-                    fragmentHome.setEditMode(true);
+                    if (adventures.size() > 0) {
+                        fragmentHome.setEditMode(true);
+                    } else {
+                        Toast.makeText(this, R.string.msg_no_adventures_to_edit, Toast.LENGTH_SHORT).show();
+                    }
                 } else if (mCurrentScreen == Screen.Adventure) {
                     getScreenFragment(Screen.Adventure);
                     fragmentAdventure.setEditMode(true);
@@ -597,11 +682,31 @@ public class ActivityHome extends AppCompatActivity implements
         setSelectedAdventure(null);
     }
 
+    public void updateNotificationCount() {
+        int unseenCount = 0;
+        for (Convite c : currentUser.getConvites()) {
+            if (c.getUnseen()) {
+                unseenCount++;
+            }
+        }
+        if (unseenCount == 0) {
+            txtNotificationCount.setVisibility(View.GONE);
+        } else {
+            txtNotificationCount.setVisibility(View.VISIBLE);
+            if (unseenCount < 10) {
+                txtNotificationCount.setText(String.valueOf(unseenCount));
+            } else {
+                txtNotificationCount.setText("+");
+            }
+        }
+    }
+
     public void markInvitationsAsSeen() {
         for (Convite c : currentUser.getConvites()) {
             c.setUnseen(false);
         }
         DB.upsertUser(currentUser);
+        updateNotificationCount();
         getScreenFragment(Screen.Home);
         fragmentHome.checkInvites();
     }
@@ -833,8 +938,35 @@ public class ActivityHome extends AppCompatActivity implements
     }
 
     @Override
-    public void onCreateAdventure(String title) {
+    public void onClickLeaveAdventure(final Aventura adventure, int index) {
+        Vibrator v = (Vibrator) getSystemService(VIBRATOR_SERVICE);
+        v.vibrate(30);
+        final AlertDialog alerta;
+        final int removeIndex = index;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.msg_do_you_want_to_leave_the_adventure).setPositiveButton(R.string.label_yes, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                currentUser.getAventuras().remove(removeIndex);
+                adventures.remove(removeIndex);
+                adventure.kickUser(currentUser.getUserId());
+                DB.upsertAdventure(adventure);
+                DB.upsertUser(currentUser);
+                getScreenFragment(Screen.Home);
+                fragmentHome.getRecyclerAdapter().notifyItemRemoved(removeIndex);
+                fragmentHome.updateView();
+            }
+        }).setNegativeButton(R.string.label_cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+            }
+        });
+        alerta = builder.create();
+        alerta.show();
+    }
+
+    @Override
+    public void onCreateAdventure(String title, int backgroundIndex) {
         Aventura aventura = new Aventura(title, currentUser.getUserId());
+        aventura.setImagemFundo(backgroundIndex);
         DB.createAdventure(aventura);
         currentUser.addAdventure(aventura);
         adventures.add(aventura);
@@ -974,7 +1106,6 @@ public class ActivityHome extends AppCompatActivity implements
                 @Override
                 public void onComplete(boolean cancelled, Object extra, int step) {
                     if (extra != null && extra instanceof Aventura) {
-                        currentUser.hasBeenFetchedFromDB = true;
                         ((Aventura) extra).acceptUser(currentUser.getUserId());
                         adventures.add((Aventura) extra);
                         DB.upsertAdventure((Aventura) extra);
@@ -984,11 +1115,6 @@ public class ActivityHome extends AppCompatActivity implements
                     }
                 }
             }));
-            getScreenFragment(Screen.Invites);
-            //fragmentConvites.notifyInviteRemoved(index);
-            getScreenFragment(Screen.Home);
-            //fragmentHome.getRecyclerAdapter().notifyDataSetChanged();
-            fragmentHome.updateView();
         }
     }
 
@@ -999,7 +1125,6 @@ public class ActivityHome extends AppCompatActivity implements
                 @Override
                 public void onComplete(boolean cancelled, Object extra, int step) {
                     if (extra != null && extra instanceof Aventura) {
-                        currentUser.hasBeenFetchedFromDB = true;
                         ((Aventura) extra).removeInvitedUser(currentUser.getUserId());
                         DB.upsertAdventure((Aventura) extra);
                         currentUser.removeConvite(((Aventura) extra).getKey());
@@ -1007,8 +1132,6 @@ public class ActivityHome extends AppCompatActivity implements
                     }
                 }
             }));
-            getScreenFragment(Screen.Invites);
-            //fragmentConvites.notifyInviteRemoved(index);
         }
     }
 

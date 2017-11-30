@@ -79,23 +79,27 @@ public class FragmentAccount extends Fragment {
             }
         });
 
-        profileImgChanger.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (user.hasBeenFetchedFromDB) {
-                    Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                    getIntent.setType("image/*");
+        if (user.isCurrentUserAndLoggedInWithFacebookOrGoogle()) {
+            profileImgChanger.setVisibility(View.GONE);
+        } else {
+            profileImgChanger.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (user.hasBeenFetchedFromDB) {
+                        Intent getIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                        getIntent.setType("image/*");
 
-                    Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                    pickIntent.setType("image/*");
+                        Intent pickIntent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                        pickIntent.setType("image/*");
 
-                    Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
-                    chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{pickIntent});
+                        Intent chooserIntent = Intent.createChooser(getIntent, "Select Image");
+                        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, new Intent[]{pickIntent});
 
-                    startActivityForResult(chooserIntent, PICK_IMAGE);
+                        startActivityForResult(chooserIntent, PICK_IMAGE);
+                    }
                 }
-            }
-        });
+            });
+        }
 
         onUserChanged();
 

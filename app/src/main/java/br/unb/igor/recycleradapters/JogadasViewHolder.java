@@ -15,6 +15,7 @@ public class JogadasViewHolder extends RecyclerView.ViewHolder implements View.O
     public TextView txtResultado;
     public TextView txtJogada;
     public TextView txtChance;
+    public TextView txtChancePeloMenos;
     public TextView txtDataJogada;
     public ConstraintLayout cardJogada;
 
@@ -26,6 +27,7 @@ public class JogadasViewHolder extends RecyclerView.ViewHolder implements View.O
         txtResultado = itemView.findViewById(R.id.txtResultado);
         txtJogada = itemView.findViewById(R.id.txtJogada);
         txtChance = itemView.findViewById(R.id.txtChance);
+        txtChancePeloMenos = itemView.findViewById(R.id.txtChancePeloMenos);
         txtDataJogada = itemView.findViewById(R.id.txtDataJogada);
         cardJogada = itemView.findViewById(R.id.cardJogada);
 

@@ -2,16 +2,29 @@ package br.unb.igor.model;
 
 import android.graphics.Bitmap;
 
+import com.google.firebase.database.Exclude;
+
 public class Livro {
 
     String titulo;
     String idAddedBy;
     String urlFile;
-    Bitmap capaLivro;
-    boolean statusDownload;
+    String urlThumbnail;
+
+    @Exclude
+    boolean isDownloaded;
+
 
     public Livro() {
-        this.statusDownload = false;
+        this.isDownloaded = false;
+    }
+
+    public String getUrlThumbnail() {
+        return urlThumbnail;
+    }
+
+    public void setUrlThumbnail(String urlThumbnail) {
+        this.urlThumbnail = urlThumbnail;
     }
 
     public String getTitulo() {
@@ -38,19 +51,13 @@ public class Livro {
         this.urlFile = urlFile;
     }
 
-    public Bitmap getCapaLivro() {
-        return capaLivro;
-    }
-
-    public void setCapaLivro(Bitmap capaLivro) {
-        this.capaLivro = capaLivro;
-    }
-
+    @Exclude
     public boolean isDownloaded() {
-        return statusDownload;
+        return isDownloaded;
     }
 
-    public void setDownloaded(boolean statusDownload) {
-        this.statusDownload = statusDownload;
+    @Exclude
+    public void setDownloaded(boolean isDownloaded) {
+        this.isDownloaded = isDownloaded;
     }
 }

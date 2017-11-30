@@ -33,13 +33,29 @@
                     android:id="@+id/btnMenuLateral"
                     android:layout_width="48dp"
                     android:layout_height="48dp"
-                    android:padding="14dp"
+                    android:padding="12dp"
                     android:layout_marginStart="26dp"
                     android:background="?android:attr/selectableItemBackground"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintLeft_toLeftOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/igor_barra_navegacao_lateral" />
+
+                <TextView
+                    android:id="@+id/txtNotif"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:textColor="@color/branco"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:visibility="gone"
+                    android:background="@drawable/circle_notification"
+                    app:layout_constraintBottom_toBottomOf="@+id/btnMenuLateral"
+                    app:layout_constraintRight_toRightOf="@+id/btnMenuLateral"
+                    app:layout_constraintLeft_toLeftOf="@+id/btnMenuLateral"
+                    app:layout_constraintTop_toTopOf="@+id/btnMenuLateral"
+                    android:layout_marginStart="32dp"
+                    android:layout_marginBottom="24dp"/>
 
                 <ImageView
                     android:id="@+id/btnMenu"
