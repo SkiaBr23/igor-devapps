@@ -67,9 +67,9 @@ public class JogadoresRecyclerAdapter extends RecyclerView.Adapter<JogadoresView
             return;
         }
         final User user = mode.users.get(position);
-        holder.txtNomeJogador.setTextColor(ColorStateList.valueOf(Color.WHITE));
+        holder.txtNomeJogador.setTextColor(ColorStateList.valueOf(Color.BLACK));
         holder.txtNomeJogador.setText(user.getEmail());
-        holder.txtNomePersonagem.setTextColor(ColorStateList.valueOf(Color.WHITE));
+        holder.txtNomePersonagem.setTextColor(ColorStateList.valueOf(Color.BLACK));
         holder.txtNomePersonagem.setText(user.getFullName());
 
         if (mode.currentUserId != null && mode.currentUserId.equals(user.getUserId())) {
