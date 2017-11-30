@@ -2,6 +2,8 @@ package br.unb.igor.fragments;
 
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -147,6 +149,7 @@ public class FragmentAdicionarJogador extends Fragment {
 
         di.currentUserId = currentUser.getUserId();
         di.users = users;
+        di.textColor = ColorStateList.valueOf(Color.WHITE);
         di.canPerformActions = true;
 
         jogadoresPesquisadosRecyclerAdapter = new JogadoresRecyclerAdapter(getActivity(),mListener, di, new JogadoresRecyclerAdapter.ListAdapterListener() {

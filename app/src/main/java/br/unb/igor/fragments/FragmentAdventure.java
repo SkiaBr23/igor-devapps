@@ -2,6 +2,8 @@ package br.unb.igor.fragments;
 
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.constraint.ConstraintLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -208,7 +210,7 @@ public class FragmentAdventure extends Fragment {
         recyclerViewListaSessoes.setAdapter(sessoesRecyclerAdapter);
 
         di = new JogadoresRecyclerAdapter.DisplayInfo();
-
+        di.textColor = ColorStateList.valueOf(Color.BLACK);
         di.isMaster = isCurrentUserMaster();
         di.currentUserId = getCurrentUserId();
         di.canPerformActions = false;

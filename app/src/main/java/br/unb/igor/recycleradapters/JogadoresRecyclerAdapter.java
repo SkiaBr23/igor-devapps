@@ -36,6 +36,7 @@ public class JogadoresRecyclerAdapter extends RecyclerView.Adapter<JogadoresView
     public static class DisplayInfo {
         public boolean isMaster = false;
         public boolean canPerformActions = false;
+        public ColorStateList textColor = ColorStateList.valueOf(Color.BLACK);
         public String currentUserId = null;
         public List<User> users = new ArrayList<>();
         public Set<String> alreadyInvitedIds = new ArraySet<>();
@@ -67,9 +68,9 @@ public class JogadoresRecyclerAdapter extends RecyclerView.Adapter<JogadoresView
             return;
         }
         final User user = mode.users.get(position);
-        holder.txtNomeJogador.setTextColor(ColorStateList.valueOf(Color.WHITE));
+        holder.txtNomeJogador.setTextColor(mode.textColor);
         holder.txtNomeJogador.setText(user.getEmail());
-        holder.txtNomePersonagem.setTextColor(ColorStateList.valueOf(Color.WHITE));
+        holder.txtNomePersonagem.setTextColor(mode.textColor);
         holder.txtNomePersonagem.setText(user.getFullName());
         if (mode.currentUserId != null && mode.currentUserId.equals(user.getUserId())) {
             holder.txtYouIndicator.setVisibility(View.VISIBLE);
