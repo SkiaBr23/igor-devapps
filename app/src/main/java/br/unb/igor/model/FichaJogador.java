@@ -5,5 +5,4 @@ package br.unb.igor.model;
  */
 
 public class FichaJogador {
-    //TODO: modelar ficha
 }

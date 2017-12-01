@@ -80,8 +80,6 @@ public class SessoesRecyclerAdapter extends RecyclerView.Adapter<SessoesViewHold
 
     @Override
     public long getItemId(int position) {
-        //return sessoes.get(position).getNumeroSessao();
-        //TODO: isso dá problema? @maximillianfx
         return (long) position;
     }
 }
