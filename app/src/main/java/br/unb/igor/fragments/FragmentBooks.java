@@ -1,7 +1,9 @@
 package br.unb.igor.fragments;
 
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -14,7 +16,9 @@ import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -68,6 +72,7 @@ import static com.facebook.FacebookSdk.getApplicationContext;
  */
 public class FragmentBooks extends Fragment {
 
+    private static final int MY_PERMISSIONS_REQUEST = 0;
     public static String TAG = FragmentBooks.class.getName();
 
     private RecyclerView recyclerViewListaLivros;
@@ -78,7 +83,6 @@ public class FragmentBooks extends Fragment {
     private Livro livroAdd;
     private File booksPath = Environment.getExternalStoragePublicDirectory(
             "Igor/books");
-
     public FragmentBooks() {
         // Required empty public constructor
     }
@@ -100,7 +104,7 @@ public class FragmentBooks extends Fragment {
             }
         });
         this.livros = new ArrayList<>();
-
+        checkStoragePermissions();
         gridLayoutManager = new GridLayoutManager(getActivity(),3);
         recyclerViewListaLivros = root.findViewById(R.id.recyclerViewListaLivros);
         btnFABaddBooks = root.findViewById(R.id.btnFABaddBooks);
@@ -320,5 +324,39 @@ public class FragmentBooks extends Fragment {
             return null;
         }
         return pfd;
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+
+                    Toast.makeText(getContext(), "Permissão negada!", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+
+        }
+    }
+
+
+    public void checkStoragePermissions(){
+        int permissionCheck = ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if(permissionCheck != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST);
+        }
     }
 }
