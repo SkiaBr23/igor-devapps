@@ -12,6 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.NumberPicker;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -29,6 +30,8 @@ import br.unb.igor.activities.ActivityHome;
 import br.unb.igor.helpers.AdventureListener;
 import br.unb.igor.helpers.ChildEventListenerAdapter;
 import br.unb.igor.helpers.DiceRoller;
+import br.unb.igor.helpers.ImageAssets;
+import br.unb.igor.model.Aventura;
 import br.unb.igor.model.Jogada;
 import br.unb.igor.model.User;
 import br.unb.igor.recycleradapters.JogadasRecyclerAdapter;
@@ -43,6 +46,7 @@ public class FragmentDiceRoller extends Fragment {
     public NumberPicker numberPickerqtdDados;
     public NumberPicker numberPickertipoDado;
     public NumberPicker numberPickerqtdAdicional;
+    private ImageView imgBackground;
     public Button btnRolarDados;
     public RecyclerView recyclerViewListaJogadas;
     private LinearLayoutManager layoutManager;
@@ -106,9 +110,13 @@ public class FragmentDiceRoller extends Fragment {
         // Inflate the layout for this fragment
         final View root = inflater.inflate(R.layout.fragment_dice_roller, container, false);
         numberPickerqtdDados = root.findViewById(R.id.numberPickerQtdDados);
+        imgBackground = root.findViewById(R.id.bkgJogada);
         numberPickertipoDado = root.findViewById(R.id.numberPickerTipoDado);
         numberPickerqtdAdicional = root.findViewById(R.id.numberPickerAdicional);
         btnRolarDados = root.findViewById(R.id.btnRolarDados);
+
+        int backgroundResource =((ActivityHome) getActivity()).getSelectedAdventure().getImagemFundo();
+        imgBackground.setImageResource(ImageAssets.getBackgroundResource(backgroundResource));
         recyclerViewListaJogadas = root.findViewById(R.id.recyclerViewListaJogadas);
         jogadas = new ArrayList<>();
 
@@ -139,6 +147,7 @@ public class FragmentDiceRoller extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         user = ((ActivityHome)getActivity()).getCurrentUser();
         selectedAdventureKey = ((ActivityHome) getActivity()).getSelectedAdventure().getKey();
+
         ref.child("rolls").child(selectedAdventureKey).addChildEventListener(rollsListener);
 
         btnRolarDados.setOnClickListener(new View.OnClickListener() {
