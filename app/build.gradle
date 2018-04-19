@@ -2,8 +2,8 @@ apply plugin: 'com.android.application'
 
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
     defaultConfig {
         applicationId "br.unb.igor"
         minSdkVersion 18
@@ -32,18 +32,18 @@ dependencies {
     // Required only if Facebook login support is required
     // Single target that includes all FirebaseUI libraries above
 
-    compile 'com.android.support:appcompat-v7:26.0.1'
+    compile 'com.android.support:appcompat-v7:27.1.1'
     compile 'de.hdodenhof:circleimageview:2.1.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
-    compile 'com.android.support:design:26.0.1'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.google.firebase:firebase-core:10.2.6'
-    compile 'com.google.firebase:firebase-auth:10.2.6'
-    compile 'com.google.firebase:firebase-database:10.2.6'
-    compile 'com.google.firebase:firebase-storage:10.2.6'
-    compile 'com.google.android.gms:play-services-auth:10.2.6'
+    compile 'com.android.support:design:27.1.1'
+    compile 'com.android.support.constraint:constraint-layout:1.1.0'
+    compile 'com.google.firebase:firebase-core:15.0.0'
+    compile 'com.google.firebase:firebase-auth:15.0.0'
+    compile 'com.google.firebase:firebase-database:15.0.0'
+    compile 'com.google.firebase:firebase-storage:15.0.0'
+    compile 'com.google.android.gms:play-services-auth:15.0.0'
     compile 'com.facebook.android:facebook-android-sdk:4.22.1'
-    compile 'com.android.support:support-v4:26.0.1'
+    compile 'com.android.support:support-v4:27.1.1'
     compile 'com.tom_roush:pdfbox-android:1.8.9.1'
     compile 'com.github.barteksc:pdfium-android:1.8.1'
 

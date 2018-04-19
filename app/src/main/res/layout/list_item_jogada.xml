@@ -48,19 +48,19 @@
         <TextView
             android:id="@+id/txtJogada"
             app:layout_constraintTop_toBottomOf="@+id/txtJogadorPersonagem"
-            app:layout_constraintRight_toLeftOf="@+id/txtResultado"
+            app:layout_constraintRight_toLeftOf="@+id/txtChancePeloMenos"
 
             android:layout_width="wrap_content"
             android:layout_marginTop="5dp"
             android:layout_height="wrap_content"
             android:layout_marginEnd="12dp"
             android:textSize="20sp"
+            android:layout_marginRight="10dp"
             android:text="Rolando 2d6 + 2 ="
             android:textStyle="italic"/>
 
         <TextView
             android:id="@+id/txtResultado"
-            app:layout_constraintTop_toBottomOf="@id/txtDataJogada"
             app:layout_constraintRight_toRightOf="parent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -88,7 +88,7 @@
 
         <TextView
             android:id="@+id/txtChancePeloMenos"
-            app:layout_constraintRight_toLeftOf="@+id/txtChance"
+            app:layout_constraintRight_toLeftOf="@id/txtChance"
             app:layout_constraintTop_toBottomOf="@id/txtResultado"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -101,12 +101,11 @@
 
         <TextView
             android:id="@+id/txtDataJogada"
-            app:layout_constraintRight_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/profileImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="17:30"
-            android:layout_marginEnd="10dp"
+            android:layout_marginStart="10dp"
             android:layout_marginTop="5dp"
             android:textSize="12sp"
             android:textStyle="bold" />
